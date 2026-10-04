@@ -1,0 +1,363 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "spots": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "region": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number",
+                "minimum": 49,
+                "maximum": 61
+              },
+              "lon": {
+                "type": "number",
+                "minimum": -9,
+                "maximum": 2.5
+              }
+            },
+            "required": [
+              "lat",
+              "lon"
+            ]
+          },
+          "forecastPoint": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number",
+                "minimum": 49,
+                "maximum": 61
+              },
+              "lon": {
+                "type": "number",
+                "minimum": -9,
+                "maximum": 2.5
+              }
+            },
+            "required": [
+              "lat",
+              "lon"
+            ]
+          },
+          "offshoreDistanceKm": {
+            "default": 6,
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "orientation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "N",
+                  "NNE",
+                  "NE",
+                  "ENE",
+                  "E",
+                  "ESE",
+                  "SE",
+                  "SSE",
+                  "S",
+                  "SSW",
+                  "SW",
+                  "WSW",
+                  "W",
+                  "WNW",
+                  "NW",
+                  "NNW"
+                ]
+              },
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 360
+              }
+            ]
+          },
+          "breakType": {
+            "type": "string",
+            "enum": [
+              "beach",
+              "reef",
+              "point",
+              "rivermouth"
+            ]
+          },
+          "skillLevels": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "beginner",
+                "intermediate",
+                "advanced"
+              ]
+            }
+          },
+          "swell": {
+            "type": "object",
+            "properties": {
+              "window": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "N",
+                          "NNE",
+                          "NE",
+                          "ENE",
+                          "E",
+                          "ESE",
+                          "SE",
+                          "SSE",
+                          "S",
+                          "SSW",
+                          "SW",
+                          "WSW",
+                          "W",
+                          "WNW",
+                          "NW",
+                          "NNW"
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 360
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "N",
+                          "NNE",
+                          "NE",
+                          "ENE",
+                          "E",
+                          "ESE",
+                          "SE",
+                          "SSE",
+                          "S",
+                          "SSW",
+                          "SW",
+                          "WSW",
+                          "W",
+                          "WNW",
+                          "NW",
+                          "NNW"
+                        ]
+                      },
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 360
+                      }
+                    ]
+                  }
+                ],
+                "items": false,
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "optimal": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "N",
+                      "NNE",
+                      "NE",
+                      "ENE",
+                      "E",
+                      "ESE",
+                      "SE",
+                      "SSE",
+                      "S",
+                      "SSW",
+                      "SW",
+                      "WSW",
+                      "W",
+                      "WNW",
+                      "NW",
+                      "NNW"
+                    ]
+                  },
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 360
+                  }
+                ]
+              },
+              "minPeriod": {
+                "default": 8,
+                "type": "number",
+                "minimum": 3,
+                "maximum": 20
+              }
+            },
+            "required": [
+              "window",
+              "optimal"
+            ]
+          },
+          "wind": {
+            "type": "object",
+            "properties": {
+              "preferred": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "N",
+                        "NNE",
+                        "NE",
+                        "ENE",
+                        "E",
+                        "ESE",
+                        "SE",
+                        "SSE",
+                        "S",
+                        "SSW",
+                        "SW",
+                        "WSW",
+                        "W",
+                        "WNW",
+                        "NW",
+                        "NNW"
+                      ]
+                    },
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 360
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "preferred"
+            ]
+          },
+          "tide": {
+            "type": "object",
+            "properties": {
+              "ideal": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "mid",
+                    "high"
+                  ]
+                }
+              },
+              "sensitivity": {
+                "default": 0.3,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "ideal"
+            ]
+          },
+          "waveRangeFt": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number",
+                "minimum": 0
+              },
+              {
+                "type": "number",
+                "minimum": 1
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "sizeFactor": {
+            "default": 1,
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 2
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hazards": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tideStationId": {
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "region",
+          "location",
+          "orientation",
+          "breakType",
+          "skillLevels",
+          "swell",
+          "wind",
+          "tide",
+          "waveRangeFt",
+          "description"
+        ]
+      }
+    }
+  },
+  "required": [
+    "spots"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "./schema/regions.schema.json",
+  "regions": [
+    { "slug": "cornwall", "name": "Cornwall", "country": "England", "description": "The UK's surf capital. Atlantic-facing beaches on the north coast pick up almost every swell, while the south coast lights up in big winter storms." },
+    { "slug": "devon", "name": "Devon", "country": "England", "description": "North Devon's long, west-facing beaches catch Atlantic groundswell, and the south coast's river mouths come alive in large south-westerly swells." },
+    { "slug": "dorset", "name": "Dorset", "country": "England", "description": "Channel surf that needs a solid south-westerly swell. Expect fun beach peaks in Bournemouth and quality reef breaks along the Jurassic Coast." },
+    { "slug": "south-wales", "name": "South Wales", "country": "Wales", "description": "Consistent Bristol Channel and Atlantic surf from the wide-open beaches of Pembrokeshire's south coast to Porthcawl." },
+    { "slug": "gower", "name": "Gower", "country": "Wales", "description": "Britain's first Area of Outstanding Natural Beauty, with south-facing bays that turn on in large south-westerly swells and northerly winds." },
+    { "slug": "pembrokeshire", "name": "Pembrokeshire", "country": "Wales", "description": "St Brides Bay and St Davids catch Atlantic swell from the west and south-west, with easterly winds blowing offshore." },
+    { "slug": "north-wales", "name": "North Wales", "country": "Wales", "description": "Fickle but rewarding. The Llŷn Peninsula and Anglesey need a south-westerly swell and easterly winds to fire." },
+    { "slug": "yorkshire", "name": "Yorkshire", "country": "England", "description": "North Sea surf with reefs, points and beach breaks that come alive in northerly swells and south-westerly winds." },
+    { "slug": "north-east", "name": "North East", "country": "England", "description": "Tyneside's sheltered bays turn on with North Sea swell from the north-east and westerly offshore winds." },
+    { "slug": "scotland", "name": "Scotland", "country": "Scotland", "description": "World-class reefs on the north coast, East Lothian beaches in North Sea swell and the exposed Atlantic west coast of Kintyre." },
+    { "slug": "northern-ireland", "name": "Northern Ireland", "country": "Northern Ireland", "description": "The Causeway Coast's long sandy beaches catch North Atlantic swell, with southerly winds blowing offshore." }
+  ]
+}

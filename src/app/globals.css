@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-ocean-50: #ecfeff;
+  --color-ocean-100: #cff7fe;
+  --color-ocean-200: #a5eefc;
+  --color-ocean-300: #67e0f9;
+  --color-ocean-400: #22c8ee;
+  --color-ocean-500: #06abd4;
+  --color-ocean-600: #0888b2;
+  --color-ocean-700: #0e6c90;
+  --color-ocean-800: #155976;
+  --color-ocean-900: #164a64;
+  --color-ocean-950: #072f44;
+  --color-abyss: #04121f;
+
+  --color-rating-1: #f43f5e;
+  --color-rating-2: #f59e0b;
+  --color-rating-3: #10b981;
+  --color-rating-4: #06b6d4;
+  --color-rating-5: #8b5cf6;
+
+  --animate-swell: swell-drift 2.6s ease-in-out infinite;
+  --animate-gust: gust 1.8s ease-in-out infinite;
+
+  @keyframes swell-drift {
+    0%, 100% { transform: translateY(1.5px); opacity: 0.85; }
+    50% { transform: translateY(-1.5px); opacity: 1; }
+  }
+
+  @keyframes gust {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  :root.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-abyss dark:text-slate-100;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(34 200 238 / 0.18), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(14 108 144 / 0.12), transparent);
+    background-attachment: fixed;
+  }
+  :root.dark body {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(8 136 178 / 0.35), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(22 74 100 / 0.45), transparent);
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ocean-500;
+  }
+}
+
+@utility glass {
+  @apply rounded-3xl border border-white/60 bg-white/65 shadow-[0_8px_32px_rgb(7_47_68/0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] dark:shadow-[0_8px_32px_rgb(0_0_0/0.35)];
+}
+
+@utility glass-subtle {
+  @apply rounded-2xl border border-white/50 bg-white/50 backdrop-blur-md dark:border-white/[0.07] dark:bg-white/[0.03];
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Leaflet tweaks: keep map controls on-theme. */
+.leaflet-container {
+  font: inherit;
+  background: transparent;
+}
+.dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(185deg) brightness(0.85) contrast(0.9) saturate(0.6);
+}
+.dark .leaflet-control-zoom a,
+.dark .leaflet-control-attribution {
+  background: rgb(15 23 42 / 0.85) !important;
+  color: rgb(203 213 225) !important;
+}
+.leaflet-popup-content-wrapper {
+  border-radius: 1rem !important;
+}
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background: rgb(15 23 42) !important;
+  color: rgb(226 232 240) !important;
+}

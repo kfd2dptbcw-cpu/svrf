@@ -1,0 +1,36 @@
+# Twice-daily forecast refresh for hosts without a built-in scheduler
+# (Netlify, Render, Fly.io, a VPS, …). Not needed on Vercel, which uses vercel.json.
+#
+# Repository secrets required:
+#   FORECAST_SITE_URL  e.g. https://surf.example.com (include NEXT_BASE_PATH if used)
+#   CRON_SECRET        same value as the app's CRON_SECRET
+name: Scheduled forecast refresh
+
+on:
+  schedule:
+    - cron: "5 6 * * *"
+    - cron: "5 18 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force a refresh even if the cache is fresh"
+        type: boolean
+        default: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger refresh
+        env:
+          SITE_URL: ${{ secrets.FORECAST_SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          FORCE: ${{ inputs.force && '1' || '0' }}
+        run: |
+          if [ -z "$SITE_URL" ]; then
+            echo "FORECAST_SITE_URL secret is not set; skipping."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 120 --retry 3 --retry-delay 30 \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${SITE_URL%/}/api/cron/refresh?force=${FORCE}"

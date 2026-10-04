@@ -1,0 +1,1595 @@
+{
+  "$schema": "./schema/spots.schema.json",
+  "spots": [
+    {
+      "slug": "fistral",
+      "name": "Fistral Beach",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.417,
+        "lon": -5.101
+      },
+      "orientation": 290,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "N"
+        ],
+        "optimal": "WNW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "ESE",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        2,
+        8
+      ],
+      "sizeFactor": 1.0,
+      "description": "Newquay's iconic beach break and home of British surfing contests. Consistent peaks all along the bay, with North Fistral offering the hollowest waves.",
+      "hazards": [
+        "Strong rips near the headlands",
+        "Crowded in summer and at weekends"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "watergate-bay",
+      "name": "Watergate Bay",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.4433,
+        "lon": -5.0436
+      },
+      "orientation": 285,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "WSW",
+          "NNW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "ESE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        2,
+        8
+      ],
+      "sizeFactor": 1.0,
+      "description": "Two miles of open, west-facing sand with plenty of room to spread out. Picks up plenty of swell and is a popular surf-school beach.",
+      "hazards": [
+        "Cut off by the tide at high water springs"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "perranporth",
+      "name": "Perranporth",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.353,
+        "lon": -5.156
+      },
+      "orientation": 280,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "WSW",
+          "NNW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        2,
+        7
+      ],
+      "sizeFactor": 1.0,
+      "description": "A huge expanse of sand with shifting banks and multiple peaks. Chapel Rock offers some shelter in bigger swells.",
+      "hazards": [
+        "Rips around Chapel Rock and the stream"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "sennen",
+      "name": "Sennen",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.077,
+        "lon": -5.696
+      },
+      "orientation": 290,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "N"
+        ],
+        "optimal": "W",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.25
+      },
+      "waveRangeFt": [
+        2,
+        8
+      ],
+      "sizeFactor": 1.1,
+      "description": "Cornwall's westernmost beach and its most consistent. When everywhere else is flat, Sennen and Gwynver usually have a wave.",
+      "hazards": [
+        "Powerful rips at Gwynver",
+        "Rocks at the northern end"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "gwithian",
+      "name": "Gwithian",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.227,
+        "lon": -5.398
+      },
+      "orientation": 325,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "W",
+          "N"
+        ],
+        "optimal": "NW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "SE",
+          "S"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.9,
+      "description": "A long stretch of St Ives Bay facing north-west, with consistent peaks from Gwithian to Godrevy. Southerly winds blow cleanly offshore.",
+      "hazards": [
+        "Rocks and rips around Godrevy Point"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "porthtowan",
+      "name": "Porthtowan",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.286,
+        "lon": -5.244
+      },
+      "orientation": 300,
+      "breakType": "beach",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "WSW",
+          "N"
+        ],
+        "optimal": "WNW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "SE",
+          "ESE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.5
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 1.0,
+      "description": "A punchy, cliff-backed beach break that picks up plenty of swell. Best from low to mid tide before the high-tide backwash kicks in.",
+      "hazards": [
+        "High tide backwash",
+        "Strong rips in bigger swells"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "polzeath",
+      "name": "Polzeath",
+      "region": "cornwall",
+      "location": {
+        "lat": 50.573,
+        "lon": -4.918
+      },
+      "orientation": 300,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "W",
+          "N"
+        ],
+        "optimal": "NW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "SE",
+          "E"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.85,
+      "description": "A gentle, family-friendly beach at the mouth of the Camel Estuary. Rolling waves make it one of Cornwall's best places to learn.",
+      "hazards": [
+        "Rocks at both ends of the beach"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "croyde",
+      "name": "Croyde",
+      "region": "devon",
+      "location": {
+        "lat": 51.131,
+        "lon": -4.24
+      },
+      "orientation": 275,
+      "breakType": "beach",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "NW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "ESE",
+          "E"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.6
+      },
+      "waveRangeFt": [
+        2,
+        8
+      ],
+      "sizeFactor": 1.0,
+      "description": "One of England's best beach breaks. Low tide produces fast, hollow, powerful waves that are best left to experienced surfers.",
+      "hazards": [
+        "Hollow, dumping waves at low tide",
+        "Very crowded",
+        "Rips by the rocks"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "saunton-sands",
+      "name": "Saunton Sands",
+      "region": "devon",
+      "location": {
+        "lat": 51.118,
+        "lon": -4.223
+      },
+      "orientation": 260,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "WSW",
+          "NW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "ENE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.15
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.8,
+      "description": "Three miles of gently sloping sand producing long, mellow waves. A longboarder's paradise and a fantastic beginner beach.",
+      "hazards": [
+        "Waves lose power in small swells"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "woolacombe",
+      "name": "Woolacombe",
+      "region": "devon",
+      "location": {
+        "lat": 51.172,
+        "lon": -4.21
+      },
+      "orientation": 270,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "NW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.95,
+      "description": "A long, west-facing bay with plenty of room. Gentle at the southern end, with more power towards the village.",
+      "hazards": [
+        "Rips near the northern rocks"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "bantham",
+      "name": "Bantham",
+      "region": "devon",
+      "location": {
+        "lat": 50.279,
+        "lon": -3.886
+      },
+      "orientation": 225,
+      "breakType": "rivermouth",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "S",
+          "W"
+        ],
+        "optimal": "SW",
+        "minPeriod": 9
+      },
+      "wind": {
+        "preferred": [
+          "NE",
+          "N"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.5
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.75,
+      "description": "South Devon's premier surf spot, where the River Avon meets the sea. Needs a decent south-westerly swell to break but delivers quality peaks when it does.",
+      "hazards": [
+        "Strong river-mouth currents, especially on the ebb"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "bournemouth",
+      "name": "Bournemouth",
+      "region": "dorset",
+      "location": {
+        "lat": 50.719,
+        "lon": -1.843
+      },
+      "orientation": 170,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "SSE",
+          "SW"
+        ],
+        "optimal": "SSW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "N",
+          "NNW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        4
+      ],
+      "sizeFactor": 0.6,
+      "description": "Sheltered beach peaks either side of Boscombe Pier. Needs a solid south-westerly swell wrapping past Purbeck; best in northerly winds.",
+      "hazards": [
+        "Groynes and pier pilings"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "kimmeridge",
+      "name": "Kimmeridge",
+      "region": "dorset",
+      "location": {
+        "lat": 50.608,
+        "lon": -2.129
+      },
+      "orientation": 200,
+      "breakType": "reef",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SSE",
+          "WSW"
+        ],
+        "optimal": "SW",
+        "minPeriod": 9
+      },
+      "wind": {
+        "preferred": [
+          "N",
+          "NE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.7
+      },
+      "waveRangeFt": [
+        3,
+        8
+      ],
+      "sizeFactor": 0.8,
+      "description": "Flat ledges of the Jurassic Coast produce quality reef breaks such as The Ledges and Broad Bench. Highly tide-dependent and best in bigger winter swells.",
+      "hazards": [
+        "Shallow rock ledges",
+        "Access to Broad Bench is restricted by the Lulworth firing ranges"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "freshwater-west",
+      "name": "Freshwater West",
+      "region": "south-wales",
+      "location": {
+        "lat": 51.656,
+        "lon": -5.064
+      },
+      "orientation": 260,
+      "breakType": "beach",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "NW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "ENE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.4
+      },
+      "waveRangeFt": [
+        2,
+        8
+      ],
+      "sizeFactor": 1.05,
+      "description": "Wales's most consistent beach break. Exposed to everything the Atlantic sends, it's powerful and best suited to experienced surfers.",
+      "hazards": [
+        "Strong rips",
+        "Quicksand near the stream",
+        "No lifeguard cover outside summer"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "llangennith",
+      "name": "Llangennith",
+      "region": "south-wales",
+      "location": {
+        "lat": 51.602,
+        "lon": -4.288
+      },
+      "orientation": 275,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "NW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.15
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.95,
+      "description": "The northern end of Rhossili Bay, Gower's most consistent spot. Three miles of beach with peaks for all abilities.",
+      "hazards": [
+        "Rips near Burry Holms"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "rest-bay",
+      "name": "Rest Bay",
+      "region": "south-wales",
+      "location": {
+        "lat": 51.489,
+        "lon": -3.725
+      },
+      "orientation": 240,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SSW",
+          "W"
+        ],
+        "optimal": "SW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "NE",
+          "ENE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "Porthcawl's main surf beach, picking up south-westerly swell from the Bristol Channel. Rock shelves at both ends add variety.",
+      "hazards": [
+        "Rock shelves at low tide",
+        "Big tidal range"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "caswell-bay",
+      "name": "Caswell Bay",
+      "region": "gower",
+      "location": {
+        "lat": 51.569,
+        "lon": -4.031
+      },
+      "orientation": 185,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "SSE",
+          "WSW"
+        ],
+        "optimal": "SW",
+        "minPeriod": 9
+      },
+      "wind": {
+        "preferred": [
+          "N",
+          "NNW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid",
+          "high"
+        ],
+        "sensitivity": 0.4
+      },
+      "waveRangeFt": [
+        2,
+        5
+      ],
+      "sizeFactor": 0.6,
+      "description": "A pretty, sheltered south Gower bay that needs a big south-westerly swell. Northerly winds blow offshore and produce clean, friendly waves.",
+      "hazards": [
+        "Rocks on both sides of the bay"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "langland-bay",
+      "name": "Langland Bay",
+      "region": "gower",
+      "location": {
+        "lat": 51.567,
+        "lon": -4.013
+      },
+      "orientation": 175,
+      "breakType": "reef",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SSE",
+          "WSW"
+        ],
+        "optimal": "SW",
+        "minPeriod": 9
+      },
+      "wind": {
+        "preferred": [
+          "N",
+          "NW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.5
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.65,
+      "description": "A mix of beach and reef breaks close to Swansea, including the Langland Point reef. Works in large south-westerly swells with northerly winds.",
+      "hazards": [
+        "Shallow reefs",
+        "Tidal rips"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "whitesands",
+      "name": "Whitesands",
+      "region": "pembrokeshire",
+      "location": {
+        "lat": 51.896,
+        "lon": -5.296
+      },
+      "orientation": 255,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "WNW"
+        ],
+        "optimal": "WSW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "ENE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.35
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.85,
+      "description": "A beautiful beach near St Davids, framed by headlands and facing the Atlantic. Fun peaks for all abilities.",
+      "hazards": [
+        "Rocks at the northern end",
+        "Rips in bigger swells"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "newgale",
+      "name": "Newgale",
+      "region": "pembrokeshire",
+      "location": {
+        "lat": 51.853,
+        "lon": -5.122
+      },
+      "orientation": 250,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "WNW"
+        ],
+        "optimal": "WSW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "NE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.9,
+      "description": "Two miles of open, west-facing sand at the head of St Brides Bay. Consistent and spacious, with easy-going beach peaks.",
+      "hazards": [
+        "Steep pebble bank at high tide"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "broad-haven",
+      "name": "Broad Haven",
+      "region": "pembrokeshire",
+      "location": {
+        "lat": 51.781,
+        "lon": -5.104
+      },
+      "orientation": 265,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "WNW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "ESE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.8,
+      "description": "A family-friendly beach on the eastern side of St Brides Bay. Gentle waves make it a good choice for learning.",
+      "hazards": [
+        "Rocks at both ends"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "hells-mouth",
+      "name": "Porth Neigwl (Hell's Mouth)",
+      "region": "north-wales",
+      "location": {
+        "lat": 52.807,
+        "lon": -4.547
+      },
+      "orientation": 210,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "S",
+          "W"
+        ],
+        "optimal": "SW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "NE",
+          "N"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.15
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "North Wales's best-known surf spot. A four-mile, south-west-facing bay on the Llŷn Peninsula that catches swell from the Irish Sea and Atlantic.",
+      "hazards": [
+        "Exposed and remote, with no lifeguards"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "rhosneigr",
+      "name": "Rhosneigr",
+      "region": "north-wales",
+      "location": {
+        "lat": 53.226,
+        "lon": -4.516
+      },
+      "orientation": 240,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "SSW",
+          "W"
+        ],
+        "optimal": "SW",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "NE",
+          "E"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid",
+          "high"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.75,
+      "description": "Anglesey's main surf beach, also popular with kitesurfers. Works best in south-westerly swell and easterly winds.",
+      "hazards": [
+        "Rocks and reefs around the bay"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "saltburn",
+      "name": "Saltburn",
+      "region": "yorkshire",
+      "location": {
+        "lat": 54.585,
+        "lon": -0.971
+      },
+      "orientation": 15,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "NW",
+          "E"
+        ],
+        "optimal": "N",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "S",
+          "SW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.9,
+      "description": "North Yorkshire's surf hub, with peaks either side of the Victorian pier and reefs nearby at Penny Hole.",
+      "hazards": [
+        "Pier pilings",
+        "Rips by the pier"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "cayton-bay",
+      "name": "Cayton Bay",
+      "region": "yorkshire",
+      "location": {
+        "lat": 54.247,
+        "lon": -0.371
+      },
+      "orientation": 70,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "N",
+          "ESE"
+        ],
+        "optimal": "NE",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "W",
+          "SW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.4
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "A sheltered bay south of Scarborough with consistent beach and reef breaks, including the famous Point. Home to a long-running surf school.",
+      "hazards": [
+        "Rocks at the Point",
+        "Wartime defences on the beach"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "scarborough",
+      "name": "Scarborough",
+      "region": "yorkshire",
+      "location": {
+        "lat": 54.288,
+        "lon": -0.404
+      },
+      "orientation": 60,
+      "breakType": "beach",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "N",
+          "E"
+        ],
+        "optimal": "NE",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "SW",
+          "W"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.4
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "Scarborough's North Bay offers beach and reef breaks with a backdrop of the castle headland. Best in north to north-easterly swells.",
+      "hazards": [
+        "Sea wall backwash at high tide",
+        "Rocky reefs"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "tynemouth",
+      "name": "Tynemouth",
+      "region": "north-east",
+      "location": {
+        "lat": 55.017,
+        "lon": -1.419
+      },
+      "orientation": 65,
+      "breakType": "beach",
+      "skillLevels": [
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "N",
+          "SE"
+        ],
+        "optimal": "NE",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "W",
+          "SW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.4
+      },
+      "waveRangeFt": [
+        2,
+        6
+      ],
+      "sizeFactor": 0.8,
+      "description": "King Edward's Bay and the nearby Black Middens reef sit beneath Tynemouth Priory. Sheltered and punchy in a north-easterly swell.",
+      "hazards": [
+        "Rocks and strong currents near the river mouth"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "longsands",
+      "name": "Longsands",
+      "region": "north-east",
+      "location": {
+        "lat": 55.024,
+        "lon": -1.424
+      },
+      "orientation": 85,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "NNE",
+          "SE"
+        ],
+        "optimal": "ENE",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "W",
+          "WSW"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "Tynemouth's long, east-facing beach and the North East's most popular surf spot, with peaks for every level.",
+      "hazards": [
+        "Rips near the rocks at the southern end"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "thurso-east",
+      "name": "Thurso East",
+      "region": "scotland",
+      "location": {
+        "lat": 58.597,
+        "lon": -3.505
+      },
+      "orientation": 350,
+      "breakType": "reef",
+      "skillLevels": [
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "W",
+          "NNE"
+        ],
+        "optimal": "NNW",
+        "minPeriod": 10
+      },
+      "wind": {
+        "preferred": [
+          "S",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.5
+      },
+      "waveRangeFt": [
+        3,
+        12
+      ],
+      "sizeFactor": 0.8,
+      "description": "One of Europe's finest right-hand reef breaks: long, powerful, barrelling waves over a flat slab of rock. For expert surfers only.",
+      "hazards": [
+        "Shallow, sharp reef",
+        "Cold water — winter sea temperatures near 7°C",
+        "Strong currents"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "pease-bay",
+      "name": "Pease Bay",
+      "region": "scotland",
+      "location": {
+        "lat": 55.928,
+        "lon": -2.342
+      },
+      "orientation": 50,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "N",
+          "ESE"
+        ],
+        "optimal": "NE",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "SW",
+          "S"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.8,
+      "description": "A sheltered sandy bay in the Scottish Borders with a rocky reef on its eastern edge. Popular and consistent in North Sea swell.",
+      "hazards": [
+        "Rocks at the eastern side",
+        "Burn outflow"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "belhaven-bay",
+      "name": "Belhaven Bay",
+      "region": "scotland",
+      "location": {
+        "lat": 56.005,
+        "lon": -2.54
+      },
+      "orientation": 40,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "N",
+          "E"
+        ],
+        "optimal": "NE",
+        "minPeriod": 7
+      },
+      "wind": {
+        "preferred": [
+          "SW",
+          "S"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        1,
+        5
+      ],
+      "sizeFactor": 0.75,
+      "description": "A wide, shallow bay near Dunbar with gentle, rolling waves. One of Scotland's best spots for learning.",
+      "hazards": [
+        "Biel Water channel currents"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "machrihanish",
+      "name": "Machrihanish",
+      "region": "scotland",
+      "location": {
+        "lat": 55.429,
+        "lon": -5.72
+      },
+      "orientation": 265,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "SW",
+          "NW"
+        ],
+        "optimal": "W",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "E",
+          "SE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.15
+      },
+      "waveRangeFt": [
+        2,
+        7
+      ],
+      "sizeFactor": 0.9,
+      "description": "Three miles of sand on the Kintyre peninsula, exposed to the full force of the Atlantic. Uncrowded and consistent.",
+      "hazards": [
+        "Remote with no lifeguards",
+        "Rips in bigger swells"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "portrush",
+      "name": "Portrush",
+      "region": "northern-ireland",
+      "location": {
+        "lat": 55.204,
+        "lon": -6.64
+      },
+      "orientation": 350,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "swell": {
+        "window": [
+          "W",
+          "NE"
+        ],
+        "optimal": "NNW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "S",
+          "SSE"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "low",
+          "mid"
+        ],
+        "sensitivity": 0.3
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "The heart of Northern Ireland's surf scene. East Strand and West Strand pick up North Atlantic swell, with reefs nearby for experienced surfers.",
+      "hazards": [
+        "Rocks at the end of each strand",
+        "Rips in bigger swells"
+      ],
+      "enabled": true
+    },
+    {
+      "slug": "benone",
+      "name": "Benone",
+      "region": "northern-ireland",
+      "location": {
+        "lat": 55.166,
+        "lon": -6.876
+      },
+      "orientation": 330,
+      "breakType": "beach",
+      "skillLevels": [
+        "beginner",
+        "intermediate"
+      ],
+      "swell": {
+        "window": [
+          "W",
+          "NNE"
+        ],
+        "optimal": "NW",
+        "minPeriod": 8
+      },
+      "wind": {
+        "preferred": [
+          "SE",
+          "S"
+        ]
+      },
+      "tide": {
+        "ideal": [
+          "mid"
+        ],
+        "sensitivity": 0.2
+      },
+      "waveRangeFt": [
+        1,
+        6
+      ],
+      "sizeFactor": 0.85,
+      "description": "Seven miles of golden sand stretching towards Magilligan Point. Gentle, open beach peaks make it ideal for learning.",
+      "hazards": [
+        "Exposed in strong winds"
+      ],
+      "enabled": true
+    }
+  ]
+}
