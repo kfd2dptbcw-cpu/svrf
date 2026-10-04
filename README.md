@@ -1,12 +1,12 @@
 # UK Surf Forecast
 
-A fast, embeddable surf forecast for 34 of the UK's best surf spots. It is built with Next.js 15 and uses only free, public weather and ocean data.
+A fast, embeddable surf forecast for 34 of the UK's best surf spots. It is built with Next.js 15 and runs on Vaisala Xweather's free developer tier (15,000 API accesses a month), with Open-Meteo available as an alternative or backup.
 
 - **Automatic updates** at 06:00 and 18:00 UTC. Processed forecasts are cached for 12 hours and pages are regenerated incrementally (ISR).
 - **For each spot:** surf height, primary swell (height, period, direction), wind speed, direction and type, air and sea temperature, tides, the best surf window, a 1–5 star rating, suitability for beginner, intermediate and advanced surfers, and a short written forecast.
 - **Forecast engine** that scores every hour from wave size, period, wind relative to the beach, swell direction and tide (see [docs/ALGORITHM.md](docs/ALGORITHM.md)).
 - **JSON configuration.** Add, remove or tune spots without touching code ([docs/CONFIGURATION.md](docs/CONFIGURATION.md)).
-- **Swappable data providers:** Open-Meteo Marine (Météo-France, ECMWF and NOAA WaveWatch III), Open-Meteo Weather (UK Met Office UKV) and optional official ADMIRALTY tide predictions.
+- **Swappable data providers:** Vaisala Xweather (Maritime and Forecasts APIs), Open-Meteo Marine and Weather (Météo-France, ECMWF, NOAA WaveWatch III, UK Met Office UKV) and optional official ADMIRALTY tide predictions.
 - **Resilient.** Requests time out, retry with backoff and respect rate limits. When live data can't be fetched, the last good forecast is shown and clearly labelled.
 - **UI:** glassmorphism, dark mode, animated swell and wind arrows, star ratings, an interactive Leaflet map, instant search, filters and favourites.
 - **SEO:** metadata, Open Graph images (a dynamic one per spot), JSON-LD structured data, an XML sitemap, robots.txt and friendly URLs such as `/surf/cornwall/fistral`.
@@ -48,7 +48,13 @@ cp .env.example .env.local     # optional for local development
 npm run dev                    # http://localhost:3000
 ```
 
-The first page view fetches live data from Open-Meteo (no API key needed) and caches it in `.forecast-cache/`.
+Add your Xweather keys to `.env.local` (`XWEATHER_CLIENT_ID`, `XWEATHER_CLIENT_SECRET`), then check they work against real data:
+
+```bash
+npm run provider:check            # fetches Fistral (2 accesses) and reports any missing or implausible fields
+```
+
+The first page view fetches live data for every spot and caches it in `.forecast-cache/`. Without Xweather keys the app uses Open-Meteo, which needs no key but is free for non-commercial use only.
 
 **Working offline?** Start with synthetic data instead. The UI shows a "Sample data" banner whenever this is on:
 
@@ -105,7 +111,7 @@ src/
     forecast/engine/        The forecast engine (pure functions, fully unit tested)
     forecast/service.ts     Caching, refresh scheduling and failure handling
     forecast/selectors.ts   Shapes forecast data for pages and client components
-    providers/              Data providers (Open-Meteo, ADMIRALTY, sample)
+    providers/              Data providers (Xweather, Open-Meteo, ADMIRALTY, sample) and fallback wrapper
     cache/                  Cache stores (file, memory, Upstash Redis)
     http/fetch-json.ts      Timeouts, retries, rate-limit handling
   types/forecast.ts         Shared domain types
@@ -177,8 +183,10 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 | `NEXT_PUBLIC_SITE_NAME` | `UK Surf Forecast` | Branding |
 | `CRON_SECRET` | – | Protects `/api/cron/refresh`. **Required in production.** |
 | `REFRESH_HOURS_UTC` | `6,18` | When a new forecast becomes due |
-| `FORECAST_DATA_SOURCE` | `open-meteo` | `sample` gives clearly labelled synthetic data for development |
-| `TIDE_PROVIDER` | `open-meteo` | `admiralty` uses official UKHO predictions (needs `ADMIRALTY_API_KEY` plus `tideStationId` on each spot) |
+| `FORECAST_DATA_SOURCE` | `xweather` if its keys are set, else `open-meteo` | `sample` gives clearly labelled synthetic data for development |
+| `XWEATHER_CLIENT_ID` / `_SECRET` | – | Xweather credentials |
+| `FALLBACK_DATA_SOURCE` | `none` | Backup source for spots the primary can't serve (`open-meteo` or `xweather`) |
+| `TIDE_PROVIDER` | `modelled` | `admiralty` uses official UKHO predictions (needs `ADMIRALTY_API_KEY` plus `tideStationId` on each spot) |
 | `CACHE_DRIVER` | `file` | `file`, `memory` or `upstash` (chosen automatically when the Upstash variables are set) |
 | `UPSTASH_REDIS_REST_URL` / `_TOKEN` | – | Shared cache for serverless hosts (free tier available) |
 | `NEXT_BASE_PATH` | – | Serve under a sub-path, e.g. `/surf-forecast` |
@@ -204,7 +212,7 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 ```
 
 - A forecast is **fresh** if it was generated after the latest refresh slot (06:00 or 18:00 UTC) and is less than 12 hours old. However much traffic the site gets, each instance calls the upstream APIs at most once per slot.
-- A full refresh of all 34 spots costs **2–4 HTTP requests**, because Open-Meteo accepts many coordinates in one call. Spots whose coastal grid cell has no data in the high-resolution model are re-requested from NOAA WaveWatch III.
+- **API usage per full refresh of 34 spots:** Xweather counts one access per spot per endpoint, so 68 accesses (≈4,200 a month at two refreshes a day, well inside the free 15,000). Requests run four at a time, and the batch stops at the first authentication or quota error so a bad key can't burn through accesses. Open-Meteo accepts many coordinates in one call, so it needs only 2–4 requests. Sunrise and sunset are calculated locally and cost nothing.
 - Pages are statically generated at build time and revalidated hourly from the cache (ISR). After each scheduled refresh, `revalidatePath` regenerates every page.
 - **Failures:** each request has a timeout and up to two retries with exponential backoff. `429` responses honour `Retry-After`, and long rate-limit windows are not waited out inside a request. If weather or tide data is missing, the forecast is still built from marine data and the gaps are noted. If marine data is missing, the stale cache is served. With no cache at all, the UI shows a clear "temporarily unavailable" message.
 
@@ -259,7 +267,7 @@ The code is layered so each of these can be added without restructuring:
 | **User favourites** | Already implemented client-side (`hooks/useFavourites.ts`, localStorage). To sync with accounts, replace the storage functions in that hook with API calls. The component API stays the same. |
 | **Surf alerts / push notifications / email forecasts** | Run a job after `refreshForecasts()` (`lib/forecast/service.ts`, or right after `runScheduledRefresh` in `lib/forecast/refresh.ts`). Compare each subscriber's rules (spot, minimum rating, skill level) against `bundle.spots[slug].days`. Everything needed (rating, `bestWindow`, `suitability`, `summary`) is already computed. |
 | **Live webcams** | Add an optional `webcams` array to the spot schema (`lib/config/schema.ts`) and render it on the spot page. |
-| **Premium forecasts** | Add a provider (e.g. Stormglass or Met Office DataHub) implementing the interfaces in `lib/providers/types.ts`, and register it in `lib/providers/registry.ts`. |
+| **Premium forecasts** | Add a provider (e.g. Stormglass or Met Office DataHub; see `lib/providers/xweather.ts` for a per-spot API example) implementing the interfaces in `lib/providers/types.ts`, and register it in `lib/providers/registry.ts`. |
 | **AI surf reports** | `DayForecast` already contains structured conditions and narrative lines. Pass them to an LLM in the refresh job and store the result alongside the bundle. |
 | **Surf trip planner** | `/api/forecast` returns 7-day summaries for every spot. A planner page can rank spots by distance and forecast without any new data fetching. |
 
@@ -269,7 +277,8 @@ New data sources only need to implement `MarineProvider`, `WeatherProvider` or `
 
 ## Data sources and licences
 
-- **[Open-Meteo](https://open-meteo.com/)**, free for non-commercial use under [CC BY 4.0](https://open-meteo.com/en/licence). It includes Météo-France MFWAM, ECMWF WAM, NOAA GFS-Wave (WaveWatch III) and UK Met Office models. Commercial sites should check Open-Meteo's terms; set `OPEN_METEO_API_KEY` and the commercial endpoints if required.
+- **[Vaisala Xweather](https://www.xweather.com/)** (default). The free developer tier gives 15,000 accesses a month. Use is governed by Vaisala's subscription terms, so confirm they cover your site. Above the free tier, pay-as-you-go billing is offered in the US and Canada; elsewhere contact Xweather.
+- **[Open-Meteo](https://open-meteo.com/)** (alternative or backup). Free for non-commercial use under [CC BY 4.0](https://open-meteo.com/en/licence); commercial use needs an [Open-Meteo plan](https://open-meteo.com/en/pricing) or a self-hosted instance (point `OPEN_METEO_MARINE_URL` / `OPEN_METEO_WEATHER_URL` at it).
 - **[ADMIRALTY UK Tidal API](https://admiraltyapi.portal.azure-api.net/)** (optional). Its free Discovery tier gives official UKHO predictions.
 - **[OpenStreetMap](https://www.openstreetmap.org/copyright)** map tiles. Respect the [tile usage policy](https://operations.osmfoundation.org/policies/tiles/), or configure a commercial tile provider for high traffic.
 

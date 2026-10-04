@@ -17,6 +17,8 @@ npm run check     # config validation + strict typecheck + ESLint + tests
 | `tests/build.test.ts` | End-to-end engine run for every configured spot (using the synthetic sample providers) |
 | `tests/fetch-json.test.ts` | Timeouts, retries, non-retryable errors, rate limits with `Retry-After`, network failures |
 | `tests/search.test.ts` | Instant search normalisation and ranking |
+| `tests/xweather.test.ts` | Xweather response mapping, no-data spots, stopping on auth errors, weather-code conversion, fallback provider |
+| `tests/sun.test.ts` | Sunrise and sunset calculation |
 
 CI (`.github/workflows/ci.yml`) runs all of the above and a production build with sample data, so it never depends on live API quota.
 
@@ -30,6 +32,16 @@ curl -s localhost:3000/api/health | jq
 ```
 
 `status` should be `live` on the first call and `cached` afterwards. `.forecast-cache/` now contains the gzipped bundle.
+
+### Provider check (real API)
+
+```bash
+npm run provider:check                  # active provider, Fistral
+npm run provider:check -- croyde        # another spot
+npm run provider:check -- fistral open-meteo
+```
+
+It fetches one spot (2 Xweather accesses), prints the coverage and range of every field, builds the daily forecast and exits non-zero if anything required is missing or implausible. Run it whenever you change keys or providers.
 
 ### Offline / synthetic data
 

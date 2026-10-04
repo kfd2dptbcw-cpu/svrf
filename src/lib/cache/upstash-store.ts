@@ -33,4 +33,20 @@ export class UpstashStore implements CacheStore {
     });
     if (!response.ok) throw new Error(`Upstash SET failed with ${response.status}`);
   }
+
+  /** SET key NX EX ttl — atomic across every instance sharing the database. */
+  async acquireLock(key: string, ttlSeconds: number) {
+    const data = await fetchJson<{ result: string | null }>(
+      `${this.url}/set/${encodeURIComponent(`${key}:lock`)}/1/NX/EX/${ttlSeconds}`,
+      { headers: { Authorization: `Bearer ${this.token}` }, label: "Upstash", retries: 1, timeoutMs: 5000 },
+    );
+    return data.result === "OK";
+  }
+
+  async releaseLock(key: string) {
+    await fetch(`${this.url}/del/${encodeURIComponent(`${key}:lock`)}`, {
+      headers: { Authorization: `Bearer ${this.token}` },
+      signal: AbortSignal.timeout(5000),
+    }).catch(() => undefined);
+  }
 }

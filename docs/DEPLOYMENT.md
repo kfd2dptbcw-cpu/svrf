@@ -11,6 +11,7 @@ The app runs anywhere Next.js 15 runs. It needs:
 2. Add these environment variables (Project → Settings → Environment Variables):
    - `NEXT_PUBLIC_SITE_URL`: your production URL, e.g. `https://surf.example.com`
    - `CRON_SECRET`: a long random string (`openssl rand -hex 32`)
+   - `XWEATHER_CLIENT_ID` and `XWEATHER_CLIENT_SECRET`: from your Xweather account (Apps → add an app with your production domain as its namespace)
    - Recommended: `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from a free Upstash Redis database (or the Vercel Marketplace integration). Without them each serverless instance keeps its own `/tmp` cache.
 3. Deploy. `vercel.json` registers two cron jobs (`5 6 * * *` and `5 18 * * *`), and Vercel sends `Authorization: Bearer $CRON_SECRET` automatically.
 4. Check: open `https://your-domain/api/health`. It should report `"status": "live"` or `"cached"`.
@@ -28,6 +29,7 @@ docker build \
 docker run -d --name surf -p 3000:3000 \
   -e NEXT_PUBLIC_SITE_URL=https://surf.example.com \
   -e CRON_SECRET=... \
+  -e XWEATHER_CLIENT_ID=... -e XWEATHER_CLIENT_SECRET=... \
   -v surf-cache:/app/.forecast-cache \
   --restart unless-stopped \
   uk-surf-forecast
@@ -56,6 +58,15 @@ Deploy as a standard Next.js app. These hosts don't read `vercel.json`, so enabl
 2. The workflow runs at 06:05 and 18:05 UTC and can also be started manually (**Run workflow**, with an optional force flag).
 
 Use Upstash (`UPSTASH_REDIS_REST_URL` / `_TOKEN`) for the cache when the host's filesystem is ephemeral.
+
+## Xweather keys and quota
+
+1. Sign up at <https://signup.xweather.com/> and create an app. Its namespace must match where requests come from: your production domain for server-side use (Xweather also accepts `localhost` for development).
+2. Set `XWEATHER_CLIENT_ID` and `XWEATHER_CLIENT_SECRET` wherever the app runs (Vercel settings, Docker `-e`, `.env.local`).
+3. Run `npm run provider:check` locally with the same keys to confirm the data comes through.
+4. Budget: each full refresh uses 2 accesses per spot (68 for 34 spots). With `REFRESH_HOURS_UTC=6,18` that is about 4,200 a month. Adding spots or refresh hours raises it proportionally; stay under 15,000 to remain on the free tier.
+
+Because the cache is refreshed at most once per slot per instance, use the Upstash shared cache on serverless hosts. Without it, each new serverless instance may refresh separately and use extra accesses.
 
 ## Mounting under your existing site
 

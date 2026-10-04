@@ -22,6 +22,9 @@ import type { ForecastBundle, SpotForecast } from "@/types/forecast";
  *      recent refresh slot (06:00 / 18:00 UTC by default).
  *   3. Live refresh — fetch all spots in a handful of batched requests, run the
  *      forecast engine and write the result back to the cache.
+ *      A shared lock (file / Upstash) ensures only one process or instance
+ *      refreshes at a time; others wait briefly for its result instead of
+ *      spending their own API quota (important on metered APIs like Xweather).
  *   4. On failure — serve the last good forecast marked "stale", and back off
  *      for REFRESH_FAILURE_BACKOFF_SECONDS so an outage or rate limit upstream
  *      isn't hammered by every page view. Rate limits honour Retry-After.
@@ -83,17 +86,18 @@ async function loadBundle(): Promise<ForecastBundle> {
       return withStatus(cached, "cached");
     }
 
-    const failure = runtime.failure;
+    // A failure recorded by this process, or shared by another process/instance.
+    const failure = runtime.failure?.retryAt && runtime.failure.retryAt > now ? runtime.failure : await readSharedFailure();
     if (failure && failure.retryAt > now) {
       return cached ? { ...withStatus(cached, "stale"), errors: [failure.message] } : unavailableBundle(failure.message, now);
     }
 
     try {
-      return await refreshForecasts();
+      return await refreshWithLock(now);
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      const retryAfter = error instanceof HttpError && error.retryAfter ? error.retryAfter : 0;
-      runtime.failure = { at: now, retryAt: now + Math.max(env.failureBackoffSeconds, retryAfter), message };
+      const failure = failureFrom(error, now);
+      const message = failure.message;
+      runtime.failure = failure;
       console.error(`[forecast] refresh failed: ${message}`);
       return cached ? { ...withStatus(cached, "stale"), errors: [message] } : unavailableBundle(message, now);
     }
@@ -102,6 +106,84 @@ async function loadBundle(): Promise<ForecastBundle> {
   });
 
   return runtime.inflight;
+}
+
+const LOCK_TTL_SECONDS = 120;
+const PEER_WAIT_MS = 90_000;
+const PEER_POLL_MS = 2_000;
+
+/**
+ * Refresh under the shared lock. If another process holds it, poll the cache
+ * for its result; only refresh ourselves if the peer doesn't deliver in time.
+ */
+export async function refreshWithLock(now = nowSeconds()): Promise<ForecastBundle> {
+  const store = getCacheStore();
+  const lockKey = bundleKey();
+  const acquired = await store.acquireLock(lockKey, LOCK_TTL_SECONDS).catch(() => true);
+  if (!acquired) {
+    const deadline = Date.now() + PEER_WAIT_MS;
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, PEER_POLL_MS));
+      const stored = await readCachedBundle();
+      if (stored?.configMatches && isFresh(stored.bundle.generatedAt, now)) {
+        runtime.memo = stored.bundle;
+        return withStatus(stored.bundle, "cached");
+      }
+      // The lock is free again but no fresh forecast appeared: the peer's
+      // refresh failed. Don't spend more quota repeating it straight away.
+      if (await store.acquireLock(lockKey, 1).catch(() => false)) {
+        await store.releaseLock(lockKey).catch(() => undefined);
+        const shared = await readSharedFailure();
+        throw new Error(shared?.message ?? "Forecast refresh by another instance failed");
+      }
+    }
+  }
+  if (acquired) {
+    // Double-check under the lock: a peer may have finished (or failed) between
+    // our cache check and taking the lock.
+    const stored = await readCachedBundle();
+    if (stored?.configMatches && isFresh(stored.bundle.generatedAt, now) && stored.bundle.generatedAt >= now - 60) {
+      await store.releaseLock(lockKey).catch(() => undefined);
+      runtime.memo = stored.bundle;
+      return withStatus(stored.bundle, "cached");
+    }
+    const shared = await readSharedFailure();
+    if (shared && shared.retryAt > now && shared.at >= now - 60) {
+      await store.releaseLock(lockKey).catch(() => undefined);
+      throw new Error(shared.message);
+    }
+  }
+
+  try {
+    const bundle = await refreshForecasts();
+    await store.set(failureKey(), "").catch(() => undefined);
+    return bundle;
+  } catch (error) {
+    // Share the failure (before releasing the lock) so peers back off too.
+    await store.set(failureKey(), JSON.stringify(failureFrom(error, now))).catch(() => undefined);
+    throw error;
+  } finally {
+    if (acquired) await store.releaseLock(lockKey).catch(() => undefined);
+  }
+}
+
+function failureKey() {
+  return `${bundleKey()}-failure`;
+}
+
+function failureFrom(error: unknown, now: number): FailureRecord {
+  const message = error instanceof Error ? error.message : String(error);
+  const retryAfter = error instanceof HttpError && error.retryAfter ? error.retryAfter : 0;
+  return { at: now, retryAt: now + Math.max(env.failureBackoffSeconds, retryAfter), message };
+}
+
+async function readSharedFailure(): Promise<FailureRecord | null> {
+  try {
+    const raw = await getCacheStore().get(failureKey());
+    return raw ? (JSON.parse(raw) as FailureRecord) : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -126,13 +208,13 @@ export async function refreshForecasts(): Promise<ForecastBundle> {
   }));
 
   const errors: string[] = [];
-  const [marineResult, weatherResult] = await Promise.allSettled([
-    providers.marine.fetchMarine(points, context),
-    providers.weather.fetchWeather(weatherPoints, context),
-  ]);
-  if (marineResult.status === "rejected") throw marineResult.reason;
-  const marine: Record<string, MarineSeries> = marineResult.value;
+  // Marine data is required, so fetch it first: if it fails, no weather
+  // requests are spent (metered APIs count every call).
+  const marine: Record<string, MarineSeries> = await providers.marine.fetchMarine(points, context);
   if (Object.keys(marine).length === 0) throw new Error("Marine provider returned no data");
+  const [weatherResult] = await Promise.allSettled([
+    providers.weather.fetchWeather(weatherPoints.filter((point) => marine[point.slug] !== undefined), context),
+  ]);
 
   let weather: Record<string, WeatherSeries> = {};
   if (weatherResult.status === "fulfilled") weather = weatherResult.value;

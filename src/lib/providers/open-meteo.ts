@@ -249,13 +249,14 @@ export class OpenMeteoWeatherProvider implements WeatherProvider {
 }
 
 /**
- * Tides from the marine model's sea level series (astronomical tide plus
- * surge). It needs no extra request, but it is a model value at the offshore
- * forecast point rather than an official port prediction — accurate enough to
- * say "around mid tide on the push", not for navigation.
+ * Tides from the marine provider's sea level series (Open-Meteo
+ * `sea_level_height_msl` or Xweather `tidesM`). It needs no extra request, but
+ * it is a model value at the offshore forecast point rather than an official
+ * port prediction — accurate enough to say "around mid tide on the push", not
+ * for navigation.
  */
-export class OpenMeteoTideProvider implements TideProvider {
-  readonly id = "open-meteo-tide";
+export class ModelledTideProvider implements TideProvider {
+  readonly id = "modelled-tide";
 
   async fetchTides(
     points: ForecastPoint[],
@@ -269,7 +270,7 @@ export class OpenMeteoTideProvider implements TideProvider {
         time: marine.time,
         height: marine.seaLevel,
         events: null,
-        source: "Open-Meteo sea level (modelled tide)",
+        source: `Modelled tide (${marine.source})`,
       };
     }
     return result;

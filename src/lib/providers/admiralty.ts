@@ -2,7 +2,7 @@ import { env } from "@/lib/env";
 import { fetchJson } from "@/lib/http/fetch-json";
 import { interpolateTideHeights } from "@/lib/forecast/engine/tide";
 import type { TideEvent } from "@/types/forecast";
-import { OpenMeteoTideProvider } from "./open-meteo";
+import { ModelledTideProvider } from "./open-meteo";
 import type { ForecastPoint, MarineSeries, ProviderContext, TideProvider, TideSeries } from "./types";
 
 /**
@@ -11,7 +11,7 @@ import type { ForecastPoint, MarineSeries, ProviderContext, TideProvider, TideSe
  *
  * Returns official high/low water predictions for a tidal station. Spots opt
  * in by setting `tideStationId` in config/spots.json; spots without a station
- * (or if the API fails) fall back to the modelled Open-Meteo tide.
+ * (or if the API fails) fall back to the modelled tide from the marine provider.
  */
 
 const BASE_URL = "https://admiraltyapi.azure-api.net/uktidalapi/api/V1";
@@ -24,7 +24,7 @@ interface AdmiraltyEvent {
 
 export class AdmiraltyTideProvider implements TideProvider {
   readonly id = "admiralty-tide";
-  private readonly fallback = new OpenMeteoTideProvider();
+  private readonly fallback = new ModelledTideProvider();
 
   async fetchTides(
     points: (ForecastPoint & { stationId?: string })[],

@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "config:validate": "tsx scripts/validate-config.ts",
-    "check": "npm run config:validate && npm run typecheck && npm run lint && npm run test"
+    "check": "npm run config:validate && npm run typecheck && npm run lint && npm run test",
+    "provider:check": "tsx scripts/check-provider.mts"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

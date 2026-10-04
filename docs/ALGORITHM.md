@@ -8,11 +8,14 @@ For each spot the providers supply hourly series of:
 
 | Data | Source (default) |
 | --- | --- |
-| Primary and secondary swell height, period and direction | Open-Meteo Marine (Météo-France MFWAM, ECMWF WAM, NOAA WaveWatch III) |
-| Wind-wave height, combined wave height | Open-Meteo Marine |
-| Sea surface temperature, sea level (tide) | Open-Meteo Marine |
-| Wind speed, gusts and direction, air temperature, weather code, sunrise and sunset | Open-Meteo Weather (UK Met Office UKV, `ukmo_seamless`) |
+| Primary and secondary swell height, period and direction | Xweather Maritime, or Open-Meteo Marine (Météo-France MFWAM, ECMWF WAM, NOAA WaveWatch III) |
+| Wind-wave height, combined wave height | Xweather Maritime or Open-Meteo Marine |
+| Sea surface temperature, sea level (tide) | Xweather Maritime (`tidesM`) or Open-Meteo Marine |
+| Wind speed, gusts and direction, air temperature, weather code | Xweather Forecasts, or Open-Meteo Weather (UK Met Office UKV, `ukmo_seamless`) |
+| Sunrise and sunset | Calculated locally (`lib/sun.ts`) |
 | High and low water (optional) | ADMIRALTY UK Tidal API |
+
+Xweather's coded weather (e.g. `:L:RW`) is converted to WMO weather codes so the UI icons work the same for every provider.
 
 Marine data is requested at a point `offshoreDistanceKm` (default 6 km) out to sea along the beach's orientation. This keeps the model grid cell off the land mask. You can override it per spot with `forecastPoint`.
 

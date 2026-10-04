@@ -3,6 +3,14 @@
  * See .env.example for documentation of every variable.
  */
 
+export const DATA_SOURCES = ["xweather", "open-meteo", "sample"] as const;
+export type DataSource = (typeof DATA_SOURCES)[number];
+
+function source(value: string | undefined): DataSource | null {
+  const normalised = value?.trim().toLowerCase();
+  return DATA_SOURCES.find((candidate) => candidate === normalised) ?? null;
+}
+
 function str(name: string, fallback: string): string {
   const value = process.env[name];
   return value === undefined || value.trim() === "" ? fallback : value.trim();
@@ -42,11 +50,30 @@ export const env = {
   get forecastDays() {
     return Math.min(Math.max(int("FORECAST_DAYS", 7), 1), 10);
   },
-  get dataSource(): "open-meteo" | "sample" {
-    return str("FORECAST_DATA_SOURCE", "open-meteo") === "sample" ? "sample" : "open-meteo";
+  /**
+   * Primary forecast data source. Defaults to Xweather when its credentials
+   * are configured, otherwise Open-Meteo.
+   */
+  get dataSource(): DataSource {
+    return source(process.env.FORECAST_DATA_SOURCE) ?? (process.env.XWEATHER_CLIENT_ID ? "xweather" : "open-meteo");
   },
-  get tideProvider(): "open-meteo" | "admiralty" {
-    return str("TIDE_PROVIDER", "open-meteo") === "admiralty" ? "admiralty" : "open-meteo";
+  /** Optional secondary source for spots the primary can't serve ("none" disables). */
+  get fallbackDataSource(): Exclude<DataSource, "sample"> | null {
+    const fallback = source(process.env.FALLBACK_DATA_SOURCE);
+    return fallback === "sample" ? null : fallback;
+  },
+  get xweatherApiUrl() {
+    return str("XWEATHER_API_URL", "https://data.api.xweather.com");
+  },
+  get xweatherClientId() {
+    return process.env.XWEATHER_CLIENT_ID?.trim() || null;
+  },
+  get xweatherClientSecret() {
+    return process.env.XWEATHER_CLIENT_SECRET?.trim() || null;
+  },
+  /** "modelled" (sea level from the marine provider) or "admiralty" (official UKHO predictions). */
+  get tideProvider(): "modelled" | "admiralty" {
+    return str("TIDE_PROVIDER", "modelled") === "admiralty" ? "admiralty" : "modelled";
   },
   get openMeteoMarineUrl() {
     return str("OPEN_METEO_MARINE_URL", "https://marine-api.open-meteo.com/v1/marine");

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container, PageHeader, Section } from "@/components/ui/PageHeader";
+import { activeCredits } from "@/lib/attribution";
 import { env } from "@/lib/env";
 import { pageMetadata } from "@/lib/seo";
 
@@ -18,6 +19,7 @@ const RATINGS = [
 ] as const;
 
 export default function AboutPage() {
+  const credits = activeCredits();
   const asTime = (hour: number) => `${String(hour % 24).padStart(2, "0")}:00`;
   const slots = env.refreshHoursUtc.map(asTime).join(" and ");
   const summerSlots = env.refreshHoursUtc.map((hour) => asTime(hour + 1)).join(" and ");
@@ -25,7 +27,7 @@ export default function AboutPage() {
     <Container className="max-w-4xl">
       <PageHeader eyebrow="About" title="How our forecasts work">
         <p>
-          Every forecast on this site is generated automatically from free, public weather and ocean models, then
+          Every forecast on this site is generated automatically from professional weather and ocean models, then
           interpreted for each surf spot using its orientation, swell window, preferred winds and tides.
         </p>
       </PageHeader>
@@ -33,13 +35,13 @@ export default function AboutPage() {
       <div className="space-y-2">
         <Section title="Data sources">
           <ul className="glass list-disc space-y-2 p-6 pl-10 text-slate-700 dark:text-slate-300">
+            {credits.map((credit, index) => (
+              <li key={credit.name}>
+                <strong>{index === 0 ? "Swell, waves, wind and weather" : "Backup source"}:</strong> {credit.marine} {credit.weather}
+              </li>
+            ))}
             <li>
-              <strong>Swell and waves:</strong> Open-Meteo Marine API, blending Météo-France MFWAM, ECMWF WAM and NOAA
-              GFS-Wave (WaveWatch III). When a coastal grid cell is missing data we fall back to WaveWatch III.
-            </li>
-            <li>
-              <strong>Wind, temperature and weather:</strong> Open-Meteo Weather API using the UK Met Office UKV model, with
-              a global blend as fallback.
+              <strong>Sunrise and sunset:</strong> calculated from standard solar equations for each beach.
             </li>
             <li>
               <strong>Tides:</strong> modelled sea level from the marine model (or official UK Hydrographic Office

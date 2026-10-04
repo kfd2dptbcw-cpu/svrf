@@ -1,4 +1,4 @@
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, open, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { CacheStore } from "./types";
 
@@ -32,5 +32,28 @@ export class FileStore implements CacheStore {
     const temp = `${target}.${process.pid}.${Date.now()}.tmp`;
     await writeFile(temp, value, "utf8");
     await rename(temp, target);
+  }
+
+  /** Lock file created with O_EXCL, shared by every process using the directory (e.g. build workers). */
+  async acquireLock(key: string, ttlSeconds: number) {
+    await mkdir(this.directory, { recursive: true });
+    const lockPath = `${this.filePath(key)}.lock`;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const handle = await open(lockPath, "wx");
+        await handle.close();
+        return true;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+        const age = await stat(lockPath).then((info) => Date.now() - info.mtimeMs, () => 0);
+        if (age < ttlSeconds * 1000) return false;
+        await unlink(lockPath).catch(() => undefined); // stale lock from a crashed process
+      }
+    }
+    return false;
+  }
+
+  async releaseLock(key: string) {
+    await unlink(`${this.filePath(key)}.lock`).catch(() => undefined);
   }
 }

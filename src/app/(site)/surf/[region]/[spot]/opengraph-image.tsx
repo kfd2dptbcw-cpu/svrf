@@ -45,9 +45,16 @@ export default async function SpotOpengraphImage({ params }: { params: Promise<{
           <div style={{ display: "flex", alignItems: "flex-end", gap: 48 }}>
             <div style={{ fontSize: 150, fontWeight: 800, lineHeight: 1 }}>{formatSurfRange(today.surfMinFt, today.surfMaxFt)}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 12 }}>
-              <div style={{ display: "flex", fontSize: 56, color: RATING_HEX[today.rating] }}>
-                {"★".repeat(today.rating)}
-                <span style={{ opacity: 0.3, color: "white" }}>{"★".repeat(5 - today.rating)}</span>
+              {/* Drawn stars: text glyphs would make next/og download a web font. */}
+              <div style={{ display: "flex", gap: 6 }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} width="52" height="52" viewBox="0 0 20 20">
+                    <path
+                      d="M10 1.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L10 14.9l-5.25 2.7 1-5.8L1.5 7.7l5.9-.9L10 1.5z"
+                      fill={star <= today.rating ? RATING_HEX[today.rating] : "rgba(255,255,255,0.3)"}
+                    />
+                  </svg>
+                ))}
               </div>
               <div style={{ fontSize: 40, fontWeight: 600 }}>{today.label}</div>
             </div>

@@ -1,6 +1,6 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
-import { getForecastBundle, refreshForecasts } from "./service";
+import { getForecastBundle, refreshWithLock } from "./service";
 import { isFresh } from "@/lib/schedule";
 import { nowSeconds } from "@/lib/time";
 
@@ -12,7 +12,7 @@ export async function runScheduledRefresh({ force = false } = {}) {
   const started = Date.now();
   const existing = await getForecastBundle();
   const skip = !force && existing.status !== "stale" && existing.status !== "unavailable" && isFresh(existing.generatedAt, nowSeconds());
-  const bundle = skip ? existing : await refreshForecasts();
+  const bundle = skip ? existing : await refreshWithLock();
   revalidatePath("/", "layout");
   return {
     refreshed: !skip,
