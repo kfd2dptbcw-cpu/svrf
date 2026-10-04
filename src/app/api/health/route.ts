@@ -3,6 +3,7 @@ import { getCacheStore } from "@/lib/cache";
 import { spots } from "@/lib/config";
 import { env } from "@/lib/env";
 import { getForecastBundle } from "@/lib/forecast/service";
+import { isBelowFloor, loadAllowance } from "@/lib/providers/allowance";
 import { nowSeconds } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const bundle = await getForecastBundle();
   const healthy = bundle.status !== "unavailable";
+  const usesXweather = env.dataSource === "xweather" || env.fallbackDataSource === "xweather";
+  const allowance = usesXweather ? await loadAllowance("xweather") : null;
   return NextResponse.json(
     {
       ok: healthy,
@@ -30,6 +33,17 @@ export async function GET() {
       errors: bundle.errors,
       // What the last refresh was charged by metered providers (e.g. Xweather), and the allowance left.
       lastRefreshUsage: bundle.apiUsage ?? null,
+      // Latest Xweather allowance reading; refreshes pause while `paused` is true.
+      allowance: allowance
+        ? {
+            remaining: allowance.remaining,
+            resetAt: allowance.resetAt ? new Date(allowance.resetAt * 1000).toISOString() : null,
+            observedAt: new Date(allowance.observedAt * 1000).toISOString(),
+            warnBelow: env.warnRemainingAllowance,
+            pauseBelow: env.minRemainingAllowance,
+            paused: isBelowFloor(allowance),
+          }
+        : null,
     },
     { status: healthy ? 200 : 503, headers: { "Cache-Control": "no-store" } },
   );
