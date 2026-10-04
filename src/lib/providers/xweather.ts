@@ -1,6 +1,8 @@
 import { env } from "@/lib/env";
 import { fetchJson, HttpError } from "@/lib/http/fetch-json";
 import { sunTimesForRange } from "@/lib/sun";
+import { allowanceExhaustedError, assertAllowance, noteAllowance, parseResetHeader, persistAllowance } from "./allowance";
+import { hourlyTimes, resampleSeries, type ResampleMode } from "./resample";
 import { recordCost } from "./usage";
 import type { ForecastPoint, MarineProvider, MarineSeries, ProviderContext, Series, WeatherProvider, WeatherSeries } from "./types";
 
@@ -38,7 +40,11 @@ interface XweatherResponse {
 
 export class XweatherConfigError extends Error {
   override name = "XweatherConfigError";
+  /** Misconfiguration must surface, never be papered over by a fallback provider. */
+  readonly noFallback = true;
 }
+
+const PROVIDER = "xweather";
 
 function credentials() {
   const id = env.xweatherClientId;
@@ -60,6 +66,7 @@ function buildUrl(endpoint: string, point: ForecastPoint, params: Record<string,
 function isFatal(error: unknown): boolean {
   return (
     error instanceof XweatherConfigError ||
+    (error instanceof Error && error.name === "AllowanceExhaustedError") ||
     (error instanceof HttpError && (error.status === 401 || error.status === 403 || error.status === 429))
   );
 }
@@ -75,6 +82,9 @@ async function fetchPeriods(url: string, label: string, signal: AbortSignal): Pr
       const tokens = Number(headers.get("x-cost-tokens"));
       if (Number.isFinite(tokens) && headers.has("x-cost-tokens")) {
         const remaining = Number(headers.get("x-ratelimit-remaining-period"));
+        if (headers.has("x-ratelimit-remaining-period") && Number.isFinite(remaining)) {
+          noteAllowance(PROVIDER, remaining, parseResetHeader(headers.get("x-ratelimit-reset-period")));
+        }
         recordCost({
           provider: "xweather",
           endpoint,
@@ -107,6 +117,8 @@ async function forEachPoint<T>(
   context: ProviderContext,
   task: (point: ForecastPoint, signal: AbortSignal) => Promise<T | null>,
 ): Promise<Record<string, T>> {
+  credentials(); // fail fast, before any request, when keys are missing
+  await assertAllowance(PROVIDER);
   const controller = new AbortController();
   const onAbort = () => controller.abort(context.signal?.reason);
   context.signal?.addEventListener("abort", onAbort);
@@ -121,6 +133,9 @@ async function forEachPoint<T>(
       try {
         const value = await task(point, controller.signal);
         if (value !== null) results[point.slug] = value;
+        // Stop sending requests the moment the allowance drops below the floor.
+        const exhausted = allowanceExhaustedError(PROVIDER);
+        if (exhausted) throw exhausted;
       } catch (error) {
         if (isFatal(error)) {
           fatal ??= error;
@@ -136,6 +151,7 @@ async function forEachPoint<T>(
     await Promise.all(Array.from({ length: Math.min(CONCURRENCY, points.length) }, worker));
   } finally {
     context.signal?.removeEventListener("abort", onAbort);
+    await persistAllowance(PROVIDER);
   }
   if (fatal) throw fatal;
   if (Object.keys(results).length === 0 && firstError) throw firstError;
@@ -152,6 +168,21 @@ function num(period: Period, ...keys: string[]): number | null {
 
 function series(periods: Period[], ...keys: string[]): Series {
   return periods.map((period) => num(period, ...keys));
+}
+
+/**
+ * Build provider series from periods. With XWEATHER_INTERVAL_HOURS=3 the
+ * 3-hourly samples are resampled onto an hourly grid for the engine.
+ */
+function toSeries(periods: Period[], fields: Record<string, { keys: string[]; mode: ResampleMode }>) {
+  const { periods: sorted, time } = hourlyPeriods(periods);
+  const raw: Record<string, Series> = {};
+  for (const [name, field] of Object.entries(fields)) raw[name] = series(sorted, ...field.keys);
+  if (env.xweatherIntervalHours === 1) return { time, values: raw };
+  const target = hourlyTimes(time);
+  const values: Record<string, Series> = {};
+  for (const [name, field] of Object.entries(fields)) values[name] = resampleSeries(time, raw[name]!, target, field.mode);
+  return { time: target, values };
 }
 
 /** Keep only top-of-hour periods, sorted, de-duplicated. */
@@ -172,32 +203,45 @@ export class XweatherMarineProvider implements MarineProvider {
     return forEachPoint(points, context, async (point, signal) => {
       const raw = await fetchPeriods(
         buildUrl("maritime", point, {
-          filter: "1hr",
+          filter: `${env.xweatherIntervalHours}hr`,
           // Start at local midnight so today's early hours are included (the endpoint keeps 48h of history).
           from: "today",
           to: `+${context.days}days`,
           // /maritime takes plimit (periods), not limit.
-          plimit: String(context.days * 24 + 24),
+          plimit: String(((context.days + 1) * 24) / env.xweatherIntervalHours),
         }),
         SOURCE_MARINE,
         signal,
       );
       if (!raw) return null;
-      const { periods, time } = hourlyPeriods(raw);
+      const { time, values } = toSeries(raw, {
+        waveHeight: { keys: ["significantWaveHeightM"], mode: "linear" },
+        waveDirection: { keys: ["primaryWaveDirDEG"], mode: "circular" },
+        wavePeriod: { keys: ["primaryWavePeriod"], mode: "linear" },
+        swellHeight: { keys: ["swellHeightM", "swell1HeightM"], mode: "linear" },
+        swellDirection: { keys: ["swellDirDEG", "swell1DirDEG"], mode: "circular" },
+        swellPeriod: { keys: ["swellPeriod", "swell1Period"], mode: "linear" },
+        secondarySwellHeight: { keys: ["swell2HeightM"], mode: "linear" },
+        secondarySwellDirection: { keys: ["swell2DirDEG"], mode: "circular" },
+        secondarySwellPeriod: { keys: ["swell2Period"], mode: "linear" },
+        windWaveHeight: { keys: ["windWaveHeightM"], mode: "linear" },
+        seaSurfaceTemperature: { keys: ["seaSurfaceTemperatureC"], mode: "linear" },
+        seaLevel: { keys: ["tidesM"], mode: "linear" },
+      });
       return {
         time,
-        waveHeight: series(periods, "significantWaveHeightM"),
-        waveDirection: series(periods, "primaryWaveDirDEG"),
-        wavePeriod: series(periods, "primaryWavePeriod"),
-        swellHeight: series(periods, "swellHeightM", "swell1HeightM"),
-        swellDirection: series(periods, "swellDirDEG", "swell1DirDEG"),
-        swellPeriod: series(periods, "swellPeriod", "swell1Period"),
-        secondarySwellHeight: series(periods, "swell2HeightM"),
-        secondarySwellDirection: series(periods, "swell2DirDEG"),
-        secondarySwellPeriod: series(periods, "swell2Period"),
-        windWaveHeight: series(periods, "windWaveHeightM"),
-        seaSurfaceTemperature: series(periods, "seaSurfaceTemperatureC"),
-        seaLevel: series(periods, "tidesM"),
+        waveHeight: values.waveHeight!,
+        waveDirection: values.waveDirection!,
+        wavePeriod: values.wavePeriod!,
+        swellHeight: values.swellHeight!,
+        swellDirection: values.swellDirection!,
+        swellPeriod: values.swellPeriod!,
+        secondarySwellHeight: values.secondarySwellHeight!,
+        secondarySwellDirection: values.secondarySwellDirection!,
+        secondarySwellPeriod: values.secondarySwellPeriod!,
+        windWaveHeight: values.windWaveHeight!,
+        seaSurfaceTemperature: values.seaSurfaceTemperature!,
+        seaLevel: values.seaLevel!,
         source: SOURCE_MARINE,
       };
     });
@@ -210,19 +254,29 @@ export class XweatherWeatherProvider implements WeatherProvider {
   async fetchWeather(points: ForecastPoint[], context: ProviderContext): Promise<Record<string, WeatherSeries>> {
     return forEachPoint(points, context, async (point, signal) => {
       const raw = await fetchPeriods(
-        buildUrl("forecasts", point, { filter: "1hr", limit: String(context.days * 24) }),
+        buildUrl("forecasts", point, {
+          filter: `${env.xweatherIntervalHours}hr`,
+          limit: String((context.days * 24) / env.xweatherIntervalHours),
+        }),
         SOURCE_WEATHER,
         signal,
       );
       if (!raw) return null;
-      const { periods, time } = hourlyPeriods(raw);
+      const codes = hourlyPeriods(raw);
+      const { time, values } = toSeries(raw, {
+        temperature: { keys: ["tempC"], mode: "linear" },
+        windSpeed: { keys: ["windSpeedKPH"], mode: "linear" },
+        windGusts: { keys: ["windGustKPH"], mode: "linear" },
+        windDirection: { keys: ["windDirDEG"], mode: "circular" },
+      });
+      const wmo = codes.periods.map((period) => xweatherCodeToWmo(period.weatherPrimaryCoded));
       return {
         time,
-        temperature: series(periods, "tempC"),
-        windSpeed: series(periods, "windSpeedKPH"),
-        windGusts: series(periods, "windGustKPH"),
-        windDirection: series(periods, "windDirDEG"),
-        weatherCode: periods.map((period) => xweatherCodeToWmo(period.weatherPrimaryCoded)),
+        temperature: values.temperature!,
+        windSpeed: values.windSpeed!,
+        windGusts: values.windGusts!,
+        windDirection: values.windDirection!,
+        weatherCode: env.xweatherIntervalHours === 1 ? wmo : resampleSeries(codes.time, wmo, time, "step"),
         daily: sunTimesForRange(time, point.lat, point.lon),
         source: SOURCE_WEATHER,
       };

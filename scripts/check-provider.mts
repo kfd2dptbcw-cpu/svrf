@@ -107,25 +107,43 @@ if (forecast.days.length < env.forecastDays - 1) problems.push(`only ${forecast.
 const usage = summariseUsage(takeUsage());
 if (usage.endpoints.length > 0) {
   const { spots } = await import("../src/lib/config");
+  const { detectBilling, planBudget, temporalMultiplier } = await import("../src/lib/providers/budget");
   const refreshesPerDay = env.refreshHoursUtc.length;
-  const perRefresh = usage.totalTokens * spots.length;
-  const perMonth = perRefresh * refreshesPerDay * 30;
+  const budget = env.monthlyAccessBudget;
+  const current = { days: env.forecastDays, intervalHours: env.xweatherIntervalHours };
+
   console.log("\nAPI cost (as charged by the provider):");
-  for (const endpoint of usage.endpoints) {
+  const measured = usage.endpoints.map((endpoint) => {
+    const temporal = temporalMultiplier(endpoint.multipliers);
+    const billing = detectBilling(temporal, current.days, current.intervalHours);
     console.log(
       `  ${endpoint.name.padEnd(22)} ${String(endpoint.tokens).padStart(4)} accesses for ${endpoint.requests} request(s)` +
+        `   billing: ${billing}` +
         (endpoint.multipliers.length ? `   [${endpoint.multipliers.join(" | ")}]` : ""),
     );
-  }
-  console.log(`  This check:            ${usage.totalTokens} accesses for one spot`);
-  console.log(`  Projected per refresh: ${perRefresh} (${spots.length} spots)`);
-  console.log(`  Projected per month:   ${perMonth.toLocaleString("en-GB")} (${refreshesPerDay} refreshes/day × 30 days)`);
+    return { name: endpoint.name, tokensPerRequest: endpoint.tokens / endpoint.requests, temporal };
+  });
   if (usage.remainingPeriod !== null) console.log(`  Left this billing period: ${usage.remainingPeriod.toLocaleString("en-GB")}`);
-  if (perMonth > 15_000) {
-    problems.push(
-      `projected ${perMonth.toLocaleString("en-GB")} accesses/month exceeds Xweather's free 15,000 — ` +
-        "reduce FORECAST_DAYS, the number of spots or REFRESH_HOURS_UTC",
+
+  const options = planBudget({ endpoints: measured, current, spots: spots.length, refreshesPerDay, budget });
+  console.log(`\nProjected monthly usage (${spots.length} spots × ${refreshesPerDay} refreshes/day × 31 days, budget ${budget.toLocaleString("en-GB")}):`);
+  for (const option of options) {
+    const isCurrent = option.days === current.days && option.intervalHours === current.intervalHours;
+    console.log(
+      `  ${option.fits ? "✔" : "✖"} ${option.intervalHours}-hourly, ${option.days} days   ${option.monthly.toLocaleString("en-GB").padStart(8)}` +
+        (isCurrent ? "   ← current settings" : ""),
     );
+  }
+  const currentOption = options.find((o) => o.days === current.days && o.intervalHours === current.intervalHours);
+  const best = options.find((option) => option.fits);
+  if (currentOption && !currentOption.fits) {
+    problems.push(
+      best
+        ? `current settings exceed the ${budget.toLocaleString("en-GB")} budget — set XWEATHER_INTERVAL_HOURS=${best.intervalHours} and FORECAST_DAYS=${best.days}`
+        : `no supported interval/day setting fits ${budget.toLocaleString("en-GB")} accesses — reduce REFRESH_HOURS_UTC to one refresh a day or disable some spots`,
+    );
+  } else if (!currentOption && best) {
+    console.log(`  Recommended: XWEATHER_INTERVAL_HOURS=${best.intervalHours} FORECAST_DAYS=${best.days}`);
   }
 } else if (env.dataSource === "xweather") {
   console.log("\n• Xweather did not return X-Cost-Tokens headers; check usage in the Xweather account dashboard.");

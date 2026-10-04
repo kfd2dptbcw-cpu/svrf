@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import { HttpError } from "@/lib/http/fetch-json";
 import { buildSpotForecast, toEngineSpot } from "@/lib/forecast/engine";
 import { getProviders } from "@/lib/providers/registry";
+import { AllowanceExhaustedError } from "@/lib/providers/allowance";
 import { summariseUsage, takeUsage } from "@/lib/providers/usage";
 import type { ForecastPoint, MarineSeries, TideSeries, WeatherSeries } from "@/lib/providers/types";
 import { isFresh, nextRefreshSlot } from "@/lib/schedule";
@@ -177,6 +178,8 @@ function failureKey() {
 
 function failureFrom(error: unknown, now: number): FailureRecord {
   const message = error instanceof Error ? error.message : String(error);
+  // Allowance exhausted: don't try again until the billing period resets.
+  if (error instanceof AllowanceExhaustedError) return { at: now, retryAt: Math.max(error.retryAt, now + env.failureBackoffSeconds), message };
   const retryAfter = error instanceof HttpError && error.retryAfter ? error.retryAfter : 0;
   return { at: now, retryAt: now + Math.max(env.failureBackoffSeconds, retryAfter), message };
 }

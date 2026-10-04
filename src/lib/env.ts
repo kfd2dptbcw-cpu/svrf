@@ -62,6 +62,22 @@ export const env = {
     const fallback = source(process.env.FALLBACK_DATA_SOURCE);
     return fallback === "sample" ? null : fallback;
   },
+  /** Skip Xweather refreshes once the period's remaining accesses fall below this. */
+  get minRemainingAllowance() {
+    return Math.max(0, int("XWEATHER_MIN_REMAINING", 1000));
+  },
+  /** Log a warning once the period's remaining accesses fall below this. */
+  get warnRemainingAllowance() {
+    return Math.max(0, int("XWEATHER_WARN_REMAINING", 3000));
+  },
+  /** Monthly access budget `npm run provider:check` plans against (kept below the 15,000 free tier). */
+  get monthlyAccessBudget() {
+    return Math.max(1, int("XWEATHER_MONTHLY_BUDGET", 12000));
+  },
+  /** Xweather time step in hours: 1 (hourly) or 3 (3-hourly, resampled to hourly). */
+  get xweatherIntervalHours(): 1 | 3 {
+    return int("XWEATHER_INTERVAL_HOURS", 1) === 3 ? 3 : 1;
+  },
   get xweatherApiUrl() {
     return str("XWEATHER_API_URL", "https://data.api.xweather.com");
   },

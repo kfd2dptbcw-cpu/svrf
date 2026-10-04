@@ -15,6 +15,8 @@ async function withFallback<T>(
   try {
     results = await primary(points);
   } catch (error) {
+    // Configuration errors (e.g. missing API keys) must surface, not silently fall back.
+    if (error instanceof Error && (error as Error & { noFallback?: boolean }).noFallback) throw error;
     primaryError = error;
   }
   const missing = points.filter((point) => results[point.slug] === undefined);

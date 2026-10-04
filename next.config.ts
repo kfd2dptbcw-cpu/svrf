@@ -1,4 +1,6 @@
+import { PHASE_PRODUCTION_BUILD, PHASE_PRODUCTION_SERVER } from "next/constants";
 import type { NextConfig } from "next";
+import { assertProductionConfiguration } from "./src/lib/startup-check";
 
 /**
  * Pages are embeddable only from origins listed in EMBED_ALLOWED_ORIGINS
@@ -44,4 +46,8 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+/** Production builds and servers fail fast on an unusable provider configuration. */
+export default function config(phase: string): NextConfig {
+  if (phase === PHASE_PRODUCTION_BUILD || phase === PHASE_PRODUCTION_SERVER) assertProductionConfiguration();
+  return nextConfig;
+}
