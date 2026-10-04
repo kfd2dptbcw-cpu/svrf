@@ -21,7 +21,7 @@ export function SiteFooter() {
           <ul className="mt-2 grid grid-cols-2 gap-1 text-slate-600 dark:text-slate-400">
             {regions.map((region) => (
               <li key={region.slug}>
-                <Link href={`/surf/${region.slug}`} className="hover:text-ocean-600 dark:hover:text-ocean-300">
+                <Link href={`/surf/${region.slug}`} className="hover:text-flag-deep dark:hover:text-flag">
                   {region.name}
                 </Link>
               </li>
@@ -37,7 +37,7 @@ export function SiteFooter() {
                 {credits.map((credit, index) => (
                   <span key={credit.name}>
                     {index > 0 && (index === credits.length - 1 ? " and " : ", ")}
-                    <a href={credit.url} className="underline hover:text-ocean-600" rel="noopener">
+                    <a href={credit.url} className="underline hover:text-flag-deep" rel="noopener">
                       {credit.name}
                     </a>
                   </span>
@@ -51,7 +51,7 @@ export function SiteFooter() {
           </p>
           <DataAttribution className="mt-2 block text-slate-600 dark:text-slate-400" />
           <p className="mt-3">
-            <Link href="/about" className="font-medium text-ocean-700 hover:underline dark:text-ocean-300">
+            <Link href="/about" className="font-medium text-flag-deep hover:underline dark:text-flag">
               How our forecasts work →
             </Link>
           </p>

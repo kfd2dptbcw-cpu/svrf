@@ -18,7 +18,7 @@ export function DataAttribution({ className = "" }: { className?: string }) {
             target="_blank"
             rel="noopener"
             title={credit.requiredLinkText}
-            className="font-medium underline hover:text-ocean-600 dark:hover:text-ocean-300"
+            className="font-medium underline hover:text-flag-deep dark:hover:text-flag"
           >
             {credit.requiredLinkText}
           </a>

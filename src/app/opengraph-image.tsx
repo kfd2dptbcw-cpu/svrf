@@ -1,12 +1,12 @@
 import { ImageResponse } from "next/og";
 import { spots } from "@/lib/config";
-import { env } from "@/lib/env";
+import { ogFonts } from "@/lib/og-fonts";
 
-export const alt = "UK Surf Forecast — daily surf reports for UK beaches";
+export const alt = "SVRF Surf Forecast — daily surf reports for UK beaches";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
   return new ImageResponse(
     (
       <div
@@ -15,19 +15,24 @@ export default function OpengraphImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "space-between",
           padding: 80,
-          color: "white",
-          background: "linear-gradient(135deg, #04121f 0%, #0e6c90 60%, #22c8ee 100%)",
+          color: "#EFEEE7",
+          background: "#0B0D0E",
         }}
       >
-        <div style={{ fontSize: 28, opacity: 0.8, letterSpacing: 4, textTransform: "uppercase" }}>Updated twice daily</div>
-        <div style={{ fontSize: 88, fontWeight: 700, marginTop: 16 }}>{env.siteName}</div>
-        <div style={{ fontSize: 36, marginTop: 24, opacity: 0.9 }}>
-          {`Wave height, swell, wind, tides and star ratings for ${spots.length} UK surf spots`}
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+          <div style={{ fontFamily: "Archivo Black", fontSize: 120, lineHeight: 1 }}>SVRF</div>
+          <div style={{ width: 28, height: 96, background: "#FF4E1F" }} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ fontFamily: "Archivo Black", fontSize: 64 }}>Surf Forecast</div>
+          <div style={{ fontSize: 32, color: "#CFDBDA" }}>
+            {`Wave height, swell, wind, tides and star ratings for ${spots.length} UK surf spots. Updated twice daily.`}
+          </div>
         </div>
       </div>
     ),
-    size,
+    { ...size, fonts: await ogFonts() },
   );
 }

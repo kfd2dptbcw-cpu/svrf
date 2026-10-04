@@ -127,13 +127,13 @@ export function SpotExplorer({
 
   const quick = (day: Filters["day"]) => setFilters({ ...DEFAULT_FILTERS, day, minRating: 3, sort: "best" });
   const selectClass =
-    "h-10 rounded-xl border border-slate-900/10 bg-white/70 px-3 text-sm dark:border-white/10 dark:bg-slate-900/60";
+    "h-10 rounded-xl border border-slate-900/10 bg-paper px-3 text-sm dark:border-white/10 dark:bg-slate-900/60";
 
   return (
     <div>
       <div className="glass space-y-4 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4 text-ocean-600 dark:text-ocean-300" aria-hidden="true" />
+          <SlidersHorizontal className="h-4 w-4 text-flag-deep dark:text-flag" aria-hidden="true" />
           <span className="mr-2 text-sm font-semibold">Quick filters</span>
           <Chip active={filters.day === "today" && filters.minRating === 3} onClick={() => quick("today")}>
             Best today
@@ -154,7 +154,7 @@ export function SpotExplorer({
           <button
             type="button"
             onClick={() => setFilters(DEFAULT_FILTERS)}
-            className="ml-auto text-sm font-medium text-ocean-700 hover:underline dark:text-ocean-300"
+            className="ml-auto text-sm font-medium text-flag-deep hover:underline dark:text-flag"
           >
             Reset
           </button>
@@ -267,7 +267,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       aria-pressed={active}
       className={`rounded-full px-3 py-1.5 text-sm font-medium ring-1 ring-inset transition ${
         active
-          ? "bg-ocean-600 text-white ring-ocean-600"
+          ? "bg-ink text-chalk ring-ink dark:bg-chalk dark:text-ink dark:ring-chalk"
           : "bg-white/60 text-slate-700 ring-slate-900/10 hover:bg-white dark:bg-white/5 dark:text-slate-200 dark:ring-white/10"
       }`}
     >
@@ -288,12 +288,12 @@ function ExplorerCard({
   onToggleFavourite: () => void;
 }) {
   return (
-    <article className="glass relative flex h-full flex-col gap-3 p-5 transition hover:-translate-y-0.5 hover:shadow-xl">
+    <article className="glass relative flex h-full flex-col gap-3 p-5 transition hover:border-slate-400 dark:hover:border-slate-500">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-xs font-medium tracking-wide text-ocean-700 uppercase dark:text-ocean-300">{spot.regionName}</p>
+          <p className="text-xs font-medium font-mono tracking-wide text-slate-600 uppercase dark:text-slate-400">{spot.regionName}</p>
           <h3 className="truncate text-lg font-semibold">
-            <Link href={spot.path} className="after:absolute after:inset-0 after:rounded-3xl">
+            <Link href={spot.path} className="after:absolute after:inset-0 after:rounded-xl">
               {spot.name}
             </Link>
           </h3>
@@ -303,15 +303,15 @@ function ExplorerCard({
           onClick={onToggleFavourite}
           aria-pressed={favourite}
           aria-label={favourite ? `Remove ${spot.name} from favourites` : `Add ${spot.name} to favourites`}
-          className="relative z-10 rounded-full p-2 text-slate-400 transition hover:bg-rose-500/10 hover:text-rose-500"
+          className="relative z-10 rounded-full p-2 text-slate-400 transition hover:bg-flag/10 hover:text-flag"
         >
-          <Heart className={`h-4 w-4 ${favourite ? "fill-rose-500 text-rose-500" : ""}`} aria-hidden="true" />
+          <Heart className={`h-4 w-4 ${favourite ? "fill-flag text-flag" : ""}`} aria-hidden="true" />
         </button>
       </div>
       {day ? (
         <>
           <div className="flex items-end justify-between">
-            <p className="text-3xl font-bold tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</p>
+            <p className="text-3xl font-bold font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</p>
             <div className="flex items-center gap-2">
               {day.swellDirectionDeg !== null && <DirectionArrow fromDeg={day.swellDirectionDeg} kind="swell" size={22} />}
               {day.windDirectionDeg !== null && (

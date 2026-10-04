@@ -1,6 +1,6 @@
-# UK Surf Forecast
+# SVRF Surf Forecast
 
-A fast, embeddable surf forecast for 34 of the UK's best surf spots. It is built with Next.js 15 and runs on Vaisala Xweather's free developer tier (15,000 API accesses a month), with Open-Meteo available as an alternative or backup.
+The surf forecast for [SVRF](https://svrf.uk): a fast, embeddable surf forecast for 34 of the UK's best surf spots. It is built with Next.js 15 and runs on Vaisala Xweather's free developer tier (15,000 API accesses a month), with Open-Meteo available as an alternative or backup.
 
 - **Automatic updates** at 06:00 and 18:00 UTC. Processed forecasts are cached for 12 hours and pages are regenerated incrementally (ISR).
 - **For each spot:** surf height, primary swell (height, period, direction), wind speed, direction and type, air and sea temperature, tides, the best surf window, a 1–5 star rating, suitability for beginner, intermediate and advanced surfers, and a short written forecast.
@@ -8,7 +8,7 @@ A fast, embeddable surf forecast for 34 of the UK's best surf spots. It is built
 - **JSON configuration.** Add, remove or tune spots without touching code ([docs/CONFIGURATION.md](docs/CONFIGURATION.md)).
 - **Swappable data providers:** Vaisala Xweather (Maritime and Forecasts APIs), Open-Meteo Marine and Weather (Météo-France, ECMWF, NOAA WaveWatch III, UK Met Office UKV) and optional official ADMIRALTY tide predictions.
 - **Resilient.** Requests time out, retry with backoff and respect rate limits. When live data can't be fetched, the last good forecast is shown and clearly labelled.
-- **UI:** glassmorphism, dark mode, animated swell and wind arrows, star ratings, an interactive Leaflet map, instant search, filters and favourites.
+- **SVRF brand:** flat "SVRF" wordmark, Ink / Slate / Fog / Seafoam / Chalk with Flag Orange as the single accent, Archivo Black headlines, Inter body and JetBrains Mono data (fonts self-hosted). Dark mode, animated swell and wind arrows, star ratings, an interactive Leaflet map, instant search, filters and favourites.
 - **SEO:** metadata, Open Graph images (a dynamic one per spot), JSON-LD structured data, an XML sitemap, robots.txt and friendly URLs such as `/surf/cornwall/fistral`.
 - **Embeddable** iframe widgets with automatic resizing for your existing website.
 
@@ -180,12 +180,15 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Canonical URL. **Required in production.** Include `NEXT_BASE_PATH` if you use one. |
-| `NEXT_PUBLIC_SITE_NAME` | `UK Surf Forecast` | Branding |
+| `NEXT_PUBLIC_SITE_NAME` | `SVRF Surf Forecast` | Name used in titles and metadata (the header wordmark is always "SVRF") |
 | `CRON_SECRET` | – | Protects `/api/cron/refresh`. **Required in production.** |
 | `REFRESH_HOURS_UTC` | `6,18` | When a new forecast becomes due |
 | `FORECAST_DATA_SOURCE` | `xweather` if its keys are set, else `open-meteo` | `sample` gives clearly labelled synthetic data for development |
 | `XWEATHER_CLIENT_ID` / `_SECRET` | – | Xweather credentials |
 | `FALLBACK_DATA_SOURCE` | `none` | Backup source for spots the primary can't serve (`open-meteo` or `xweather`) |
+| `XWEATHER_INTERVAL_HOURS` | `1` | `3` requests 3-hourly data (resampled to hourly) to cut per-period billing |
+| `XWEATHER_MIN_REMAINING` / `XWEATHER_WARN_REMAINING` | `1000` / `3000` | Hard monthly cap: below the first, Xweather refreshes stop and cached forecasts are served until the billing period resets; below the second, each refresh logs a warning |
+| `XWEATHER_MONTHLY_BUDGET` | `12000` | Budget `npm run provider:check` plans against |
 | `TIDE_PROVIDER` | `modelled` | `admiralty` uses official UKHO predictions (needs `ADMIRALTY_API_KEY` plus `tideStationId` on each spot) |
 | `CACHE_DRIVER` | `file` | `file`, `memory` or `upstash` (chosen automatically when the Upstash variables are set) |
 | `UPSTASH_REDIS_REST_URL` / `_TOKEN` | – | Shared cache for serverless hosts (free tier available) |
@@ -240,13 +243,26 @@ If you use `NEXT_BASE_PATH`, include it in each `data-surf-forecast` path and in
 ## Testing
 
 ```bash
-npm test                # 40 unit tests: engine, tides, scoring, schedule, config, HTTP client, search
+npm test                # unit tests: engine, tides, scoring, schedule, config, HTTP client, search
 npm run check           # config validation + typecheck + lint + tests
 ```
 
 [docs/TESTING.md](docs/TESTING.md) covers manual checks: offline mode, simulating API failures, testing the cron endpoint and running Lighthouse.
 
 ---
+
+## Brand
+
+| Token | Hex | Use |
+| --- | --- | --- |
+| Ink | `#0B0D0E` | Text, dark background, "Good" rating |
+| Slate | `#4A5459` | Secondary text, "Fair" rating |
+| Fog | `#8E9A9C` | Muted text, "Poor" rating |
+| Seafoam | `#CFDBDA` | Borders, dividers |
+| Chalk | `#EFEEE7` | Light background, text on dark |
+| Flag Orange | `#FF4E1F` | The only accent: calls to action, links, best surf window, offshore wind, Excellent/Epic ratings |
+
+Archivo Black for headlines (h1–h3 and the wordmark), Inter for body text, JetBrains Mono for data and labels. Fonts are self-hosted from `@fontsource` packages, so there is no request to Google Fonts. Tokens live in `src/app/globals.css`; Tailwind's `slate` scale is remapped to these neutrals. The header links back to <https://svrf.uk>.
 
 ## Deployment
 

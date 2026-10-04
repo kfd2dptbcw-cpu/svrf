@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { env } from "@/lib/env";
 import { themeInitScript } from "@/lib/theme";
+// Self-hosted brand fonts (no request to Google Fonts at build or page load).
+import "@fontsource/archivo-black/latin-400.css";
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,8 +19,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#04121f" },
+    { media: "(prefers-color-scheme: light)", color: "#EFEEE7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0D0E" },
   ],
   width: "device-width",
   initialScale: 1,

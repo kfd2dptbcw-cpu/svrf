@@ -47,11 +47,11 @@ export function TideChart({ hours, events, window }: Props) {
             y={0}
             width={Math.max(x(window.end) - x(window.start), 2)}
             height={height}
-            className="fill-emerald-500/10"
+            className="fill-flag/10"
             rx={6}
           />
         )}
-        <g className="text-ocean-500 dark:text-ocean-400">
+        <g className="text-slate-600 dark:text-slate-300">
           <path d={area} fill="url(#tide-fill)" />
           <path d={line} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinejoin="round" />
         </g>
@@ -60,7 +60,7 @@ export function TideChart({ hours, events, window }: Props) {
           const anchor = ex < 70 ? "start" : ex > width - 70 ? "end" : "middle";
           return (
           <g key={event.time}>
-            <circle cx={ex} cy={y(event.heightM)} r={5} className="fill-ocean-600 dark:fill-ocean-300" />
+            <circle cx={ex} cy={y(event.heightM)} r={5} className="fill-ink dark:fill-chalk" />
             <text
               x={ex}
               y={event.type === "high" ? y(event.heightM) - 12 : y(event.heightM) + 24}

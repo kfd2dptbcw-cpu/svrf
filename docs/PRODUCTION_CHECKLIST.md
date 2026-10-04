@@ -4,6 +4,8 @@
 - [ ] `NEXT_PUBLIC_SITE_URL` set to the public URL (including `NEXT_BASE_PATH` if used)
 - [ ] `CRON_SECRET` set to a long random value (the cron endpoint refuses to run without it in production)
 - [ ] `FORECAST_DATA_SOURCE` is **not** `sample`
+- [ ] Production refuses to build or start if `FORECAST_DATA_SOURCE=xweather` and a key is missing; confirm the deploy log shows no "Invalid production configuration"
+- [ ] `XWEATHER_MIN_REMAINING` / `XWEATHER_WARN_REMAINING` set as wanted (defaults 1,000 / 3,000); `/api/health` → `allowance.paused` alerts you when refreshes have stopped
 - [ ] `XWEATHER_CLIENT_ID` / `XWEATHER_CLIENT_SECRET` set (with your production domain registered on the Xweather app), and `npm run provider:check` passes with them
 - [ ] `npm run provider:check` with production keys shows a projected monthly usage under your allowance (it reads Xweather's own `X-Cost-Tokens` charge). After launch, `/api/health` → `lastRefreshUsage` shows what each refresh really cost and how much allowance is left
 - [ ] Shared cache configured on serverless hosts (`UPSTASH_REDIS_REST_URL` / `_TOKEN`), or a persistent volume for `.forecast-cache` when self-hosting

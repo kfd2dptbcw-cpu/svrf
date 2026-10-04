@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
+  // Open Graph images read this font file at runtime; keep it in standalone builds.
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/@fontsource/archivo-black/files/archivo-black-latin-400-normal.woff"],
+  },
   async headers() {
     return [
       {

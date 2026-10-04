@@ -19,7 +19,7 @@ export function DayOverview({ bundle, offset, title }: { bundle: ForecastBundle;
       <PageHeader eyebrow={formatFullDate(dateKey)} title={title}>
         <p>
           Every spot ranked by our surf quality score, with the best time to paddle out.{" "}
-          <Link href={`/spots?day=${offset === 0 ? "today" : "tomorrow"}`} className="font-medium text-ocean-700 hover:underline dark:text-ocean-300">
+          <Link href={`/spots?day=${offset === 0 ? "today" : "tomorrow"}`} className="font-medium text-flag-deep hover:underline dark:text-flag">
             Filter by skill, wind and size →
           </Link>
         </p>

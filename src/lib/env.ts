@@ -35,7 +35,7 @@ export const env = {
     return str("NEXT_PUBLIC_SITE_URL", "http://localhost:3000").replace(/\/$/, "");
   },
   get siteName() {
-    return str("NEXT_PUBLIC_SITE_NAME", "UK Surf Forecast");
+    return str("NEXT_PUBLIC_SITE_NAME", "SVRF Surf Forecast");
   },
   get cronSecret() {
     return process.env.CRON_SECRET?.trim() || null;

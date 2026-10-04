@@ -41,14 +41,14 @@ export function DataStatus({ bundle, compact = false }: { bundle: ForecastBundle
 }
 
 const TONES = {
-  violet: "border-violet-500/30 bg-violet-500/10 text-violet-900 dark:text-violet-200",
-  rose: "border-rose-500/30 bg-rose-500/10 text-rose-900 dark:text-rose-200",
-  amber: "border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200",
+  violet: "border-slate-400/60 bg-slate-950/5 text-ink dark:bg-white/5 dark:text-chalk",
+  rose: "border-flag/60 bg-flag/10 text-ink dark:text-chalk",
+  amber: "border-flag/30 bg-flag/5 text-ink dark:text-chalk",
 } as const;
 
 function Banner({ tone, icon, children }: { tone: keyof typeof TONES; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div role="status" className={`flex items-start gap-2 rounded-2xl border px-4 py-3 text-sm backdrop-blur ${TONES[tone]}`}>
+    <div role="status" className={`flex items-start gap-2 rounded-lg border px-4 py-3 text-sm ${TONES[tone]}`}>
       <span className="mt-0.5">{icon}</span>
       <p>{children}</p>
     </div>

@@ -19,6 +19,11 @@ npm run check     # config validation + strict typecheck + ESLint + tests
 | `tests/search.test.ts` | Instant search normalisation and ranking |
 | `tests/xweather.test.ts` | Xweather response mapping, no-data spots, stopping on auth errors, weather-code conversion, fallback provider |
 | `tests/sun.test.ts` | Sunrise and sunset calculation |
+| `tests/allowance.test.ts` | Monthly cap: warning and pause thresholds, reset handling, shared readings, stopping mid-batch |
+| `tests/budget.test.ts` | Billing detection (flat / per-day / per-period) and monthly projections against the budget |
+| `tests/resample.test.ts` | 3-hourly to hourly resampling (linear, circular directions, categorical) |
+| `tests/startup-check.test.ts` | Production refuses missing Xweather keys and never falls back to Open-Meteo |
+| `tests/cache-lock.test.ts` | Refresh locks shared between processes |
 
 CI (`.github/workflows/ci.yml`) runs all of the above and a production build with sample data, so it never depends on live API quota.
 

@@ -28,7 +28,7 @@ export default async function HomePage() {
       <JsonLd data={websiteJsonLd()} />
       <section className="relative overflow-hidden">
         <Container className="pt-14 pb-10 sm:pt-20">
-          <p className="text-sm font-semibold tracking-wide text-ocean-700 uppercase dark:text-ocean-300">{formatFullDate(today)}</p>
+          <p className="text-sm font-semibold font-mono tracking-wide text-slate-600 uppercase dark:text-slate-400">{formatFullDate(today)}</p>
           <h1 className="mt-2 max-w-3xl text-4xl font-bold tracking-tight text-balance sm:text-6xl">
             {env.siteName}
           </h1>
@@ -37,7 +37,7 @@ export default async function HomePage() {
             the best time to paddle out.
           </p>
           {ranked.length > 0 && (
-            <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-ocean-500/10 px-4 py-2 text-sm font-medium text-ocean-800 ring-1 ring-ocean-500/20 dark:text-ocean-200">
+            <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-flag/10 px-4 py-2 font-mono text-sm font-medium text-flag-deep ring-1 ring-flag/30 dark:text-flag">
               <Sunrise className="h-4 w-4" aria-hidden="true" />
               {goodCount > 0
                 ? `${goodCount} ${goodCount === 1 ? "spot is" : "spots are"} rated Good or better today`
@@ -45,7 +45,7 @@ export default async function HomePage() {
             </p>
           )}
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/today" className="inline-flex items-center gap-2 rounded-full bg-ocean-600 px-5 py-3 font-semibold text-white shadow-lg shadow-ocean-600/25 transition hover:bg-ocean-700">
+            <Link href="/today" className="inline-flex items-center gap-2 rounded-full bg-flag px-5 py-3 font-semibold text-ink transition hover:bg-flag-deep hover:text-chalk">
               Today&apos;s forecast <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <Link href="/tomorrow" className="glass-subtle inline-flex items-center gap-2 !rounded-full px-5 py-3 font-semibold transition hover:bg-white/80 dark:hover:bg-white/10">
@@ -98,7 +98,7 @@ export default async function HomePage() {
               const best = rankSpots(bundle, today, getSpotsInRegion(region.slug))[0];
               return (
                 <li key={region.slug}>
-                  <Link href={`/surf/${region.slug}`} className="glass flex h-full flex-col gap-2 p-5 transition hover:-translate-y-0.5 hover:shadow-xl">
+                  <Link href={`/surf/${region.slug}`} className="glass flex h-full flex-col gap-2 p-5 transition hover:border-slate-400 dark:hover:border-slate-500">
                     <span className="text-lg font-semibold">{region.name}</span>
                     {best ? (
                       <span className="flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -109,7 +109,7 @@ export default async function HomePage() {
                     ) : (
                       <span className="text-sm text-slate-500">{getSpotsInRegion(region.slug).length} spots</span>
                     )}
-                    <span className="mt-auto text-sm font-medium text-ocean-700 dark:text-ocean-300">View {region.name} forecast →</span>
+                    <span className="mt-auto text-sm font-medium text-flag-deep dark:text-flag">View {region.name} forecast →</span>
                   </Link>
                 </li>
               );

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 export function PageHeader({ eyebrow, title, children }: { eyebrow?: string; title: string; children?: ReactNode }) {
   return (
     <header className="pt-10 pb-8 sm:pt-14">
-      {eyebrow && <p className="text-sm font-semibold tracking-wide text-ocean-700 uppercase dark:text-ocean-300">{eyebrow}</p>}
+      {eyebrow && <p className="text-sm font-semibold font-mono tracking-wide text-slate-600 uppercase dark:text-slate-400">{eyebrow}</p>}
       <h1 className="mt-1 text-3xl font-bold tracking-tight text-balance sm:text-5xl">{title}</h1>
       {children && <div className="mt-4 max-w-3xl text-lg text-slate-600 dark:text-slate-300">{children}</div>}
     </header>

@@ -29,16 +29,16 @@ export default async function EmbedSpotPage({ params }: { params: Promise<{ regi
 
   return (
     <>
-      <p className="text-xs font-medium tracking-wide text-ocean-700 uppercase dark:text-ocean-300">{region.name}</p>
+      <p className="text-xs font-medium font-mono tracking-wide text-slate-600 uppercase dark:text-slate-400">{region.name}</p>
       <h1 className="text-lg font-semibold">
-        <a href={absoluteUrl(spot.path)} target="_blank" rel="noopener" className="hover:text-ocean-600">
+        <a href={absoluteUrl(spot.path)} target="_blank" rel="noopener" className="hover:text-flag-deep">
           {spot.name}
         </a>
       </h1>
       {current ? (
         <>
           <div className="mt-2 flex items-center gap-3">
-            <span className="text-4xl font-bold tabular-nums">{formatSurfRange(current.surfMinFt, current.surfMaxFt)}</span>
+            <span className="text-4xl font-bold font-mono tabular-nums">{formatSurfRange(current.surfMinFt, current.surfMaxFt)}</span>
             <div className="grid gap-1">
               <StarRating rating={current.rating} size="sm" label={current.label} />
               <RatingBadge rating={current.rating} label={current.label} />
@@ -53,7 +53,7 @@ export default async function EmbedSpotPage({ params }: { params: Promise<{ regi
             {days.slice(0, 7).map((day) => (
               <li key={day.date} className="rounded-lg bg-slate-900/5 px-0.5 py-1 dark:bg-white/5">
                 <span className="block text-slate-500">{day.date === today ? "Today" : formatWeekday(day.date, "short")}</span>
-                <span className="block font-semibold tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
+                <span className="block font-semibold font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
                 <span className={`mx-auto mt-1 block h-1 w-6 rounded-full ${RATING_BG[day.rating]}`} aria-label={day.label} />
               </li>
             ))}

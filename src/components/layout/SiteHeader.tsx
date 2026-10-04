@@ -5,6 +5,9 @@ import type { SearchIndexEntry } from "@/lib/forecast/selectors";
 import { SpotSearch } from "./SpotSearch";
 import { ThemeToggle } from "./ThemeToggle";
 
+/** The main SVRF site this forecast belongs to. */
+export const SVRF_HOME = "https://svrf.uk";
+
 export const NAV_LINKS = [
   { href: "/today", label: "Today" },
   { href: "/tomorrow", label: "Tomorrow" },
@@ -16,11 +19,13 @@ export const NAV_LINKS = [
 
 export function SiteHeader({ searchIndex }: { searchIndex: SearchIndexEntry[] }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-900/5 bg-white/60 backdrop-blur-xl dark:border-white/5 dark:bg-abyss/60">
+    <header className="sticky top-0 z-40 border-b border-slate-900/5 bg-chalk dark:border-white/5 dark:bg-ink">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight">
-          <Logo />
-          <span className="hidden sm:inline">{env.siteName}</span>
+        <Link href="/" className="flex shrink-0 items-baseline gap-2" aria-label={`${env.siteName} home`}>
+          <Wordmark />
+          <span className="hidden font-mono text-xs tracking-wide text-slate-600 uppercase sm:inline dark:text-slate-400">
+            Surf Forecast
+          </span>
         </Link>
 
         <nav aria-label="Main" className="hidden flex-1 lg:block">
@@ -29,7 +34,7 @@ export function SiteHeader({ searchIndex }: { searchIndex: SearchIndexEntry[] })
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="rounded-full px-3 py-2 text-slate-600 transition hover:bg-slate-900/5 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white"
+                  className="rounded-md px-3 py-2 text-slate-600 transition hover:bg-slate-950/5 hover:text-ink dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-chalk"
                 >
                   {link.label}
                 </Link>
@@ -39,21 +44,32 @@ export function SiteHeader({ searchIndex }: { searchIndex: SearchIndexEntry[] })
         </nav>
 
         <div className="ml-auto flex flex-1 items-center justify-end gap-2 lg:flex-none">
+          <a
+            href={SVRF_HOME}
+            className="hidden shrink-0 font-mono text-xs tracking-wide text-slate-600 uppercase hover:text-flag-deep md:inline dark:text-slate-400 dark:hover:text-flag"
+          >
+            svrf.uk ↗
+          </a>
           <SpotSearch index={searchIndex} />
           <ThemeToggle />
           {/* Zero-JS mobile menu */}
           <details className="group relative lg:hidden">
             <summary
-              className="inline-flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-slate-900/10 bg-white/70 dark:border-white/10 dark:bg-white/5 [&::-webkit-details-marker]:hidden"
+              className="inline-flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-slate-900/10 bg-paper dark:border-white/10 dark:bg-white/5 [&::-webkit-details-marker]:hidden"
               aria-label="Open menu"
             >
               <Menu className="h-4 w-4" aria-hidden="true" />
             </summary>
-            <nav aria-label="Mobile" className="glass absolute top-12 right-0 w-56 p-2 !rounded-2xl">
+            <nav aria-label="Mobile" className="glass absolute top-12 right-0 w-56 p-2 !rounded-lg">
               <ul className="grid gap-0.5 text-sm font-medium">
+                <li>
+                  <a href={SVRF_HOME} className="block rounded-md px-3 py-2 font-mono text-xs tracking-wide uppercase hover:bg-slate-950/5 dark:hover:bg-white/5">
+                    svrf.uk ↗
+                  </a>
+                </li>
                 {NAV_LINKS.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="block rounded-xl px-3 py-2 hover:bg-ocean-500/10">
+                    <Link href={link.href} className="block rounded-md px-3 py-2 hover:bg-slate-950/5 dark:hover:bg-white/5">
                       {link.label}
                     </Link>
                   </li>
@@ -67,13 +83,7 @@ export function SiteHeader({ searchIndex }: { searchIndex: SearchIndexEntry[] })
   );
 }
 
-function Logo() {
-  return (
-    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-ocean-400 to-ocean-700 text-white shadow-lg shadow-ocean-500/30">
-      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-        <path d="M2 16c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2" />
-        <path d="M3 11c1.5-4 5-7 9-7 3 0 5 1.5 5 4-2-1-4-.5-5 1.5" />
-      </svg>
-    </span>
-  );
+/** Flat text wordmark. */
+function Wordmark() {
+  return <span className="font-display text-2xl leading-none tracking-tight text-ink dark:text-chalk">SVRF</span>;
 }

@@ -16,7 +16,7 @@ export function DayStrip({ days, todayKey }: { days: DayForecast[]; todayKey: st
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               {day.date === todayKey ? "Today" : formatWeekday(day.date, "short")} · {formatShortDate(day.date)}
             </span>
-            <span className="text-xl font-bold tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
+            <span className="text-xl font-bold font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
             <StarRating rating={day.rating} size="sm" label={day.label} />
             <span className={`mt-1 h-1 rounded-full ${RATING_BG[day.rating]}`} aria-hidden="true" />
           </a>

@@ -50,7 +50,7 @@ export function ThemeToggle() {
         } catch {}
         apply(next);
       }}
-      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-900/10 bg-white/70 backdrop-blur transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-900/10 bg-paper transition hover:bg-white dark:border-white/10 dark:bg-slate-900 dark:hover:bg-slate-800"
       aria-label={`Theme: ${theme}. Switch to ${next}`}
       title={`Theme: ${theme}`}
     >

@@ -73,11 +73,11 @@ export default async function SpotPage({ params }: { params: Params }) {
       <nav aria-label="Breadcrumb" className="pt-6 text-sm text-slate-500 dark:text-slate-400">
         <ol className="flex flex-wrap items-center gap-1">
           <li>
-            <Link href="/" className="hover:text-ocean-600">Home</Link>
+            <Link href="/" className="hover:text-flag-deep">Home</Link>
           </li>
           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
           <li>
-            <Link href={`/surf/${region.slug}`} className="hover:text-ocean-600">{region.name}</Link>
+            <Link href={`/surf/${region.slug}`} className="hover:text-flag-deep">{region.name}</Link>
           </li>
           <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
           <li aria-current="page" className="text-slate-700 dark:text-slate-200">{spot.name}</li>
@@ -86,7 +86,7 @@ export default async function SpotPage({ params }: { params: Params }) {
 
       <header className="flex flex-wrap items-end justify-between gap-4 pt-6 pb-6">
         <div className="max-w-3xl">
-          <p className="flex items-center gap-1 text-sm font-semibold tracking-wide text-ocean-700 uppercase dark:text-ocean-300">
+          <p className="flex items-center gap-1 text-sm font-semibold font-mono tracking-wide text-slate-600 uppercase dark:text-slate-400">
             <MapPin className="h-4 w-4" aria-hidden="true" />
             {region.name}
           </p>
@@ -102,10 +102,10 @@ export default async function SpotPage({ params }: { params: Params }) {
         <>
           <section aria-labelledby="now-title" className="glass mt-6 grid gap-6 p-5 sm:p-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
             <div className="flex flex-col gap-4">
-              <h2 id="now-title" className="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+              <h2 id="now-title" className="text-sm font-semibold font-mono tracking-wide text-slate-500 uppercase dark:text-slate-400">
                 {current.date === today ? "Today" : formatWeekday(current.date)} · {formatFullDate(current.date)}
               </h2>
-              <p className="text-6xl font-bold tracking-tight tabular-nums sm:text-7xl">
+              <p className="text-6xl font-bold tracking-tight font-mono tabular-nums sm:text-7xl">
                 {formatSurfRange(current.surfMinFt, current.surfMaxFt)}
               </p>
               <div className="flex items-center gap-3">
@@ -140,7 +140,7 @@ export default async function SpotPage({ params }: { params: Params }) {
                         {day.date === today ? "Today" : formatWeekday(day.date)}
                         <span className="block text-sm font-normal text-slate-500 dark:text-slate-400">{formatFullDate(day.date)}</span>
                       </span>
-                      <span className="text-2xl font-bold tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
+                      <span className="text-2xl font-bold font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
                       <StarRating rating={day.rating} size="sm" label={day.label} />
                       <span className="hidden flex-1 text-sm text-slate-600 md:block dark:text-slate-300">{day.summary[0]}</span>
                       <ChevronRight className="ml-auto h-5 w-5 transition group-open:rotate-90" aria-hidden="true" />
@@ -180,7 +180,7 @@ export default async function SpotPage({ params }: { params: Params }) {
       <p className="mt-10 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
         <Code2 className="h-4 w-4" aria-hidden="true" />
         Want this forecast on your website? Embed{" "}
-        <Link href={`/embed/${spot.region}/${spot.slug}`} className="font-medium text-ocean-700 hover:underline dark:text-ocean-300">
+        <Link href={`/embed/${spot.region}/${spot.slug}`} className="font-medium text-flag-deep hover:underline dark:text-flag">
           the {spot.name} widget
         </Link>
         .
@@ -205,13 +205,13 @@ function SpotProfile({ spot }: { spot: ResolvedSpot }) {
       <dl className="glass grid gap-x-6 gap-y-3 p-6 sm:grid-cols-2 lg:col-span-2">
         {items.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">{label}</dt>
+            <dt className="text-xs font-medium font-mono tracking-wide text-slate-500 uppercase dark:text-slate-400">{label}</dt>
             <dd className="mt-0.5 font-medium">{value}</dd>
           </div>
         ))}
       </dl>
       <div className="glass p-6">
-        <h3 className="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">Hazards</h3>
+        <h3 className="text-xs font-medium font-mono tracking-wide text-slate-500 uppercase dark:text-slate-400">Hazards</h3>
         {spot.hazards.length > 0 ? (
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
             {spot.hazards.map((hazard) => (

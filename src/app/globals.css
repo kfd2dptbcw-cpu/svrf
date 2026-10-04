@@ -2,27 +2,47 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * SVRF brand
+ *   Ink #0B0D0E · Slate #4A5459 · Fog #8E9A9C · Seafoam #CFDBDA · Chalk #EFEEE7
+ *   Flag Orange #FF4E1F — the only accent colour.
+ *   Archivo Black (headlines) · Inter (body) · JetBrains Mono (data and labels)
+ */
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Archivo Black", "Arial Black", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --color-ocean-50: #ecfeff;
-  --color-ocean-100: #cff7fe;
-  --color-ocean-200: #a5eefc;
-  --color-ocean-300: #67e0f9;
-  --color-ocean-400: #22c8ee;
-  --color-ocean-500: #06abd4;
-  --color-ocean-600: #0888b2;
-  --color-ocean-700: #0e6c90;
-  --color-ocean-800: #155976;
-  --color-ocean-900: #164a64;
-  --color-ocean-950: #072f44;
-  --color-abyss: #04121f;
+  --color-ink: #0b0d0e;
+  --color-slate: #4a5459;
+  --color-fog: #8e9a9c;
+  --color-seafoam: #cfdbda;
+  --color-chalk: #efeee7;
+  --color-flag: #ff4e1f;
+  /* Darker shade of Flag Orange for small text on light backgrounds (contrast). */
+  --color-flag-deep: #c2380f;
+  /* Card surface: Chalk lifted slightly. */
+  --color-paper: #f7f6f1;
 
-  --color-rating-1: #f43f5e;
-  --color-rating-2: #f59e0b;
-  --color-rating-3: #10b981;
-  --color-rating-4: #06b6d4;
-  --color-rating-5: #8b5cf6;
+  /* Neutral scale derived from the brand greys (replaces Tailwind's slate). */
+  --color-slate-50: #f7f6f1;
+  --color-slate-100: #efeee7;
+  --color-slate-200: #cfdbda;
+  --color-slate-300: #b0bcbd;
+  --color-slate-400: #8e9a9c;
+  --color-slate-500: #6c777b;
+  --color-slate-600: #4a5459;
+  --color-slate-700: #363e42;
+  --color-slate-800: #22282b;
+  --color-slate-900: #15191b;
+  --color-slate-950: #0b0d0e;
+
+  /* Rating scale: neutrals build up to the accent. Switches for dark mode below. */
+  --color-rating-1: var(--rating-1);
+  --color-rating-2: var(--rating-2);
+  --color-rating-3: var(--rating-3);
+  --color-rating-4: var(--rating-4);
+  --color-rating-5: var(--rating-5);
 
   --animate-swell: swell-drift 2.6s ease-in-out infinite;
   --animate-gust: gust 1.8s ease-in-out infinite;
@@ -38,6 +58,22 @@
   }
 }
 
+:root {
+  --rating-1: #8e9a9c;
+  --rating-2: #4a5459;
+  --rating-3: #0b0d0e;
+  --rating-4: #ff8a66;
+  --rating-5: #ff4e1f;
+}
+
+:root.dark {
+  --rating-1: #4a5459;
+  --rating-2: #8e9a9c;
+  --rating-3: #efeee7;
+  --rating-4: #ff8a66;
+  --rating-5: #ff4e1f;
+}
+
 @layer base {
   :root {
     color-scheme: light;
@@ -46,28 +82,25 @@
     color-scheme: dark;
   }
   body {
-    @apply min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-abyss dark:text-slate-100;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(34 200 238 / 0.18), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(14 108 144 / 0.12), transparent);
-    background-attachment: fixed;
+    @apply min-h-screen bg-chalk font-sans text-ink antialiased dark:bg-ink dark:text-chalk;
   }
-  :root.dark body {
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(8 136 178 / 0.35), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 0%, rgb(22 74 100 / 0.45), transparent);
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-normal tracking-tight;
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-ocean-500;
+    @apply outline-2 outline-offset-2 outline-flag;
   }
 }
 
+/* Flat card surfaces (utility names kept from the original layout). */
 @utility glass {
-  @apply rounded-3xl border border-white/60 bg-white/65 shadow-[0_8px_32px_rgb(7_47_68/0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] dark:shadow-[0_8px_32px_rgb(0_0_0/0.35)];
+  @apply rounded-xl border border-seafoam bg-paper dark:border-slate-700 dark:bg-slate-900;
 }
 
 @utility glass-subtle {
-  @apply rounded-2xl border border-white/50 bg-white/50 backdrop-blur-md dark:border-white/[0.07] dark:bg-white/[0.03];
+  @apply rounded-lg border border-seafoam/70 bg-chalk/60 dark:border-slate-800 dark:bg-white/[0.03];
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -78,24 +111,27 @@
   }
 }
 
-/* Leaflet tweaks: keep map controls on-theme. */
+/* Leaflet tweaks: keep map controls on-brand. */
 .leaflet-container {
   font: inherit;
   background: transparent;
 }
 .dark .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(185deg) brightness(0.85) contrast(0.9) saturate(0.6);
+  filter: grayscale(1) invert(1) brightness(0.85) contrast(0.9);
+}
+.leaflet-tile-pane {
+  filter: grayscale(0.85);
 }
 .dark .leaflet-control-zoom a,
 .dark .leaflet-control-attribution {
-  background: rgb(15 23 42 / 0.85) !important;
-  color: rgb(203 213 225) !important;
+  background: rgb(11 13 14 / 0.85) !important;
+  color: #cfdbda !important;
 }
 .leaflet-popup-content-wrapper {
-  border-radius: 1rem !important;
+  border-radius: 0.5rem !important;
 }
 .dark .leaflet-popup-content-wrapper,
 .dark .leaflet-popup-tip {
-  background: rgb(15 23 42) !important;
-  color: rgb(226 232 240) !important;
+  background: #15191b !important;
+  color: #efeee7 !important;
 }

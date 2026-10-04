@@ -4,12 +4,12 @@ import { env } from "@/lib/env";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: env.siteName,
-    short_name: "Surf Forecast",
+    short_name: "SVRF",
     description: "Twice-daily surf forecasts for the UK's best surf spots.",
     start_url: "./",
     display: "standalone",
-    background_color: "#04121f",
-    theme_color: "#0888b2",
+    background_color: "#0B0D0E",
+    theme_color: "#0B0D0E",
     icons: [{ src: "icon.svg", sizes: "any", type: "image/svg+xml" }],
   };
 }

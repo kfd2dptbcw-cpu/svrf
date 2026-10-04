@@ -2,9 +2,9 @@ import { SUITABILITY_LABELS } from "@/lib/format";
 import type { SkillLevel, Suitability, SuitabilityLevel } from "@/types/forecast";
 
 const LEVEL_STYLES: Record<SuitabilityLevel, string> = {
-  ideal: "bg-emerald-500/15 text-emerald-700 ring-emerald-500/30 dark:text-emerald-300",
-  good: "bg-cyan-500/15 text-cyan-700 ring-cyan-500/30 dark:text-cyan-300",
-  marginal: "bg-amber-500/15 text-amber-700 ring-amber-500/30 dark:text-amber-300",
+  ideal: "bg-flag/15 text-flag-deep ring-flag/40 dark:text-flag",
+  good: "bg-slate-950/10 text-slate-900 ring-slate-950/20 dark:bg-white/10 dark:text-slate-100 dark:ring-white/20",
+  marginal: "bg-transparent text-slate-600 ring-slate-400/60 dark:text-slate-300",
   unsuitable: "bg-slate-500/10 text-slate-500 ring-slate-500/20 dark:text-slate-400",
 };
 
@@ -27,7 +27,7 @@ export function SuitabilityBadges({
       <dl className="grid gap-3 sm:grid-cols-3">
         {levels.map(([skill, value]) => (
           <div key={skill} className="glass-subtle p-4">
-            <dt className="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">{SKILL_LABELS[skill]}</dt>
+            <dt className="text-xs font-medium font-mono tracking-wide text-slate-500 uppercase dark:text-slate-400">{SKILL_LABELS[skill]}</dt>
             <dd className="mt-2">
               <span className={`inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold ring-1 ring-inset ${LEVEL_STYLES[value.level]}`}>
                 {SUITABILITY_LABELS[value.level]}

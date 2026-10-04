@@ -1,11 +1,12 @@
 import { degreesToCompass } from "@/lib/forecast/engine/angles";
 import type { WindType } from "@/types/forecast";
 
+/** Good winds use the accent; poorer winds fade through the neutrals. */
 const WIND_COLOURS: Record<WindType, string> = {
-  offshore: "text-emerald-500",
-  "cross-offshore": "text-teal-500",
-  "cross-shore": "text-amber-500",
-  onshore: "text-rose-500",
+  offshore: "text-flag",
+  "cross-offshore": "text-flag/60",
+  "cross-shore": "text-slate-500 dark:text-slate-400",
+  onshore: "text-slate-400 dark:text-slate-600",
 };
 
 interface Props {
@@ -24,7 +25,7 @@ interface Props {
  */
 export function DirectionArrow({ fromDeg, kind, windType, size = 28, className = "" }: Props) {
   const rotation = (fromDeg + 180) % 360;
-  const colour = kind === "swell" ? "text-ocean-500 dark:text-ocean-300" : windType ? WIND_COLOURS[windType] : "text-slate-500";
+  const colour = kind === "swell" ? "text-ink dark:text-chalk" : windType ? WIND_COLOURS[windType] : "text-slate-500";
   const label = `${kind === "swell" ? "Swell" : "Wind"} from the ${degreesToCompass(fromDeg)} (${Math.round(fromDeg)}°)`;
 
   return (

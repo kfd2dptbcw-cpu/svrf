@@ -87,13 +87,13 @@ export function SpotSearch({ index }: { index: SearchIndexEntry[] }) {
             inputRef.current?.blur();
           }
         }}
-        className="h-10 w-full rounded-full border border-slate-900/10 bg-white/70 pr-4 pl-9 text-sm shadow-sm backdrop-blur placeholder:text-slate-400 focus:border-ocean-500 focus:outline-none dark:border-white/10 dark:bg-white/5"
+        className="h-10 w-full rounded-full border border-slate-900/10 bg-paper pr-4 pl-9 text-sm placeholder:text-slate-400 focus:border-flag focus:outline-none dark:border-white/10 dark:bg-white/5"
       />
       {showResults && (
         <ul
           id={listId}
           role="listbox"
-          className="glass absolute top-12 right-0 left-0 z-50 max-h-80 overflow-auto p-1.5 !rounded-2xl"
+          className="glass absolute top-12 right-0 left-0 z-50 max-h-80 overflow-auto p-1.5 !rounded-lg"
         >
           {results.length === 0 ? (
             <li className="px-3 py-2 text-sm text-slate-500">No spots match “{query}”</li>
@@ -109,7 +109,7 @@ export function SpotSearch({ index }: { index: SearchIndexEntry[] }) {
                   go(entry.path);
                 }}
                 onMouseEnter={() => setActive(i)}
-                className={`cursor-pointer rounded-xl px-3 py-2 text-sm ${i === active ? "bg-ocean-500/15" : ""}`}
+                className={`cursor-pointer rounded-xl px-3 py-2 text-sm ${i === active ? "bg-slate-950/10 dark:bg-white/10" : ""}`}
               >
                 <span className="font-medium">{entry.name}</span>
                 <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">{entry.regionName}</span>

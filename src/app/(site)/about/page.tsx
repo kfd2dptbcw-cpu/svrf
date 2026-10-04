@@ -96,7 +96,7 @@ export default function AboutPage() {
               <tbody>
                 {RATINGS.map(([stars, label, description]) => (
                   <tr key={label} className="border-t border-slate-900/5 dark:border-white/5">
-                    <td className="py-2 pr-3 whitespace-nowrap text-amber-500">{stars}</td>
+                    <td className="py-2 pr-3 whitespace-nowrap text-slate-600 dark:text-slate-300">{stars}</td>
                     <th scope="row" className="py-2 pr-3 text-left font-semibold">{label}</th>
                     <td className="py-2">{description}</td>
                   </tr>
@@ -127,7 +127,7 @@ export default function AboutPage() {
             Forecasts are a guide, not a guarantee. Always check conditions on arrival, surf at lifeguarded beaches between
             the black-and-white flags, and never surf beyond your ability. In an emergency at the coast call 999 and ask
             for the Coastguard. Visit the{" "}
-            <a href="https://rnli.org/safety" className="font-medium text-ocean-700 underline dark:text-ocean-300" rel="noopener">
+            <a href="https://rnli.org/safety" className="font-medium text-flag-deep underline dark:text-flag" rel="noopener">
               RNLI
             </a>{" "}
             for beach safety advice.
@@ -135,7 +135,7 @@ export default function AboutPage() {
         </Section>
 
         <p className="pt-8">
-          <Link href="/spots" className="font-semibold text-ocean-700 hover:underline dark:text-ocean-300">
+          <Link href="/spots" className="font-semibold text-flag-deep hover:underline dark:text-flag">
             Explore all surf spots →
           </Link>
         </p>

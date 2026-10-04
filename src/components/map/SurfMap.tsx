@@ -83,18 +83,19 @@ export default function SurfMap({ spots, dateKey }: SurfMapProps) {
     layer.clearLayers();
     for (const spot of spots) {
       const day = spot.days[dateKey];
-      const colour = day ? RATING_HEX[day.rating] : "#94a3b8";
+      const colour = day ? RATING_HEX[day.rating] : "#CFDBDA";
+      const textColour = day && (day.rating === 2 || day.rating === 3) ? "#EFEEE7" : "#0B0D0E";
       const label = day ? (day.surfMaxFt > 0 ? String(day.surfMaxFt) : "–") : "?";
       const icon = L.divIcon({
         className: "",
         iconSize: [34, 34],
         iconAnchor: [17, 17],
         popupAnchor: [0, -16],
-        html: `<span style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9999px;background:${colour};color:white;font:600 12px/1 system-ui,sans-serif;border:2.5px solid rgba(255,255,255,.9);box-shadow:0 4px 14px rgba(4,18,31,.35)">${label}</span>`,
+        html: `<span style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9999px;background:${colour};color:${textColour};font:600 12px/1 'JetBrains Mono Variable',ui-monospace,monospace;border:2px solid #EFEEE7;box-shadow:0 1px 3px rgba(11,13,14,.35)">${label}</span>`,
       });
       const stars = day ? "★".repeat(day.rating) + "☆".repeat(5 - day.rating) : "";
       const popup = `
-        <div style="min-width:190px;font:14px/1.4 system-ui,sans-serif">
+        <div style="min-width:190px;font:14px/1.4 'Inter Variable',system-ui,sans-serif">
           <div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;opacity:.65">${escapeHtml(spot.regionName)}</div>
           <div style="font-weight:600;font-size:15px">${escapeHtml(spot.name)}</div>
           ${
@@ -104,7 +105,7 @@ export default function SurfMap({ spots, dateKey }: SurfMapProps) {
                  <div style="opacity:.8;margin-top:2px">${escapeHtml(day.headline)}</div>`
               : `<div style="opacity:.7;margin-top:4px">Forecast unavailable</div>`
           }
-          <a href="${escapeHtml(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${spot.path}`)}" data-path="${escapeHtml(spot.path)}" style="display:inline-block;margin-top:8px;font-weight:600;color:#0888b2">View forecast →</a>
+          <a href="${escapeHtml(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${spot.path}`)}" data-path="${escapeHtml(spot.path)}" style="display:inline-block;margin-top:8px;font-weight:600;color:#C2380F">View forecast →</a>
         </div>`;
       L.marker([spot.lat, spot.lon], { icon, title: spot.name, alt: `${spot.name} surf forecast`, keyboard: true })
         .bindPopup(popup)

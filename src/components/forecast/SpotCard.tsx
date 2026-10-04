@@ -25,25 +25,25 @@ export function SpotCard({ name, regionName, href, day, rank, headingLevel = "h3
   const swell = day.primarySwell;
   const wind = day.wind;
   return (
-    <article className="glass group relative flex flex-col gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-xl sm:p-6">
+    <article className="glass group relative flex flex-col gap-4 p-5 transition hover:border-slate-400 dark:hover:border-slate-500 sm:p-6">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-medium tracking-wide text-ocean-700 uppercase dark:text-ocean-300">
+          <p className="text-xs font-medium font-mono tracking-wide text-slate-600 uppercase dark:text-slate-400">
             {rank !== undefined && <span className="mr-1.5 text-slate-400">#{rank}</span>}
             {regionName}
           </p>
           <Heading className="mt-0.5 truncate text-lg font-semibold">
-            <Link href={href} className="after:absolute after:inset-0 after:rounded-3xl focus-visible:outline-none">
+            <Link href={href} className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none">
               {name}
             </Link>
           </Heading>
         </div>
-        <WeatherIcon code={day.weatherCode} className="h-6 w-6 shrink-0 text-amber-500 dark:text-amber-300" />
+        <WeatherIcon code={day.weatherCode} className="h-6 w-6 shrink-0 text-slate-600 dark:text-slate-300" />
       </header>
 
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-4xl font-bold tracking-tight tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</p>
+          <p className="text-4xl font-bold tracking-tight font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</p>
           <div className="mt-2 flex items-center gap-2">
             <StarRating rating={day.rating} size="sm" label={day.label} />
             <RatingBadge rating={day.rating} label={day.label} />
@@ -53,7 +53,7 @@ export function SpotCard({ name, regionName, href, day, rank, headingLevel = "h3
           {swell && (
             <div className="flex items-center justify-end gap-1.5">
               <dt className="sr-only">Primary swell</dt>
-              <dd className="tabular-nums">
+              <dd className="font-mono tabular-nums">
                 {swell.heightM.toFixed(1)}m · {formatPeriod(swell.periodS)} {degreesToCompass(swell.directionDeg)}
               </dd>
               <DirectionArrow fromDeg={swell.directionDeg} kind="swell" size={22} />
@@ -62,7 +62,7 @@ export function SpotCard({ name, regionName, href, day, rank, headingLevel = "h3
           {wind && (
             <div className="flex items-center justify-end gap-1.5">
               <dt className="sr-only">Wind</dt>
-              <dd className="tabular-nums">
+              <dd className="font-mono tabular-nums">
                 {formatMph(wind.speedKmh)} {WIND_TYPE_LABELS[wind.type].toLowerCase()}
               </dd>
               <DirectionArrow fromDeg={wind.directionDeg} kind="wind" windType={wind.type} size={22} />

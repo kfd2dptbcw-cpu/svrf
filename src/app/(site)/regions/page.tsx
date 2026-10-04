@@ -30,9 +30,9 @@ export default async function RegionsPage() {
           return (
             <li key={region.slug} className="glass flex flex-col gap-4 p-6">
               <div>
-                <p className="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">{region.country}</p>
+                <p className="text-xs font-medium font-mono tracking-wide text-slate-500 uppercase dark:text-slate-400">{region.country}</p>
                 <h2 className="text-2xl font-semibold">
-                  <Link href={`/surf/${region.slug}`} className="hover:text-ocean-600 dark:hover:text-ocean-300">
+                  <Link href={`/surf/${region.slug}`} className="hover:text-flag-deep dark:hover:text-flag">
                     {region.name}
                   </Link>
                 </h2>
@@ -41,12 +41,12 @@ export default async function RegionsPage() {
               <ul className="grid gap-1.5 text-sm">
                 {(ranked.length > 0 ? ranked : getSpotsInRegion(region.slug).map((spot) => ({ spot, day: undefined }))).map(({ spot, day }) => (
                   <li key={spot.slug} className="flex items-center justify-between gap-2">
-                    <Link href={spot.path} className="font-medium hover:text-ocean-600 dark:hover:text-ocean-300">
+                    <Link href={spot.path} className="font-medium hover:text-flag-deep dark:hover:text-flag">
                       {spot.name}
                     </Link>
                     {day && (
                       <span className="flex items-center gap-2">
-                        <span className="tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
+                        <span className="font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
                         <StarRating rating={day.rating} size="sm" label={day.label} />
                         <RatingBadge rating={day.rating} label={day.label} className="hidden sm:inline-flex" />
                       </span>
@@ -54,7 +54,7 @@ export default async function RegionsPage() {
                   </li>
                 ))}
               </ul>
-              <Link href={`/surf/${region.slug}`} className="mt-auto text-sm font-semibold text-ocean-700 dark:text-ocean-300">
+              <Link href={`/surf/${region.slug}`} className="mt-auto text-sm font-semibold text-flag-deep dark:text-flag">
                 Full {region.name} forecast →
               </Link>
             </li>

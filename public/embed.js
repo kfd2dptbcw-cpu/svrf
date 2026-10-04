@@ -1,5 +1,5 @@
 /*!
- * UK Surf Forecast embed loader.
+ * SVRF Surf Forecast embed loader.
  *
  * Usage:
  *   <div data-surf-forecast="/embed/cornwall/fistral"></div>

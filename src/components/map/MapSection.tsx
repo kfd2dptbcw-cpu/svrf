@@ -56,7 +56,7 @@ export function MapSection({ spots, dateKeys }: { spots: SpotListItem[]; dateKey
         </div>
         <Legend />
       </div>
-      <div ref={ref} className="h-[440px] overflow-hidden rounded-2xl sm:h-[560px]">
+      <div ref={ref} className="h-[440px] overflow-hidden rounded-lg sm:h-[560px]">
         {visible ? <SurfMap spots={spots} dateKey={dateKey} /> : <MapPlaceholder text="Map loads as you scroll" />}
       </div>
     </div>
@@ -65,7 +65,7 @@ export function MapSection({ spots, dateKeys }: { spots: SpotListItem[]; dateKey
 
 function MapPlaceholder({ text }: { text: string }) {
   return (
-    <div className="flex h-full w-full items-center justify-center bg-ocean-500/5 text-sm text-slate-500 dark:text-slate-400">
+    <div className="flex h-full w-full items-center justify-center bg-slate-950/5 dark:bg-white/5 text-sm text-slate-500 dark:text-slate-400">
       {text}
     </div>
   );

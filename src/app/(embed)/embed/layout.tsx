@@ -17,7 +17,7 @@ export default function EmbedLayout({ children }: { children: React.ReactNode })
         {children}
         <p className="mt-3 border-t border-slate-900/5 pt-2 text-right text-[11px] text-slate-500 dark:border-white/5 dark:text-slate-400">
           Forecast by{" "}
-          <a href={absoluteUrl("/")} target="_blank" rel="noopener" className="font-medium text-ocean-700 dark:text-ocean-300">
+          <a href={absoluteUrl("/")} target="_blank" rel="noopener" className="font-medium text-flag-deep dark:text-flag">
             {env.siteName}
           </a>
           <DataAttribution className="ml-1 before:mr-1 before:content-['·']" />

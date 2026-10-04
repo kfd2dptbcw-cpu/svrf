@@ -23,7 +23,7 @@ export function ForecastMatrix({
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr>
-            <th scope="col" className="px-2 py-2 text-left text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">
+            <th scope="col" className="px-2 py-2 text-left text-xs font-medium font-mono tracking-wide text-slate-500 uppercase dark:text-slate-400">
               Spot
             </th>
             {dateKeys.map((key, index) => (
@@ -40,7 +40,7 @@ export function ForecastMatrix({
           {spots.map((spot) => (
             <tr key={spot.slug}>
               <th scope="row" className="px-2 py-1 text-left font-medium whitespace-nowrap">
-                <Link href={spot.path} className="hover:text-ocean-600 dark:hover:text-ocean-300">
+                <Link href={spot.path} className="hover:text-flag-deep dark:hover:text-flag">
                   {spot.name}
                 </Link>
               </th>
@@ -54,7 +54,7 @@ export function ForecastMatrix({
                         className={`flex flex-col items-center rounded-xl px-1 py-1.5 ring-1 ring-inset transition hover:brightness-110 ${RATING_SOFT[day.rating]}`}
                         aria-label={`${spot.name}, ${formatWeekday(key)}: ${formatSurfRange(day.surfMinFt, day.surfMaxFt)}, ${day.label}`}
                       >
-                        <span className="font-semibold tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
+                        <span className="font-semibold font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
                         <span className="text-[10px] tracking-tight" aria-hidden="true">
                           {"★".repeat(day.rating)}
                           <span className="opacity-30">{"★".repeat(5 - day.rating)}</span>

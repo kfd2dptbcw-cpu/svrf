@@ -9,7 +9,7 @@ export function EmbedSpotRow({ name, path, day }: { name: string; path: string; 
   return (
     <li className="flex items-center justify-between gap-3 py-2.5">
       <div className="min-w-0">
-        <a href={absoluteUrl(path)} target="_blank" rel="noopener" className="font-semibold hover:text-ocean-600">
+        <a href={absoluteUrl(path)} target="_blank" rel="noopener" className="font-semibold hover:text-flag-deep">
           {name}
         </a>
         <p className="truncate text-xs text-slate-500 dark:text-slate-400">
@@ -19,7 +19,7 @@ export function EmbedSpotRow({ name, path, day }: { name: string; path: string; 
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {day.primarySwell && <DirectionArrow fromDeg={day.primarySwell.directionDeg} kind="swell" size={20} />}
-        <span className="w-14 text-right font-bold tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
+        <span className="w-14 text-right font-bold font-mono tabular-nums">{formatSurfRange(day.surfMinFt, day.surfMaxFt)}</span>
         <StarRating rating={day.rating} size="sm" label={day.label} />
       </div>
     </li>
