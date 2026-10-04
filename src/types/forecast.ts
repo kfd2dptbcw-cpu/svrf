@@ -152,4 +152,10 @@ export interface ForecastBundle {
   sources: string[];
   errors: string[];
   spots: Record<string, SpotForecast>;
+  /** API accesses the refresh that produced this bundle was charged (metered providers only). */
+  apiUsage?: {
+    totalTokens: number;
+    remainingPeriod: number | null;
+    endpoints: { name: string; requests: number; tokens: number; multipliers: string[] }[];
+  };
 }

@@ -28,6 +28,8 @@ export async function GET() {
       spotsConfigured: spots.length,
       spotsWithForecast: Object.keys(bundle.spots).length,
       errors: bundle.errors,
+      // What the last refresh was charged by metered providers (e.g. Xweather), and the allowance left.
+      lastRefreshUsage: bundle.apiUsage ?? null,
     },
     { status: healthy ? 200 : 503, headers: { "Cache-Control": "no-store" } },
   );

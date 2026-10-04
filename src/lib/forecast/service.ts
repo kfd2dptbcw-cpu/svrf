@@ -7,6 +7,7 @@ import { env } from "@/lib/env";
 import { HttpError } from "@/lib/http/fetch-json";
 import { buildSpotForecast, toEngineSpot } from "@/lib/forecast/engine";
 import { getProviders } from "@/lib/providers/registry";
+import { summariseUsage, takeUsage } from "@/lib/providers/usage";
 import type { ForecastPoint, MarineSeries, TideSeries, WeatherSeries } from "@/lib/providers/types";
 import { isFresh, nextRefreshSlot } from "@/lib/schedule";
 import { nowSeconds } from "@/lib/time";
@@ -159,6 +160,9 @@ export async function refreshWithLock(now = nowSeconds()): Promise<ForecastBundl
     await store.set(failureKey(), "").catch(() => undefined);
     return bundle;
   } catch (error) {
+    // A failed refresh may still have been charged for the requests that succeeded.
+    const spent = summariseUsage(takeUsage()).totalTokens;
+    if (spent > 0) console.warn(`[forecast] failed refresh still used ${spent} API accesses`);
     // Share the failure (before releasing the lock) so peers back off too.
     await store.set(failureKey(), JSON.stringify(failureFrom(error, now))).catch(() => undefined);
     throw error;
@@ -194,6 +198,7 @@ async function readSharedFailure(): Promise<FailureRecord | null> {
 export async function refreshForecasts(): Promise<ForecastBundle> {
   const providers = getProviders();
   const now = nowSeconds();
+  takeUsage(); // discard anything left over from an earlier, failed refresh
   const context = { days: env.forecastDays };
   const points: (ForecastPoint & { stationId?: string })[] = spots.map((spot) => ({
     slug: spot.slug,
@@ -235,6 +240,15 @@ export async function refreshForecasts(): Promise<ForecastBundle> {
   }
 
   const sources = [...new Set(Object.values(forecasts).flatMap((forecast) => forecast.sources))];
+  const usage = takeUsage();
+  const apiUsage = usage.length > 0 ? summariseUsage(usage) : undefined;
+  if (apiUsage) {
+    const detail = apiUsage.endpoints.map((endpoint) => `${endpoint.name}: ${endpoint.tokens} over ${endpoint.requests} requests`).join("; ");
+    console.info(
+      `[forecast] refresh used ${apiUsage.totalTokens} API accesses (${detail})` +
+        (apiUsage.remainingPeriod !== null ? `; ${apiUsage.remainingPeriod} left this period` : ""),
+    );
+  }
   const bundle: ForecastBundle = {
     version: BUNDLE_VERSION,
     generatedAt: now,
@@ -243,6 +257,7 @@ export async function refreshForecasts(): Promise<ForecastBundle> {
     sources,
     errors,
     spots: forecasts,
+    apiUsage,
   };
 
   runtime.memo = bundle;

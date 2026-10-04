@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getActiveRegions } from "@/lib/config";
 import { activeCredits } from "@/lib/attribution";
+import { DataAttribution } from "./DataAttribution";
 import { env } from "@/lib/env";
 
 export function SiteFooter() {
@@ -48,6 +49,7 @@ export function SiteFooter() {
             )}{" "}
             Tides are modelled and not for navigation.
           </p>
+          <DataAttribution className="mt-2 block text-slate-600 dark:text-slate-400" />
           <p className="mt-3">
             <Link href="/about" className="font-medium text-ocean-700 hover:underline dark:text-ocean-300">
               How our forecasts work →

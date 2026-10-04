@@ -1,6 +1,7 @@
 import { env } from "@/lib/env";
 import { fetchJson, HttpError } from "@/lib/http/fetch-json";
 import { sunTimesForRange } from "@/lib/sun";
+import { recordCost } from "./usage";
 import type { ForecastPoint, MarineProvider, MarineSeries, ProviderContext, Series, WeatherProvider, WeatherSeries } from "./types";
 
 /**
@@ -11,10 +12,12 @@ import type { ForecastPoint, MarineProvider, MarineSeries, ProviderContext, Seri
  *   Marine:  /maritime/{lat},{lon}   waves, swell trains, sea temperature, tides
  *   Weather: /forecasts/{lat},{lon}  hourly wind, gusts, temperature, weather
  *
- * Xweather counts every location request as one access (batching does not
- * reduce the count), so a full refresh costs 2 accesses per spot: 68 for the
- * 34 default spots, ≈4,200 a month at two refreshes a day. Sunrise/sunset are
- * calculated locally (lib/sun.ts) so they cost nothing.
+ * Both endpoints have a ×1 endpoint multiplier, but Xweather may also bill a
+ * request once per time interval it covers (its docs don't list which
+ * endpoints do), so a multi-day request can cost more than one access. Every
+ * response's `X-Cost-Tokens` header is recorded (see usage.ts): each refresh
+ * logs its real total, and `npm run provider:check` projects monthly usage.
+ * Sunrise/sunset are calculated locally (lib/sun.ts) so they cost nothing.
  *
  * Requests run with limited concurrency, and the whole batch stops at the
  * first authentication or rate-limit error so a bad key or exhausted quota
@@ -63,7 +66,26 @@ function isFatal(error: unknown): boolean {
 
 /** Extract hourly periods; returns null when Xweather reports no data for the location. */
 async function fetchPeriods(url: string, label: string, signal: AbortSignal): Promise<Period[] | null> {
-  const data = await fetchJson<XweatherResponse>(url, { label, retries: 1, signal });
+  const endpoint = `/${new URL(url).pathname.split("/").filter(Boolean)[0] ?? ""}`;
+  const data = await fetchJson<XweatherResponse>(url, {
+    label,
+    retries: 1,
+    signal,
+    onResponse: (headers) => {
+      const tokens = Number(headers.get("x-cost-tokens"));
+      if (Number.isFinite(tokens) && headers.has("x-cost-tokens")) {
+        const remaining = Number(headers.get("x-ratelimit-remaining-period"));
+        recordCost({
+          provider: "xweather",
+          endpoint,
+          tokens,
+          // The wire header is plural; Xweather's docs also show it singular.
+          multipliers: headers.get("x-cost-multipliers") ?? headers.get("x-cost-multiplier"),
+          remainingPeriod: headers.has("x-ratelimit-remaining-period") && Number.isFinite(remaining) ? remaining : null,
+        });
+      }
+    },
+  });
   if (!data.success) {
     const code = data.error?.code ?? "unknown_error";
     if (code === "warn_no_data" || code === "invalid_location") return null;
@@ -154,7 +176,8 @@ export class XweatherMarineProvider implements MarineProvider {
           // Start at local midnight so today's early hours are included (the endpoint keeps 48h of history).
           from: "today",
           to: `+${context.days}days`,
-          limit: String(context.days * 24 + 24),
+          // /maritime takes plimit (periods), not limit.
+          plimit: String(context.days * 24 + 24),
         }),
         SOURCE_MARINE,
         signal,

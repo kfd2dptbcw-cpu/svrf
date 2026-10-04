@@ -64,7 +64,7 @@ Use Upstash (`UPSTASH_REDIS_REST_URL` / `_TOKEN`) for the cache when the host's 
 1. Sign up at <https://signup.xweather.com/> and create an app. Its namespace must match where requests come from: your production domain for server-side use (Xweather also accepts `localhost` for development).
 2. Set `XWEATHER_CLIENT_ID` and `XWEATHER_CLIENT_SECRET` wherever the app runs (Vercel settings, Docker `-e`, `.env.local`).
 3. Run `npm run provider:check` locally with the same keys to confirm the data comes through.
-4. Budget: each full refresh uses 2 accesses per spot (68 for 34 spots). With `REFRESH_HOURS_UTC=6,18` that is about 4,200 a month. Adding spots or refresh hours raises it proportionally; stay under 15,000 to remain on the free tier.
+4. Budget: both endpoints have a ×1 multiplier, but Xweather can also bill a request once per time interval it covers, and its docs don't say whether `/maritime` and `/forecasts` do. The estimate therefore ranges from 2 accesses per spot per refresh (≈4,200 a month for 34 spots at two refreshes a day) to several times that. `npm run provider:check` reads the real charge from Xweather's `X-Cost-Tokens` header and projects the monthly total; if it's over 15,000, lower `FORECAST_DAYS`, `REFRESH_HOURS_UTC` or the number of spots. In production every refresh logs its cost, and `/api/health` shows `lastRefreshUsage` with the allowance left.
 
 Because the cache is refreshed at most once per slot per instance, use the Upstash shared cache on serverless hosts. Without it, each new serverless instance may refresh separately and use extra accesses.
 

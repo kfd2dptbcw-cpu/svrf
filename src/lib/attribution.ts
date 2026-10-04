@@ -8,6 +8,8 @@ import { env, type DataSource } from "@/lib/env";
 export interface SourceCredit {
   name: string;
   url: string;
+  /** Exact link text the provider requires wherever its data is displayed, if any. */
+  requiredLinkText?: string;
   marine: string;
   weather: string;
 }
@@ -16,6 +18,9 @@ const CREDITS: Record<Exclude<DataSource, "sample">, SourceCredit> = {
   xweather: {
     name: "Vaisala Xweather",
     url: "https://www.xweather.com/",
+    // Xweather's attribution rules: a link to xweather.com reading "Powered by Vaisala Xweather"
+    // (https://www.xweather.com/docs/weather-api/resources/attribution).
+    requiredLinkText: "Powered by Vaisala Xweather",
     marine: "Vaisala Xweather Maritime API: significant wave height, primary and secondary swell trains, sea surface temperature and tide levels.",
     weather: "Vaisala Xweather Forecasts API: hourly wind, gusts, temperature and weather.",
   },

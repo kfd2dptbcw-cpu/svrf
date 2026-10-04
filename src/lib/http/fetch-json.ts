@@ -23,6 +23,8 @@ export interface FetchJsonOptions {
   signal?: AbortSignal;
   /** Label used in error messages, e.g. "Open-Meteo Marine". */
   label?: string;
+  /** Called with the headers of the successful response (e.g. to read usage/cost headers). */
+  onResponse?: (headers: Headers) => void;
 }
 
 /**
@@ -60,7 +62,9 @@ export async function fetchJson<T>(url: string, options: FetchJsonOptions = {}):
         lastError = error;
         continue;
       }
-      return (await response.json()) as T;
+      const body = (await response.json()) as T;
+      options.onResponse?.(response.headers);
+      return body;
     } catch (error) {
       if (options.signal?.aborted) throw error;
       if (error instanceof HttpError && !isRetryableStatus(error.status ?? 0)) throw error;

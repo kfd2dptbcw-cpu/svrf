@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ResizeReporter } from "@/components/embed/ResizeReporter";
+import { DataAttribution } from "@/components/layout/DataAttribution";
 import { env } from "@/lib/env";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -19,6 +20,7 @@ export default function EmbedLayout({ children }: { children: React.ReactNode })
           <a href={absoluteUrl("/")} target="_blank" rel="noopener" className="font-medium text-ocean-700 dark:text-ocean-300">
             {env.siteName}
           </a>
+          <DataAttribution className="ml-1 before:mr-1 before:content-['·']" />
         </p>
       </div>
     </div>

@@ -12,6 +12,7 @@ import { getSpot } from "../src/lib/config";
 import { buildSpotForecast, toEngineSpot } from "../src/lib/forecast/engine";
 import { formatSurfRange } from "../src/lib/format";
 import type { Series } from "../src/lib/providers/types";
+import { summariseUsage, takeUsage } from "../src/lib/providers/usage";
 
 for (const file of [".env.local", ".env"]) {
   try {
@@ -101,6 +102,34 @@ for (const day of forecast.days) {
   console.log(`  ${day.date}  ${formatSurfRange(day.surfMinFt, day.surfMaxFt).padEnd(7)} ${"★".repeat(day.rating).padEnd(5)} ${day.label.padEnd(9)} ${day.summary[0] ?? ""}`);
 }
 if (forecast.days.length < env.forecastDays - 1) problems.push(`only ${forecast.days.length} complete days built`);
+
+// ── Real cost, from the provider's own usage headers (Xweather: X-Cost-Tokens) ──
+const usage = summariseUsage(takeUsage());
+if (usage.endpoints.length > 0) {
+  const { spots } = await import("../src/lib/config");
+  const refreshesPerDay = env.refreshHoursUtc.length;
+  const perRefresh = usage.totalTokens * spots.length;
+  const perMonth = perRefresh * refreshesPerDay * 30;
+  console.log("\nAPI cost (as charged by the provider):");
+  for (const endpoint of usage.endpoints) {
+    console.log(
+      `  ${endpoint.name.padEnd(22)} ${String(endpoint.tokens).padStart(4)} accesses for ${endpoint.requests} request(s)` +
+        (endpoint.multipliers.length ? `   [${endpoint.multipliers.join(" | ")}]` : ""),
+    );
+  }
+  console.log(`  This check:            ${usage.totalTokens} accesses for one spot`);
+  console.log(`  Projected per refresh: ${perRefresh} (${spots.length} spots)`);
+  console.log(`  Projected per month:   ${perMonth.toLocaleString("en-GB")} (${refreshesPerDay} refreshes/day × 30 days)`);
+  if (usage.remainingPeriod !== null) console.log(`  Left this billing period: ${usage.remainingPeriod.toLocaleString("en-GB")}`);
+  if (perMonth > 15_000) {
+    problems.push(
+      `projected ${perMonth.toLocaleString("en-GB")} accesses/month exceeds Xweather's free 15,000 — ` +
+        "reduce FORECAST_DAYS, the number of spots or REFRESH_HOURS_UTC",
+    );
+  }
+} else if (env.dataSource === "xweather") {
+  console.log("\n• Xweather did not return X-Cost-Tokens headers; check usage in the Xweather account dashboard.");
+}
 
 if (problems.length) {
   console.error(`\n✖ ${problems.length} problem(s):\n  - ${problems.join("\n  - ")}`);

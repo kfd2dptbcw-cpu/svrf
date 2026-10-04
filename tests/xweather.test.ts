@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FallbackMarineProvider } from "@/lib/providers/fallback";
 import type { MarineProvider } from "@/lib/providers/types";
+import { summariseUsage, takeUsage } from "@/lib/providers/usage";
 import { XweatherMarineProvider, XweatherWeatherProvider, xweatherCodeToWmo } from "@/lib/providers/xweather";
 
 /**
@@ -10,8 +11,8 @@ import { XweatherMarineProvider, XweatherWeatherProvider, xweatherCodeToWmo } fr
  */
 const T0 = 1_791_158_400; // a top-of-hour timestamp
 
-function ok(periods: object[]) {
-  return new Response(JSON.stringify({ success: true, error: null, response: [{ loc: {}, periods }] }), { status: 200 });
+function ok(periods: object[], headers: Record<string, string> = {}) {
+  return new Response(JSON.stringify({ success: true, error: null, response: [{ loc: {}, periods }] }), { status: 200, headers });
 }
 
 function maritimePeriod(i: number) {
@@ -68,6 +69,9 @@ describe("Xweather providers", () => {
     expect(url.pathname).toMatch(/^\/maritime\/50\.4300,-5\.1800$/);
     expect(url.searchParams.get("filter")).toBe("1hr");
     expect(url.searchParams.get("client_id")).toBe("id");
+    // /maritime takes plimit for the number of periods; limit is not a supported parameter there.
+    expect(url.searchParams.get("plimit")).toBe("72");
+    expect(url.searchParams.has("limit")).toBe(false);
     // One access per spot.
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -121,6 +125,54 @@ describe("Xweather providers", () => {
     vi.stubEnv("XWEATHER_CLIENT_ID", "");
     vi.stubGlobal("fetch", vi.fn());
     await expect(new XweatherMarineProvider().fetchMarine(points, context)).rejects.toThrow(/XWEATHER_CLIENT_ID/);
+  });
+});
+
+describe("Xweather usage tracking", () => {
+  beforeEach(() => {
+    vi.stubEnv("XWEATHER_CLIENT_ID", "id");
+    vi.stubEnv("XWEATHER_CLIENT_SECRET", "secret");
+    takeUsage();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("records the real charge and remaining allowance from response headers", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() =>
+        Promise.resolve(
+          ok([maritimePeriod(0), maritimePeriod(1)], {
+            "X-Cost-Tokens": "8",
+            "X-Cost-Multipliers": "endpoint=1; spatial=1; temporal=8",
+            "X-RateLimit-Remaining-Period": "14000",
+          }),
+        ),
+      ),
+    );
+    await new XweatherMarineProvider().fetchMarine(points, context);
+    const summary = summariseUsage(takeUsage());
+    expect(summary.totalTokens).toBe(16);
+    expect(summary.remainingPeriod).toBe(14000);
+    expect(summary.endpoints).toEqual([
+      { name: "xweather /maritime", requests: 2, tokens: 16, multipliers: ["endpoint=1; spatial=1; temporal=8"] },
+    ]);
+  });
+
+  it("accepts the singular multiplier header and records nothing when no cost header is sent", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(ok([maritimePeriod(0)], { "X-Cost-Tokens": "1", "X-Cost-Multiplier": "endpoint=1; spatial=1; temporal=1" }))
+        .mockResolvedValueOnce(ok([maritimePeriod(0)])),
+    );
+    await new XweatherMarineProvider().fetchMarine(points, context);
+    const usage = takeUsage();
+    expect(usage).toHaveLength(1);
+    expect(usage[0]!.multipliers).toBe("endpoint=1; spatial=1; temporal=1");
   });
 });
 

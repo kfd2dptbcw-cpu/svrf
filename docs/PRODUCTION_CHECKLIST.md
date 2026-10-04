@@ -5,7 +5,7 @@
 - [ ] `CRON_SECRET` set to a long random value (the cron endpoint refuses to run without it in production)
 - [ ] `FORECAST_DATA_SOURCE` is **not** `sample`
 - [ ] `XWEATHER_CLIENT_ID` / `XWEATHER_CLIENT_SECRET` set (with your production domain registered on the Xweather app), and `npm run provider:check` passes with them
-- [ ] Xweather usage is tracked in the Xweather account dashboard; expect ≈68 accesses per refresh for 34 spots
+- [ ] `npm run provider:check` with production keys shows a projected monthly usage under your allowance (it reads Xweather's own `X-Cost-Tokens` charge). After launch, `/api/health` → `lastRefreshUsage` shows what each refresh really cost and how much allowance is left
 - [ ] Shared cache configured on serverless hosts (`UPSTASH_REDIS_REST_URL` / `_TOKEN`), or a persistent volume for `.forecast-cache` when self-hosting
 - [ ] `EMBED_ALLOWED_ORIGINS` restricted to your own domains if you don't want third parties embedding widgets
 - [ ] `npm run config:validate` passes, and every spot shows a forecast (check `spotsWithForecast` in `/api/health`)
@@ -29,6 +29,6 @@
 - [ ] Embeds tested on the host website
 
 ## Content and legal
-- [ ] Attribution kept in the footer (it names the active data sources automatically; Open-Meteo requires CC BY 4.0 credit when used) and on the map (OpenStreetMap)
+- [ ] Attribution kept: "Powered by Vaisala Xweather" linking to xweather.com appears in the site footer and every embed widget automatically (Xweather requires it wherever its data is shown — keep it if you restyle the footer or render `/api/forecast` data on your own site). Open-Meteo requires CC BY 4.0 credit when used; OpenStreetMap credit is on the map
 - [ ] The "not for navigation" tide disclaimer and the safety section on `/about` reviewed
 - [ ] Spot hazards and descriptions reviewed by someone with local knowledge
