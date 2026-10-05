@@ -22,7 +22,6 @@ import { ukDateKey } from "@/lib/time";
 import { breadcrumbJsonLd, pageMetadata, spotJsonLd } from "@/lib/seo";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
 
 type Params = Promise<{ region: string; spot: string }>;
 

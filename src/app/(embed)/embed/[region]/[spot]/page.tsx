@@ -9,7 +9,6 @@ import { formatSurfRange, formatWeekday } from "@/lib/format";
 import { absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return spots.map((spot) => ({ region: spot.region, spot: spot.slug }));

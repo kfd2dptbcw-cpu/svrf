@@ -3,7 +3,6 @@ import { getRegion, getSpot, spots } from "@/lib/config";
 import { getSpotForecast } from "@/lib/forecast/service";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return spots.map((spot) => ({ spot: spot.slug }));

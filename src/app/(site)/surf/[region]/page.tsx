@@ -12,7 +12,6 @@ import { rankSpots, upcomingDateKeys } from "@/lib/forecast/selectors";
 import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
 
 type Params = Promise<{ region: string }>;
 

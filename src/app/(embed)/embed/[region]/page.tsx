@@ -5,7 +5,6 @@ import { getForecastBundle } from "@/lib/forecast/service";
 import { rankSpots, todayKey } from "@/lib/forecast/selectors";
 
 export const revalidate = 3600;
-export const dynamicParams = false;
 
 export function generateStaticParams() {
   return getActiveRegions().map((region) => ({ region: region.slug }));
@@ -15,8 +14,10 @@ export function generateStaticParams() {
 export default async function EmbedRegionPage({ params }: { params: Promise<{ region: string }> }) {
   const region = getRegion((await params).region);
   if (!region) notFound();
+  const regionSpots = getSpotsInRegion(region.slug);
+  if (regionSpots.length === 0) notFound();
   const bundle = await getForecastBundle();
-  const ranked = rankSpots(bundle, todayKey(), getSpotsInRegion(region.slug));
+  const ranked = rankSpots(bundle, todayKey(), regionSpots);
   return (
     <>
       <h1 className="text-base font-semibold">{region.name} surf today</h1>

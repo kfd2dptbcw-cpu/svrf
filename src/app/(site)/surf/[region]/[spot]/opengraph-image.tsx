@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { notFound } from "next/navigation";
 import { getRegion, getSpot, spots } from "@/lib/config";
 import { env } from "@/lib/env";
 import { getSpotForecast } from "@/lib/forecast/service";
@@ -17,10 +18,11 @@ export function generateStaticParams() {
 
 /** Social card showing today's surf at the spot. */
 export default async function SpotOpengraphImage({ params }: { params: Promise<{ region: string; spot: string }> }) {
-  const { spot: slug } = await params;
+  const { region: regionSlug, spot: slug } = await params;
   const spot = getSpot(slug);
-  const region = spot ? getRegion(spot.region) : undefined;
-  const { forecast } = spot ? await getSpotForecast(spot.slug) : { forecast: null };
+  const region = getRegion(regionSlug);
+  if (!spot || !region || spot.region !== region.slug) notFound();
+  const { forecast } = await getSpotForecast(spot.slug);
   const today = forecast?.days.find((day) => day.date >= todayKey());
 
   return new ImageResponse(
