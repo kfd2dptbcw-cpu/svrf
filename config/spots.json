@@ -527,7 +527,7 @@
         "Strong river-mouth currents, especially on the ebb"
       ],
       "enabled": true,
-      "tideStationId": "0017"
+      "tideStationId": "0020"
     },
     {
       "slug": "bournemouth",
@@ -718,7 +718,7 @@
         "Rips near Burry Holms"
       ],
       "enabled": true,
-      "tideStationId": "0505"
+      "tideStationId": "0508"
     },
     {
       "slug": "rest-bay",
