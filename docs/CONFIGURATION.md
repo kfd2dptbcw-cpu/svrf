@@ -52,11 +52,12 @@ Regions without any enabled spots are hidden automatically.
 3. If ratings feel too generous in onshore winds, check that `wind.preferred` really points from land to sea.
 4. For spots that only work on certain tides, raise `tide.sensitivity` towards 0.6–0.8.
 
-## Adding official tide predictions
+## Official tide predictions (ADMIRALTY)
 
-1. Get a free Discovery key at <https://admiraltyapi.portal.azure-api.net/>.
-2. Call `GET https://admiraltyapi.azure-api.net/uktidalapi/api/V1/Stations` with your key and find the nearest station to each spot.
-3. Add `"tideStationId": "<Id>"` to those spots.
-4. Set `TIDE_PROVIDER=admiralty` and `ADMIRALTY_API_KEY=<key>`.
+Every spot has a `tideStationId` from the UK Hydrographic Office station list, saved in `config/tide-stations.json` (608 stations, from the ADMIRALTY UK Tidal API `/Stations` endpoint). `npm run config:validate` fails if a spot names a station that isn't in that file.
 
-Spots without a station, and any spot whose station request fails, fall back to the modelled tide.
+Choices were made by hand: the nearest station, except where a closer one sits across a headland, estuary or bay from the beach, in which case the station on the same stretch of open coast wins. Estuary stations are avoided where possible because their low waters lag and are truncated by the bar.
+
+To use the official tide times, set `TIDE_PROVIDER=admiralty` and `ADMIRALTY_API_KEY` (free Discovery key from <https://admiraltyapi.portal.azure-api.net/>). Spots whose station request fails fall back to the modelled tide.
+
+**Adding a spot:** run `npm run tides:assign`. It matches only spots without a `tideStationId`, using the saved file (no API key or network needed), and lists any match more than ~15 km away or lying behind the beach (possibly across a headland) so you can check it on a map. `--dry` reports without writing; `--all` re-matches every spot (overwriting hand-reviewed choices); `--api` refreshes `config/tide-stations.json` from the API first.

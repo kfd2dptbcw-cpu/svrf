@@ -47,7 +47,8 @@
         "Strong rips near the headlands",
         "Crowded in summer and at weekends"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0546"
     },
     {
       "slug": "watergate-bay",
@@ -94,7 +95,8 @@
       "hazards": [
         "Cut off by the tide at high water springs"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0546"
     },
     {
       "slug": "perranporth",
@@ -141,7 +143,8 @@
       "hazards": [
         "Rips around Chapel Rock and the stream"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0546A"
     },
     {
       "slug": "sennen",
@@ -189,7 +192,8 @@
         "Powerful rips at Gwynver",
         "Rocks at the northern end"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0548"
     },
     {
       "slug": "gwithian",
@@ -236,7 +240,8 @@
       "hazards": [
         "Rocks and rips around Godrevy Point"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0547"
     },
     {
       "slug": "porthtowan",
@@ -283,7 +288,8 @@
         "High tide backwash",
         "Strong rips in bigger swells"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0546A"
     },
     {
       "slug": "polzeath",
@@ -329,7 +335,8 @@
       "hazards": [
         "Rocks at both ends of the beach"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0545"
     },
     {
       "slug": "croyde",
@@ -377,7 +384,8 @@
         "Very crowded",
         "Rips by the rocks"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0535"
     },
     {
       "slug": "saunton-sands",
@@ -422,7 +430,8 @@
       "hazards": [
         "Waves lose power in small swells"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0535"
     },
     {
       "slug": "woolacombe",
@@ -469,7 +478,8 @@
       "hazards": [
         "Rips near the northern rocks"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0535"
     },
     {
       "slug": "bantham",
@@ -516,7 +526,8 @@
       "hazards": [
         "Strong river-mouth currents, especially on the ebb"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0017"
     },
     {
       "slug": "bournemouth",
@@ -562,7 +573,8 @@
       "hazards": [
         "Groynes and pier pilings"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0037"
     },
     {
       "slug": "kimmeridge",
@@ -609,7 +621,8 @@
         "Shallow rock ledges",
         "Access to Broad Bench is restricted by the Lulworth firing ranges"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0034A"
     },
     {
       "slug": "freshwater-west",
@@ -657,7 +670,8 @@
         "Quicksand near the stream",
         "No lifeguard cover outside summer"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0496"
     },
     {
       "slug": "llangennith",
@@ -703,7 +717,8 @@
       "hazards": [
         "Rips near Burry Holms"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0505"
     },
     {
       "slug": "rest-bay",
@@ -751,7 +766,8 @@
         "Rock shelves at low tide",
         "Big tidal range"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0512"
     },
     {
       "slug": "caswell-bay",
@@ -797,7 +813,8 @@
       "hazards": [
         "Rocks on both sides of the bay"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0508"
     },
     {
       "slug": "langland-bay",
@@ -843,7 +860,8 @@
         "Shallow reefs",
         "Tidal rips"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0508"
     },
     {
       "slug": "whitesands",
@@ -891,7 +909,8 @@
         "Rocks at the northern end",
         "Rips in bigger swells"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0492"
     },
     {
       "slug": "newgale",
@@ -936,7 +955,8 @@
       "hazards": [
         "Steep pebble bank at high tide"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0492A"
     },
     {
       "slug": "broad-haven",
@@ -982,7 +1002,8 @@
       "hazards": [
         "Rocks at both ends"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0492B"
     },
     {
       "slug": "hells-mouth",
@@ -1028,7 +1049,8 @@
       "hazards": [
         "Exposed and remote, with no lifeguards"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0482B"
     },
     {
       "slug": "rhosneigr",
@@ -1074,7 +1096,8 @@
       "hazards": [
         "Rocks and reefs around the bay"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0479A"
     },
     {
       "slug": "saltburn",
@@ -1122,7 +1145,8 @@
         "Pier pilings",
         "Rips by the pier"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0185"
     },
     {
       "slug": "cayton-bay",
@@ -1170,7 +1194,8 @@
         "Rocks at the Point",
         "Wartime defences on the beach"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0183"
     },
     {
       "slug": "scarborough",
@@ -1217,7 +1242,8 @@
         "Sea wall backwash at high tide",
         "Rocky reefs"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0183"
     },
     {
       "slug": "tynemouth",
@@ -1263,7 +1289,8 @@
       "hazards": [
         "Rocks and strong currents near the river mouth"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0202"
     },
     {
       "slug": "longsands",
@@ -1309,7 +1336,8 @@
       "hazards": [
         "Rips near the rocks at the southern end"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0202"
     },
     {
       "slug": "thurso-east",
@@ -1355,7 +1383,8 @@
         "Cold water — winter sea temperatures near 7°C",
         "Strong currents"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0298"
     },
     {
       "slug": "pease-bay",
@@ -1403,7 +1432,8 @@
         "Rocks at the eastern side",
         "Burn outflow"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0222"
     },
     {
       "slug": "belhaven-bay",
@@ -1449,7 +1479,8 @@
       "hazards": [
         "Biel Water channel currents"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0222"
     },
     {
       "slug": "machrihanish",
@@ -1496,7 +1527,8 @@
         "Remote with no lifeguards",
         "Rips in bigger swells"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0390"
     },
     {
       "slug": "portrush",
@@ -1544,7 +1576,8 @@
         "Rocks at the end of each strand",
         "Rips in bigger swells"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0652"
     },
     {
       "slug": "benone",
@@ -1589,7 +1622,8 @@
       "hazards": [
         "Exposed in strong winds"
       ],
-      "enabled": true
+      "enabled": true,
+      "tideStationId": "0652"
     }
   ]
 }
