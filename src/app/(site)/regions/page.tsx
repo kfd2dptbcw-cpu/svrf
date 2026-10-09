@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ForecastHolding } from "@/components/forecast/ForecastHolding";
 import { RatingBadge } from "@/components/forecast/RatingBadge";
 import { StarRating } from "@/components/forecast/StarRating";
 import { Container, PageHeader } from "@/components/ui/PageHeader";
@@ -24,6 +25,7 @@ export default async function RegionsPage() {
       <PageHeader eyebrow="Regions" title="Regional surf forecasts">
         <p>From the Atlantic beaches of Cornwall to the North Sea reefs of Scotland — pick a region to see every spot.</p>
       </PageHeader>
+      {bundle.status === "unavailable" && <ForecastHolding className="mb-8" />}
       <ul className="grid gap-5 md:grid-cols-2">
         {getActiveRegions().map((region) => {
           const ranked = rankSpots(bundle, today, getSpotsInRegion(region.slug));

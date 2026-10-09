@@ -1,5 +1,6 @@
 import { DataStatus } from "@/components/forecast/DataStatus";
 import { SpotExplorer } from "@/components/explorer/SpotExplorer";
+import { ForecastHolding } from "@/components/forecast/ForecastHolding";
 import { Container, PageHeader } from "@/components/ui/PageHeader";
 import { getActiveRegions } from "@/lib/config";
 import { getForecastBundle } from "@/lib/forecast/service";
@@ -22,14 +23,20 @@ export default async function SpotsPage() {
       <PageHeader eyebrow="Explore" title="All surf spots">
         <p>Find the right wave for you. Filter by region, size, skill level, rating and wind — filters are saved in the URL so you can share them.</p>
       </PageHeader>
-      <div className="mb-6">
-        <DataStatus bundle={bundle} compact />
-      </div>
-      <SpotExplorer
-        spots={buildSpotList(bundle, dateKeys)}
-        regions={getActiveRegions().map((region) => ({ slug: region.slug, name: region.name }))}
-        dateKeys={dateKeys}
-      />
+      {bundle.status === "unavailable" ? (
+        <ForecastHolding />
+      ) : (
+        <>
+          <div className="mb-6">
+            <DataStatus bundle={bundle} compact />
+          </div>
+          <SpotExplorer
+            spots={buildSpotList(bundle, dateKeys)}
+            regions={getActiveRegions().map((region) => ({ slug: region.slug, name: region.name }))}
+            dateKeys={dateKeys}
+          />
+        </>
+      )}
     </Container>
   );
 }

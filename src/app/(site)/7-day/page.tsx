@@ -1,4 +1,5 @@
 import { DataStatus } from "@/components/forecast/DataStatus";
+import { ForecastHolding } from "@/components/forecast/ForecastHolding";
 import { ForecastMatrix } from "@/components/forecast/ForecastMatrix";
 import { Container, PageHeader, Section } from "@/components/ui/PageHeader";
 import { getActiveRegions, getSpotsInRegion } from "@/lib/config";
@@ -23,8 +24,8 @@ export default async function WeekPage() {
       <PageHeader eyebrow="Week ahead" title="7-day surf forecast">
         <p>Plan your week: every spot&apos;s surf height and rating for the next seven days. Select a day for the hourly detail.</p>
       </PageHeader>
-      <DataStatus bundle={bundle} />
-      {getActiveRegions().map((region) => (
+      {bundle.status === "unavailable" ? <ForecastHolding /> : <DataStatus bundle={bundle} />}
+      {bundle.status !== "unavailable" && getActiveRegions().map((region) => (
         <Section key={region.slug} title={region.name} id={region.slug}>
           <ForecastMatrix
             bundle={bundle}

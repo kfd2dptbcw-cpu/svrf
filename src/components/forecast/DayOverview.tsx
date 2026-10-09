@@ -5,6 +5,7 @@ import { rankSpots, upcomingDateKeys } from "@/lib/forecast/selectors";
 import { formatFullDate } from "@/lib/format";
 import type { ForecastBundle } from "@/types/forecast";
 import { DataStatus } from "./DataStatus";
+import { ForecastHolding } from "./ForecastHolding";
 import { SpotCard } from "./SpotCard";
 
 /** Shared body of the Today and Tomorrow pages. */
@@ -24,7 +25,7 @@ export function DayOverview({ bundle, offset, title }: { bundle: ForecastBundle;
           </Link>
         </p>
       </PageHeader>
-      <DataStatus bundle={bundle} />
+      {bundle.status === "unavailable" ? <ForecastHolding /> : <DataStatus bundle={bundle} />}
 
       {ranked.length > 0 && (
         <Section title="Top picks" id="top-picks" description="The highest-rated spots in the UK.">

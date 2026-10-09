@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Map, Sunrise } from "lucide-react";
 import { DataStatus } from "@/components/forecast/DataStatus";
+import { ForecastHolding } from "@/components/forecast/ForecastHolding";
 import { RatingBadge } from "@/components/forecast/RatingBadge";
 import { SpotCard } from "@/components/forecast/SpotCard";
 import { MapSection } from "@/components/map/MapSection";
@@ -56,7 +57,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="mt-8">
-            <DataStatus bundle={bundle} />
+            {bundle.status === "unavailable" ? <ForecastHolding /> : <DataStatus bundle={bundle} />}
           </div>
         </Container>
       </section>

@@ -5,6 +5,7 @@ import { ChevronRight, Code2, MapPin } from "lucide-react";
 import { ConditionTiles } from "@/components/forecast/ConditionTiles";
 import { DataStatus } from "@/components/forecast/DataStatus";
 import { DayStrip } from "@/components/forecast/DayStrip";
+import { ForecastHolding } from "@/components/forecast/ForecastHolding";
 import { HourlyTable } from "@/components/forecast/HourlyTable";
 import { RatingBadge } from "@/components/forecast/RatingBadge";
 import { StarRating } from "@/components/forecast/StarRating";
@@ -166,6 +167,8 @@ export default async function SpotPage({ params }: { params: Params }) {
             </div>
           </Section>
         </>
+      ) : bundle.status === "unavailable" ? (
+        <ForecastHolding className="mt-6" />
       ) : (
         <p className="glass mt-6 p-8 text-center text-slate-600 dark:text-slate-300">
           The forecast for {spot.name} is temporarily unavailable. We refresh automatically every day — please check back soon.

@@ -2,7 +2,7 @@ import { AlertTriangle, FlaskConical, RefreshCw } from "lucide-react";
 import { formatTimestamp } from "@/lib/format";
 import type { ForecastBundle } from "@/types/forecast";
 
-/** Shows when the forecast was produced and warns about stale or sample data. */
+/** Shows when the forecast was produced and warns about stale or sample data (nothing when unavailable). */
 export function DataStatus({ bundle, compact = false }: { bundle: ForecastBundle; compact?: boolean }) {
   const updated = bundle.generatedAt > 0 ? formatTimestamp(bundle.generatedAt) : null;
   const next = formatTimestamp(bundle.nextRefreshAt);
@@ -15,14 +15,8 @@ export function DataStatus({ bundle, compact = false }: { bundle: ForecastBundle
       </Banner>
     );
   }
-  if (bundle.status === "unavailable") {
-    return (
-      <Banner tone="rose" icon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />}>
-        <strong>Forecast temporarily unavailable.</strong> Our data providers can&apos;t be reached right now. We&apos;ll try
-        again automatically — please check back shortly.
-      </Banner>
-    );
-  }
+  // No forecast at all: pages render <ForecastHolding /> in place of their forecast content.
+  if (bundle.status === "unavailable") return null;
   if (bundle.status === "stale") {
     return (
       <Banner tone="amber" icon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />}>
@@ -42,7 +36,6 @@ export function DataStatus({ bundle, compact = false }: { bundle: ForecastBundle
 
 const TONES = {
   violet: "border-slate-400/60 bg-slate-950/5 text-ink dark:bg-white/5 dark:text-chalk",
-  rose: "border-flag/60 bg-flag/10 text-ink dark:text-chalk",
   amber: "border-flag/30 bg-flag/5 text-ink dark:text-chalk",
 } as const;
 

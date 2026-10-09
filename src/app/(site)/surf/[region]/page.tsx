@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DataStatus } from "@/components/forecast/DataStatus";
+import { ForecastHolding } from "@/components/forecast/ForecastHolding";
 import { ForecastMatrix } from "@/components/forecast/ForecastMatrix";
 import { SpotCard } from "@/components/forecast/SpotCard";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -52,28 +54,47 @@ export default async function RegionPage({ params }: { params: Params }) {
       <PageHeader eyebrow={`${region.country} · ${regionSpots.length} spots`} title={`${region.name} surf forecast`}>
         <p>{region.description}</p>
       </PageHeader>
-      <DataStatus bundle={bundle} />
-
-      {[
-        { key: today, title: "Today" },
-        { key: tomorrow, title: "Tomorrow" },
-      ].map(({ key, title }) => {
-        const ranked = rankSpots(bundle, key, regionSpots);
-        if (ranked.length === 0) return null;
-        return (
-          <Section key={key} title={title} id={title.toLowerCase()}>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {ranked.map(({ spot, day }) => (
-                <SpotCard key={spot.slug} name={spot.name} regionName={region.name} href={spot.path} day={day} />
+      {bundle.status === "unavailable" ? (
+        <>
+          <ForecastHolding />
+          <Section title={`Spots in ${region.name}`} id="spots">
+            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {regionSpots.map((spot) => (
+                <li key={spot.slug}>
+                  <Link href={spot.path} className="glass block p-5 font-semibold transition hover:border-slate-400 dark:hover:border-slate-500">
+                    {spot.name}
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </Section>
-        );
-      })}
+        </>
+      ) : (
+        <>
+          <DataStatus bundle={bundle} />
 
-      <Section title="7-day outlook" id="outlook">
-        <ForecastMatrix bundle={bundle} spots={regionSpots} dateKeys={dateKeys} caption={`7-day surf forecast for ${region.name}`} />
-      </Section>
+          {[
+            { key: today, title: "Today" },
+            { key: tomorrow, title: "Tomorrow" },
+          ].map(({ key, title }) => {
+            const ranked = rankSpots(bundle, key, regionSpots);
+            if (ranked.length === 0) return null;
+            return (
+              <Section key={key} title={title} id={title.toLowerCase()}>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {ranked.map(({ spot, day }) => (
+                    <SpotCard key={spot.slug} name={spot.name} regionName={region.name} href={spot.path} day={day} />
+                  ))}
+                </div>
+              </Section>
+            );
+          })}
+
+          <Section title="7-day outlook" id="outlook">
+            <ForecastMatrix bundle={bundle} spots={regionSpots} dateKeys={dateKeys} caption={`7-day surf forecast for ${region.name}`} />
+          </Section>
+        </>
+      )}
     </Container>
   );
 }
