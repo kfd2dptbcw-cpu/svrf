@@ -30,6 +30,37 @@ function list(name: string, fallback: string[]): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Clean a pasted secret: trim whitespace and newlines, drop a leading
+ * `NAME=` (or `export NAME=`) copied from a .env file, and strip wrapping
+ * single or double quotes. Repeats until stable, so `NAME="value"\n` and
+ * `"NAME=value"` both become `value`.
+ */
+export function sanitizeEnvValue(name: string, raw: string | undefined): string | null {
+  if (raw === undefined) return null;
+  const prefix = new RegExp(`^(?:export\\s+)?${name}\\s*=\\s*`, "i");
+  let value = raw;
+  for (let previous = ""; previous !== value; ) {
+    previous = value;
+    value = value.trim().replace(prefix, "");
+    const quoted = /^(["'])([\s\S]*)\1$/.exec(value);
+    if (quoted) value = quoted[2]!;
+  }
+  return value || null;
+}
+
+/** Sanitise an Upstash REST URL down to `https://host` (no path, query or trailing slash). */
+export function sanitizeUpstashUrl(raw: string | undefined): string | null {
+  const value = sanitizeEnvValue("UPSTASH_REDIS_REST_URL", raw);
+  if (!value) return null;
+  try {
+    const url = new URL(/^[a-z][a-z\d+.-]*:\/\//i.test(value) ? value : `https://${value}`);
+    return url.host ? `https://${url.host}` : null; // Upstash's REST API is HTTPS-only
+  } catch {
+    return null;
+  }
+}
+
 export const env = {
   get siteUrl() {
     return str("NEXT_PUBLIC_SITE_URL", "http://localhost:3000").replace(/\/$/, "");
@@ -126,9 +157,9 @@ export const env = {
     return str("CACHE_DIR", process.env.VERCEL ? "/tmp/forecast-cache" : ".forecast-cache");
   },
   get upstashUrl() {
-    return process.env.UPSTASH_REDIS_REST_URL?.trim() || null;
+    return sanitizeUpstashUrl(process.env.UPSTASH_REDIS_REST_URL);
   },
   get upstashToken() {
-    return process.env.UPSTASH_REDIS_REST_TOKEN?.trim() || null;
+    return sanitizeEnvValue("UPSTASH_REDIS_REST_TOKEN", process.env.UPSTASH_REDIS_REST_TOKEN);
   },
 };
