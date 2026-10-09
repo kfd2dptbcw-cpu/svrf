@@ -42,10 +42,10 @@ export const env = {
   },
   /** UTC hours at which a fresh forecast becomes due. */
   get refreshHoursUtc(): number[] {
-    const hours = list("REFRESH_HOURS_UTC", ["6", "18"])
+    const hours = list("REFRESH_HOURS_UTC", ["6"])
       .map(Number)
       .filter((hour) => Number.isInteger(hour) && hour >= 0 && hour < 24);
-    return hours.length > 0 ? [...new Set(hours)].sort((a, b) => a - b) : [6, 18];
+    return hours.length > 0 ? [...new Set(hours)].sort((a, b) => a - b) : [6];
   },
   get forecastDays() {
     return Math.min(Math.max(int("FORECAST_DAYS", 7), 1), 10);

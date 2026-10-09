@@ -33,7 +33,7 @@ export default async function HomePage() {
             {env.siteName}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-slate-600 dark:text-slate-300">
-            Twice-daily surf forecasts for {spots.length} of the UK&apos;s best breaks — wave height, swell, wind, tides and
+            Daily surf forecasts for {spots.length} of the UK&apos;s best breaks — wave height, swell, wind, tides and
             the best time to paddle out.
           </p>
           {ranked.length > 0 && (

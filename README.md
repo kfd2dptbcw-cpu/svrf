@@ -2,7 +2,7 @@
 
 The surf forecast for [SVRF](https://svrf.uk): a fast, embeddable surf forecast for 34 of the UK's best surf spots. It is built with Next.js 15 and runs on Vaisala Xweather's free developer tier (15,000 API accesses a month), with Open-Meteo available as an alternative or backup.
 
-- **Automatic updates** at 06:00 and 18:00 UTC. Processed forecasts are cached for 12 hours and pages are regenerated incrementally (ISR).
+- **Automatic updates** once a day at 06:00 UTC. Processed forecasts stay fresh for 26 hours (one day plus a 2-hour grace for a late refresh) and pages are regenerated incrementally (ISR).
 - **For each spot:** surf height, primary swell (height, period, direction), wind speed, direction and type, air and sea temperature, tides, the best surf window, a 1–5 star rating, suitability for beginner, intermediate and advanced surfers, and a short written forecast.
 - **Forecast engine** that scores every hour from wave size, period, wind relative to the beach, swell direction and tide (see [docs/ALGORITHM.md](docs/ALGORITHM.md)).
 - **JSON configuration.** Add, remove or tune spots without touching code ([docs/CONFIGURATION.md](docs/CONFIGURATION.md)).
@@ -184,7 +184,7 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 | `NEXT_PUBLIC_SITE_NAME` | `SVRF Surf Forecast` | Name used in titles and metadata (the header wordmark is always "SVRF") |
 | `CRON_SECRET` | – | Protects `/api/cron/refresh`. **Required in production.** |
 | `XWEATHER_DAILY_WARN` | `300` | Loud log warning when refreshes used more accesses than this in 24 hours |
-| `REFRESH_HOURS_UTC` | `6,18` | When a new forecast becomes due |
+| `REFRESH_HOURS_UTC` | `6` | When a new forecast becomes due (keep in step with the workflow cron). Freshness window = longest gap between slots + 2 h |
 | `FORECAST_DATA_SOURCE` | `xweather` if its keys are set, else `open-meteo` | `sample` gives clearly labelled synthetic data for development |
 | `XWEATHER_CLIENT_ID` / `_SECRET` | – | Xweather credentials |
 | `FALLBACK_DATA_SOURCE` | `none` | Backup source for spots the primary can't serve (`open-meteo` or `xweather`) |
@@ -204,7 +204,7 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 ## How data flows
 
 ```
- GitHub Actions (06:05 & 18:05 UTC) ──► npm run refresh  (forecast/refresh-job.ts)
+ GitHub Actions (daily, 06:05 UTC) ──► npm run refresh  (forecast/refresh-job.ts)
           1. refuse if last-refresh-attempt < 3 h ago (unless --force)
           2. write last-refresh-attempt
           3. providers ──► engine ──► write cache (Upstash)
@@ -218,8 +218,8 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 ```
 
 - **Nothing served to visitors ever calls a data provider.** Only `npm run refresh` does, and the 3-hour guard means even a refresh that crashes or is killed half-way can't be retried in a loop. `/api/health` reports `accessesLast24h` (every attempt counted, failed ones included) and the log shows a loud warning above `XWEATHER_DAILY_WARN` (300) a day.
-- A forecast is **fresh** if it was generated after the latest refresh slot (06:00 or 18:00 UTC) and is less than 12 hours old.
-- **API usage per full refresh of 34 spots:** at least one access per spot per endpoint on Xweather, so 68 accesses (≈4,200 a month at two refreshes a day). Xweather may also bill multi-day requests per day covered, so confirm the real figure with `npm run provider:check`, which reads Xweather's `X-Cost-Tokens` header and projects monthly usage. Each refresh logs its cost, and `/api/health` reports it with the remaining allowance. Requests run four at a time, and the batch stops at the first authentication or quota error so a bad key can't burn through accesses. Open-Meteo accepts many coordinates in one call, so it needs only 2–4 requests. Sunrise and sunset are calculated locally and cost nothing.
+- A forecast is **fresh** for the longest gap between refresh slots plus a 2-hour grace: 26 hours with the default single 06:00 slot, so pages never turn "stale" between daily refreshes, and only do if a refresh is missed.
+- **API usage per full refresh of 34 spots:** at least one access per spot per endpoint on Xweather, so 68 accesses (≈2,100 a month at one refresh a day). Xweather may also bill multi-day requests per day covered, so confirm the real figure with `npm run provider:check`, which reads Xweather's `X-Cost-Tokens` header and projects monthly usage. Each refresh logs its cost, and `/api/health` reports it with the remaining allowance. Requests run four at a time, and the batch stops at the first authentication or quota error so a bad key can't burn through accesses. Open-Meteo accepts many coordinates in one call, so it needs only 2–4 requests. Sunrise and sunset are calculated locally and cost nothing.
 - Pages are statically generated at build time and revalidated hourly from the cache (ISR). After each scheduled refresh the workflow calls `/api/cron/refresh`, whose `revalidatePath` regenerates every page.
 - **Failures:** each request has a timeout and up to two retries with exponential backoff. `429` responses honour `Retry-After`, and long rate-limit windows are not waited out inside a request. If weather or tide data is missing, the forecast is still built from marine data and the gaps are noted. If marine data is missing, the refresh fails and the site keeps serving the stale cache. With no cache at all, the UI shows a clear "temporarily unavailable" message and embed widgets collapse.
 

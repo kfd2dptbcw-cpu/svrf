@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Container, PageHeader, Section } from "@/components/ui/PageHeader";
 import { activeCredits } from "@/lib/attribution";
 import { env } from "@/lib/env";
+import { maxCacheAgeSeconds } from "@/lib/schedule";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -23,6 +24,8 @@ export default function AboutPage() {
   const asTime = (hour: number) => `${String(hour % 24).padStart(2, "0")}:00`;
   const slots = env.refreshHoursUtc.map(asTime).join(" and ");
   const summerSlots = env.refreshHoursUtc.map((hour) => asTime(hour + 1)).join(" and ");
+  const frequency = env.refreshHoursUtc.length === 1 ? "once a day" : `${env.refreshHoursUtc.length} times a day`;
+  const cachedFor = Math.round(maxCacheAgeSeconds() / 3600);
   return (
     <Container className="max-w-4xl">
       <PageHeader eyebrow="About" title="How our forecasts work">
@@ -55,8 +58,8 @@ export default function AboutPage() {
 
         <Section title="Update schedule">
           <p className="glass p-6 text-slate-700 dark:text-slate-300">
-            Forecasts refresh automatically twice a day at {slots} UTC ({summerSlots} during British Summer Time), shortly after the
-            main model runs become available. Processed forecasts are cached for up to 12 hours, so the site stays fast and
+            Forecasts refresh automatically {frequency} at {slots} UTC ({summerSlots} during British Summer Time), shortly after the
+            main model runs become available. Processed forecasts are cached for up to {cachedFor} hours, so the site stays fast and
             we only make a handful of requests to our data providers each day. If a provider is unavailable we keep showing
             the last good forecast and clearly label it.
           </p>

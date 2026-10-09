@@ -1,10 +1,10 @@
 import { env } from "@/lib/env";
 
 /**
- * Refresh schedule. Forecast models update a few times a day, so we refresh at
- * fixed UTC "slots" (default 06:00 and 18:00). A cached forecast is fresh if
- * it was generated after the most recent slot; this caps upstream traffic at
- * one refresh per slot no matter how much traffic the site receives.
+ * Refresh schedule. The refresh job runs at fixed UTC "slots" (default once a
+ * day at 06:00, actually started at 06:05 by GitHub Actions). A cached
+ * forecast stays fresh until the next slot's refresh is due, plus a grace
+ * period for a late-running job: with one daily slot that is 26 hours.
  */
 
 export function latestRefreshSlot(nowSeconds: number, hours = env.refreshHoursUtc): number {
@@ -23,9 +23,20 @@ export function nextRefreshSlot(nowSeconds: number, hours = env.refreshHoursUtc)
   return midnight + 86400 + Math.min(...hours) * 3600;
 }
 
-/** Maximum age of a cached forecast, regardless of slots (12 hours). */
-export const MAX_CACHE_AGE_SECONDS = 12 * 3600;
+/** Allowance for the scheduled job starting late (GitHub Actions cron can lag) or a slow refresh. */
+export const FRESHNESS_GRACE_SECONDS = 2 * 3600;
 
-export function isFresh(generatedAt: number, nowSeconds: number): boolean {
-  return generatedAt >= latestRefreshSlot(nowSeconds) && nowSeconds - generatedAt < MAX_CACHE_AGE_SECONDS;
+/** Longest gap between consecutive refresh slots, in seconds (24 hours for a single daily slot). */
+export function longestSlotGap(hours = env.refreshHoursUtc): number {
+  const sorted = [...hours].sort((a, b) => a - b);
+  return Math.max(...sorted.map((hour, i) => ((sorted[(i + 1) % sorted.length]! - hour + 24) % 24 || 24) * 3600));
+}
+
+/** How long a forecast counts as fresh: the longest slot gap plus grace (26 h for one daily slot). */
+export function maxCacheAgeSeconds(hours = env.refreshHoursUtc): number {
+  return longestSlotGap(hours) + FRESHNESS_GRACE_SECONDS;
+}
+
+export function isFresh(generatedAt: number, nowSeconds: number, hours = env.refreshHoursUtc): boolean {
+  return generatedAt > 0 && nowSeconds - generatedAt < maxCacheAgeSeconds(hours);
 }

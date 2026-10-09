@@ -4,6 +4,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 process.env.CACHE_DRIVER = "memory";
 process.env.FORECAST_DATA_SOURCE = "xweather";
+process.env.REFRESH_HOURS_UTC = "6";
 
 vi.mock("server-only", () => ({}));
 const getProviders = vi.fn(() => {
@@ -16,7 +17,8 @@ const { loadBundle, resetForecastMemo } = await import("@/lib/forecast/service")
 const { latestRefreshSlot } = await import("@/lib/schedule");
 
 const memory = globalThis as typeof globalThis & { __surfMemoryCache?: Map<string, string> };
-const NOW = Date.UTC(2026, 9, 9, 12, 0) / 1000;
+const NOW = Date.UTC(2026, 9, 9, 19, 0) / 1000; // 19:00 UTC, after the old 18:00 slot
+const HOUR = 3600;
 
 function bundle(generatedAt: number) {
   return { version: 1, generatedAt, status: "live" as const, nextRefreshAt: generatedAt + 43200, sources: [], errors: [], spots: {} };
@@ -40,10 +42,23 @@ describe("forecast service is read-only (requirement 1)", () => {
   });
 
   it("serves an out-of-date cache entry as stale without refreshing", async () => {
-    await writeCachedBundle(bundle(latestRefreshSlot(NOW) - 3600));
+    await writeCachedBundle(bundle(NOW - 27 * HOUR)); // the daily refresh was missed
     const result = await loadBundle(NOW);
     expect(result.status).toBe("stale");
     expect(getProviders).not.toHaveBeenCalled();
+  });
+
+  it("still serves this morning's forecast as cached in the evening", async () => {
+    await writeCachedBundle(bundle(latestRefreshSlot(NOW) + 5 * 60)); // 06:05 today
+    expect((await loadBundle(NOW)).status).toBe("cached");
+  });
+
+  it("picks up the new morning forecast promptly instead of holding yesterday's", async () => {
+    await writeCachedBundle(bundle(latestRefreshSlot(NOW) - 24 * HOUR + 5 * 60)); // yesterday 06:05
+    const morning = latestRefreshSlot(NOW) + 30 * 60; // 06:30 today, refresh not landed yet
+    expect((await loadBundle(morning)).generatedAt).toBe(latestRefreshSlot(NOW) - 24 * HOUR + 5 * 60);
+    await writeCachedBundle(bundle(latestRefreshSlot(NOW) + 40 * 60)); // lands at 06:40
+    expect((await loadBundle(morning + 15 * 60)).generatedAt).toBe(latestRefreshSlot(NOW) + 40 * 60);
   });
 
   it("serves a fresh cache entry as cached", async () => {

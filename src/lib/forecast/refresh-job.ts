@@ -13,7 +13,7 @@ import { claimRefreshAttempt, recordRefreshUsage, type RefreshAttempt } from "./
 
 /**
  * THE ONLY CODE PATH THAT CALLS THE DATA PROVIDERS.
- * Run by `npm run refresh` (GitHub Actions, 06:05 and 18:05 UTC) — never by
+ * Run by `npm run refresh` (GitHub Actions, daily at 06:05 UTC) — never by
  * pages, route handlers or the build, which only read the cache.
  *
  *   1. Take the shared lock (one refresh at a time).

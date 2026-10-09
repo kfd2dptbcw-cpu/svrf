@@ -3,12 +3,12 @@
 The app runs anywhere Next.js 15 runs. It needs:
 
 1. **Persistent or shared cache storage** (optional but recommended), so forecasts survive restarts and are shared between instances.
-2. **The scheduled refresh**: `.github/workflows/scheduled-refresh.yml` runs `npm run refresh` in GitHub Actions at 06:05 and 18:05 UTC and writes the forecast to Upstash. This is the only thing that calls the data providers: pages, embeds, OG images, API routes and the build only read the cache, so a refresh can never be triggered (or retried in a loop) by site traffic or a function timeout. Without a cached forecast the site shows "temporarily unavailable".
+2. **The scheduled refresh**: `.github/workflows/scheduled-refresh.yml` runs `npm run refresh` in GitHub Actions daily at 06:05 UTC and writes the forecast to Upstash. This is the only thing that calls the data providers: pages, embeds, OG images, API routes and the build only read the cache, so a refresh can never be triggered (or retried in a loop) by site traffic or a function timeout. Without a cached forecast the site shows "temporarily unavailable".
 
 ### The refresh workflow (all hosts)
 
 1. Repository → Settings → Secrets and variables → Actions → add `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `XWEATHER_CLIENT_ID` and `XWEATHER_CLIENT_SECRET`. Add `FORECAST_DATA_SOURCE`, `FORECAST_DAYS`, `XWEATHER_INTERVAL_HOURS`, `TIDE_PROVIDER` etc. if the site sets them (they must match, or the site reads a different cache key). Optionally add `FORECAST_SITE_URL` and `CRON_SECRET` so pages regenerate right after each refresh.
-2. The workflow runs twice a day and can be started manually (**Run workflow**, with an optional force flag).
+2. The workflow runs once a day and can be started manually (**Run workflow**, with an optional force flag).
 3. Loop guard: every attempt first writes `last-refresh-attempt` to Upstash, and a refresh refuses to start if the previous attempt was under 3 hours ago, whether it succeeded or not. `npm run refresh -- --force` overrides it.
 4. Every attempt's accesses (failed ones included) are recorded in Upstash; `/api/health` → `accessesLast24h` shows the total, and over `XWEATHER_DAILY_WARN` (300) a day the refresh and health check log a loud warning.
 
@@ -20,7 +20,7 @@ The app runs anywhere Next.js 15 runs. It needs:
    - `CRON_SECRET`: a long random string (`openssl rand -hex 32`)
    - `XWEATHER_CLIENT_ID` and `XWEATHER_CLIENT_SECRET`: from your Xweather account (Apps → add an app with your production domain as its namespace)
    - Recommended: `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` from a free Upstash Redis database (or the Vercel Marketplace integration). Without them each serverless instance keeps its own `/tmp` cache.
-3. Deploy, and set up [the refresh workflow](#the-refresh-workflow-all-hosts). `vercel.json` also pings the read-only `/api/cron/refresh` at 06:05 and 18:05 UTC; it only regenerates pages from the cache.
+3. Deploy, and set up [the refresh workflow](#the-refresh-workflow-all-hosts). `vercel.json` also pings the read-only `/api/cron/refresh` at 06:05 UTC; it only regenerates pages from the cache.
 4. Check: open `https://your-domain/api/health`. It should report `"status": "live"` or `"cached"`.
 5. Optional: add a custom domain such as `surf.example.com` and link to it from your main site, or embed widgets (see the README).
 
@@ -43,7 +43,7 @@ docker run -d --name surf -p 3000:3000 \
 Put a reverse proxy (Nginx, Caddy, Traefik) in front for TLS. Schedule the refresh with cron on the host:
 
 ```cron
-5 6,18 * * * curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://surf.example.com/api/cron/refresh >/dev/null
+5 6 * * * curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://surf.example.com/api/cron/refresh >/dev/null
 ```
 
 Without Docker:

@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { spot, region } = resolved;
   return pageMetadata({
     title: `${spot.name} Surf Forecast`,
-    description: `${spot.name}, ${region.name} surf forecast: wave height, swell period and direction, wind, tides, best surf times and a 7-day outlook. Updated twice daily.`,
+    description: `${spot.name}, ${region.name} surf forecast: wave height, swell period and direction, wind, tides, best surf times and a 7-day outlook. Updated daily.`,
     path: spot.path,
   });
 }
@@ -168,7 +168,7 @@ export default async function SpotPage({ params }: { params: Params }) {
         </>
       ) : (
         <p className="glass mt-6 p-8 text-center text-slate-600 dark:text-slate-300">
-          The forecast for {spot.name} is temporarily unavailable. We refresh automatically twice a day — please check back soon.
+          The forecast for {spot.name} is temporarily unavailable. We refresh automatically every day — please check back soon.
         </p>
       )}
 

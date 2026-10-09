@@ -28,7 +28,7 @@ export default async function OpengraphImage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ fontFamily: "Archivo Black", fontSize: 64 }}>Surf Forecast</div>
           <div style={{ fontSize: 32, color: "#CFDBDA" }}>
-            {`Wave height, swell, wind, tides and star ratings for ${spots.length} UK surf spots. Updated twice daily.`}
+            {`Wave height, swell, wind, tides and star ratings for ${spots.length} UK surf spots. Updated daily.`}
           </div>
         </div>
       </div>

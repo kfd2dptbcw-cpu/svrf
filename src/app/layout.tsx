@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(env.siteUrl),
   title: { default: `${env.siteName} — Daily surf reports for UK beaches`, template: `%s | ${env.siteName}` },
   description:
-    "Free, twice-daily surf forecasts for the UK's best surf spots: wave height, swell, wind, tides, best surf times and star ratings for Cornwall, Devon, Wales, Yorkshire, Scotland and Northern Ireland.",
+    "Free, daily surf forecasts for the UK's best surf spots: wave height, swell, wind, tides, best surf times and star ratings for Cornwall, Devon, Wales, Yorkshire, Scotland and Northern Ireland.",
   applicationName: env.siteName,
   formatDetection: { telephone: false },
   robots: { index: true, follow: true },

@@ -15,7 +15,7 @@
 ## Scheduling and data
 - [ ] Refresh workflow secrets set (Upstash + Xweather, matching the site's provider settings); `/api/health` → `accessesLast24h` stays well under `XWEATHER_DAILY_WARN`
 - [ ] A manual run of the refresh workflow succeeds and `/api/health` then reports `"status": "cached"`
-- [ ] `/api/health` added to an uptime monitor (alert on 503 and on `degraded: true` lasting longer than 12 hours)
+- [ ] `/api/health` added to an uptime monitor (alert on 503 and on `degraded: true` lasting longer than a few hours: it means the daily refresh was missed)
 - [ ] Usage terms reviewed: confirm Vaisala's subscription terms cover your use of the Xweather free tier. If `FALLBACK_DATA_SOURCE=open-meteo`, note Open-Meteo's free API is non-commercial only, so commercial sites need an Open-Meteo plan (set `OPEN_METEO_API_KEY` and the endpoints) or a self-hosted instance. Heavy map traffic should use a commercial tile provider rather than OpenStreetMap's tile servers.
 - [ ] Optional: ADMIRALTY key and `tideStationId`s added for official tide times
 

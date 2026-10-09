@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { isFresh, nextRefreshSlot } from "@/lib/schedule";
+import { isFresh, latestRefreshSlot, nextRefreshSlot } from "@/lib/schedule";
 import { nowSeconds } from "@/lib/time";
 import type { ForecastBundle, SpotForecast } from "@/types/forecast";
 import { BUNDLE_VERSION, readCachedBundle } from "./bundle-cache";
@@ -39,7 +39,11 @@ export async function getSpotForecast(slug: string): Promise<{ bundle: ForecastB
 
 export async function loadBundle(now = nowSeconds()): Promise<ForecastBundle> {
   const memo = runtime.memo;
-  if (memo && (memo.status === "cached" ? isFresh(memo.generatedAt, now) : now - runtime.checkedAt < RECHECK_SECONDS)) return memo;
+  // A memo from the current slot needs no re-read until it expires. Anything
+  // older (stale, or still fresh but from before today's refresh) is re-read at
+  // most once a minute, so a newly written forecast shows up promptly.
+  const current = memo?.status === "cached" && memo.generatedAt >= latestRefreshSlot(now) && isFresh(memo.generatedAt, now);
+  if (memo && (current || now - runtime.checkedAt < RECHECK_SECONDS)) return memo;
   if (runtime.inflight) return runtime.inflight;
 
   runtime.inflight = (async () => {

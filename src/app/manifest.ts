@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: env.siteName,
     short_name: "SVRF",
-    description: "Twice-daily surf forecasts for the UK's best surf spots.",
+    description: "Daily surf forecasts for the UK's best surf spots.",
     start_url: "./",
     display: "standalone",
     background_color: "#0B0D0E",

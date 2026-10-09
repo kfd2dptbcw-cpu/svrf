@@ -6,7 +6,7 @@
  *   npm run refresh              # refuses if the last attempt was < 3 hours ago
  *   npm run refresh -- --force   # override the 3-hour guard
  *
- * Run twice a day by .github/workflows/scheduled-refresh.yml. Reads .env.local
+ * Run daily at 06:05 UTC by .github/workflows/scheduled-refresh.yml. Reads .env.local
  * / .env for local runs. Exits non-zero if the refresh failed.
  */
 for (const file of [".env.local", ".env"]) {

@@ -13,7 +13,7 @@ export function SiteFooter() {
         <div>
           <p className="font-semibold">{env.siteName}</p>
           <p className="mt-2 max-w-sm text-slate-600 dark:text-slate-400">
-            Independent surf forecasts for the UK, built on professional weather and ocean models and updated twice a day.
+            Independent surf forecasts for the UK, built on professional weather and ocean models and updated every day.
           </p>
         </div>
         <nav aria-label="Regions">
