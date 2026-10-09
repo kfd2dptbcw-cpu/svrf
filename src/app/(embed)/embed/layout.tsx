@@ -8,10 +8,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-/** Chrome-less layout for iframe widgets embedded on other websites. */
+/**
+ * Chrome-less layout for iframe widgets embedded on other websites. A widget
+ * with nothing to show renders <EmbedEmpty />, which hides the whole frame.
+ */
 export default function EmbedLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="p-3">
+    <div className="embed-frame p-3">
       <ResizeReporter />
       <div className="glass p-4">
         {children}

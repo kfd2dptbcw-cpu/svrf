@@ -1,17 +1,18 @@
+import { revalidatePath } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/env";
-import { runScheduledRefresh } from "@/lib/forecast/refresh";
+import { getRefreshStatus } from "@/lib/forecast/refresh";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
 
 /**
- * Scheduled refresh endpoint, called at 06:00 and 18:00 UTC by Vercel Cron
- * (vercel.json), GitHub Actions or any external scheduler.
+ * Refresh status. This endpoint NEVER calls the data providers: forecasts are
+ * refreshed by `npm run refresh` in GitHub Actions
+ * (.github/workflows/scheduled-refresh.yml), which writes to the shared cache.
+ * Calling it afterwards regenerates the statically rendered pages from that
+ * cache straight away instead of within the hour.
  *
- * Auth: `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends this
- * automatically when CRON_SECRET is set). Add `?force=1` to refresh even if the
- * cache is already fresh for the current slot.
+ * Auth: `Authorization: Bearer <CRON_SECRET>`.
  */
 async function handle(request: NextRequest) {
   const secret = env.cronSecret;
@@ -21,15 +22,8 @@ async function handle(request: NextRequest) {
   if (secret && request.headers.get("authorization") !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  try {
-    const result = await runScheduledRefresh({ force: request.nextUrl.searchParams.get("force") === "1" });
-    return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`[cron] refresh failed: ${message}`);
-    return NextResponse.json({ error: message }, { status: 502, headers: { "Cache-Control": "no-store" } });
-  }
+  revalidatePath("/", "layout");
+  return NextResponse.json(await getRefreshStatus(), { headers: { "Cache-Control": "no-store" } });
 }
 
 export const GET = handle;

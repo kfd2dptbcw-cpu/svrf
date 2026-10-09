@@ -24,6 +24,9 @@ npm run check     # config validation + strict typecheck + ESLint + tests
 | `tests/resample.test.ts` | 3-hourly to hourly resampling (linear, circular directions, categorical) |
 | `tests/startup-check.test.ts` | Production refuses missing Xweather keys and never falls back to Open-Meteo |
 | `tests/cache-lock.test.ts` | Refresh locks shared between processes |
+| `tests/forecast-readonly.test.ts` | Pages and routes only read the cache (cache miss → unavailable, never a provider call); import graph keeps the providers out of the app |
+| `tests/refresh-guard.test.ts` | 3-hour loop guard (after success, failure or a killed run; `--force`), access ledger and the 300/day warning |
+| `tests/embed-empty.test.ts` | Embed widgets with no forecast collapse (height 0, `data-surf-empty`) instead of showing "unavailable" |
 
 CI (`.github/workflows/ci.yml`) runs all of the above and a production build with sample data, so it never depends on live API quota.
 
@@ -58,21 +61,21 @@ Every page shows a "Sample data — not a real forecast" banner.
 
 ### API failure handling
 
-1. Start once with live data so the cache is populated, then stop the server.
-2. Point the marine API at an unreachable host and make the cache look old:
-   ```bash
-   OPEN_METEO_MARINE_URL=http://127.0.0.1:9/marine REFRESH_HOURS_UTC=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 npm run dev
-   ```
-3. Pages show the amber "Showing the last available forecast" banner, and `/api/health` reports `"status": "stale"` and `"degraded": true`.
-4. Delete `.forecast-cache/` and reload. Pages now show "Forecast temporarily unavailable" and `/api/health` returns 503. Only one failed attempt is made per `REFRESH_FAILURE_BACKOFF_SECONDS`.
+1. Populate the cache: `npm run refresh -- --force`.
+2. Point the marine API at an unreachable host and refresh again: `OPEN_METEO_MARINE_URL=http://127.0.0.1:9/marine npm run refresh -- --force`. It fails and exits non-zero; the cached forecast is untouched.
+3. Make the cache look old with `REFRESH_HOURS_UTC=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23 npm run dev`: pages show the amber "Showing the last available forecast" banner, and `/api/health` reports `"status": "stale"` and `"degraded": true`. No provider is called.
+4. Delete `.forecast-cache/` and reload. Pages show "Forecast temporarily unavailable", embed widgets collapse to nothing, and `/api/health` returns 503.
 
 ### Scheduled refresh
 
 ```bash
+npm run refresh             # refreshes, or refuses if the last attempt was < 3 h ago
+npm run refresh             # "Skipped: Last refresh attempt was at …"
+npm run refresh -- --force  # overrides the guard
 CRON_SECRET=test npm run dev
 curl -i localhost:3000/api/cron/refresh                                    # 401
-curl -s -H "Authorization: Bearer test" localhost:3000/api/cron/refresh    # {"refreshed":false,...} when fresh
-curl -s -H "Authorization: Bearer test" "localhost:3000/api/cron/refresh?force=1"
+curl -s -H "Authorization: Bearer test" localhost:3000/api/cron/refresh    # read-only status
+curl -s localhost:3000/api/health | jq .accessesLast24h
 ```
 
 ### Performance and accessibility

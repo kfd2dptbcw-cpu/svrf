@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCacheStore } from "@/lib/cache";
 import { spots } from "@/lib/config";
 import { env } from "@/lib/env";
+import { accessesLast24h, readLastAttempt, warnIfOverDailyBudget } from "@/lib/forecast/refresh-guard";
 import { getForecastBundle } from "@/lib/forecast/service";
 import { isBelowFloor, loadAllowance } from "@/lib/providers/allowance";
 import { nowSeconds } from "@/lib/time";
@@ -17,7 +18,12 @@ export async function GET() {
   const bundle = await getForecastBundle();
   const healthy = bundle.status !== "unavailable";
   const usesXweather = env.dataSource === "xweather" || env.fallbackDataSource === "xweather";
-  const allowance = usesXweather ? await loadAllowance("xweather") : null;
+  const [allowance, last24h, lastAttempt] = await Promise.all([
+    usesXweather ? loadAllowance("xweather") : null,
+    accessesLast24h().catch(() => null),
+    readLastAttempt().catch(() => null),
+  ]);
+  if (last24h !== null) warnIfOverDailyBudget(last24h);
   return NextResponse.json(
     {
       ok: healthy,
@@ -31,6 +37,10 @@ export async function GET() {
       spotsConfigured: spots.length,
       spotsWithForecast: Object.keys(bundle.spots).length,
       errors: bundle.errors,
+      // API accesses charged by every refresh attempt (failed ones included) in the last 24 hours.
+      accessesLast24h: last24h,
+      accessesDailyWarning: env.dailyAccessWarning,
+      lastRefreshAttemptAt: lastAttempt ? new Date(lastAttempt.at * 1000).toISOString() : null,
       // What the last refresh was charged by metered providers (e.g. Xweather), and the allowance left.
       lastRefreshUsage: bundle.apiUsage ?? null,
       // Latest Xweather allowance reading; refreshes pause while `paused` is true.

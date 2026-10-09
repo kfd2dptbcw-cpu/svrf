@@ -1,9 +1,16 @@
-# Twice-daily forecast refresh for hosts without a built-in scheduler
-# (Netlify, Render, Fly.io, a VPS, …). Not needed on Vercel, which uses vercel.json.
+# Twice-daily forecast refresh. This is the ONLY place the data providers are
+# called: `npm run refresh` fetches every spot and writes the result to Upstash,
+# which the site reads. GitHub Actions has no 10-second function limit, and the
+# refresh refuses to start within 3 hours of the previous attempt (use the
+# "force" input to override).
 #
-# Repository secrets required:
-#   FORECAST_SITE_URL  e.g. https://surf.example.com (include NEXT_BASE_PATH if used)
-#   CRON_SECRET        same value as the app's CRON_SECRET
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN   required — the site's shared cache
+#   XWEATHER_CLIENT_ID, XWEATHER_CLIENT_SECRET         required for Xweather
+#   FORECAST_DATA_SOURCE, FALLBACK_DATA_SOURCE, FORECAST_DAYS, XWEATHER_INTERVAL_HOURS,
+#   TIDE_PROVIDER, ADMIRALTY_API_KEY, REFRESH_HOURS_UTC  optional — must match the site's values
+#   FORECAST_SITE_URL, CRON_SECRET                     optional — ping the site afterwards so pages
+#                                                      regenerate now rather than within the hour
 name: Scheduled forecast refresh
 
 on:
@@ -13,24 +20,49 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: "Force a refresh even if the cache is fresh"
+        description: "Force a refresh even if the last attempt was under 3 hours ago"
         type: boolean
         default: false
+
+# Never run two refreshes at once.
+concurrency:
+  group: forecast-refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      XWEATHER_CLIENT_ID: ${{ secrets.XWEATHER_CLIENT_ID }}
+      XWEATHER_CLIENT_SECRET: ${{ secrets.XWEATHER_CLIENT_SECRET }}
+      FORECAST_DATA_SOURCE: ${{ secrets.FORECAST_DATA_SOURCE }}
+      FALLBACK_DATA_SOURCE: ${{ secrets.FALLBACK_DATA_SOURCE }}
+      FORECAST_DAYS: ${{ secrets.FORECAST_DAYS }}
+      XWEATHER_INTERVAL_HOURS: ${{ secrets.XWEATHER_INTERVAL_HOURS }}
+      TIDE_PROVIDER: ${{ secrets.TIDE_PROVIDER }}
+      ADMIRALTY_API_KEY: ${{ secrets.ADMIRALTY_API_KEY }}
+      REFRESH_HOURS_UTC: ${{ secrets.REFRESH_HOURS_UTC }}
     steps:
-      - name: Trigger refresh
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Refresh forecasts
+        run: npm ci && npm run refresh -- ${{ inputs.force && '--force' || '' }}
+      - name: Regenerate site pages
         env:
           SITE_URL: ${{ secrets.FORECAST_SITE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          FORCE: ${{ inputs.force && '1' || '0' }}
         run: |
           if [ -z "$SITE_URL" ]; then
-            echo "FORECAST_SITE_URL secret is not set; skipping."
+            echo "FORECAST_SITE_URL secret is not set; pages will pick up the new forecast within the hour."
             exit 0
           fi
-          curl --fail-with-body --silent --show-error --max-time 120 --retry 3 --retry-delay 30 \
+          # Read-only status endpoint: it never calls the data providers.
+          curl --fail-with-body --silent --show-error --max-time 30 \
             -H "Authorization: Bearer ${CRON_SECRET}" \
-            "${SITE_URL%/}/api/cron/refresh?force=${FORCE}"
+            "${SITE_URL%/}/api/cron/refresh"

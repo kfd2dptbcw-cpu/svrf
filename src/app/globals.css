@@ -135,3 +135,8 @@
   background: #15191b !important;
   color: #efeee7 !important;
 }
+
+/* An embed widget with no forecast collapses to nothing (see EmbedEmpty). */
+.embed-frame:has([data-surf-empty]) {
+  display: none;
+}

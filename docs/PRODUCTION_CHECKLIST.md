@@ -2,7 +2,7 @@
 
 ## Configuration
 - [ ] `NEXT_PUBLIC_SITE_URL` set to the public URL (including `NEXT_BASE_PATH` if used)
-- [ ] `CRON_SECRET` set to a long random value (the cron endpoint refuses to run without it in production)
+- [ ] `CRON_SECRET` set to a long random value (the status endpoint refuses to run without it in production)
 - [ ] `FORECAST_DATA_SOURCE` is **not** `sample`
 - [ ] Production refuses to build or start if `FORECAST_DATA_SOURCE=xweather` and a key is missing; confirm the deploy log shows no "Invalid production configuration"
 - [ ] `XWEATHER_MIN_REMAINING` / `XWEATHER_WARN_REMAINING` set as wanted (defaults 1,000 / 3,000); `/api/health` → `allowance.paused` alerts you when refreshes have stopped
@@ -13,8 +13,8 @@
 - [ ] `npm run config:validate` passes, and every spot shows a forecast (check `spotsWithForecast` in `/api/health`)
 
 ## Scheduling and data
-- [ ] Cron configured: `vercel.json` on Vercel, or the GitHub Actions workflow or host cron elsewhere
-- [ ] A manual `?force=1` refresh succeeds and returns `"status": "live"`
+- [ ] Refresh workflow secrets set (Upstash + Xweather, matching the site's provider settings); `/api/health` → `accessesLast24h` stays well under `XWEATHER_DAILY_WARN`
+- [ ] A manual run of the refresh workflow succeeds and `/api/health` then reports `"status": "cached"`
 - [ ] `/api/health` added to an uptime monitor (alert on 503 and on `degraded: true` lasting longer than 12 hours)
 - [ ] Usage terms reviewed: confirm Vaisala's subscription terms cover your use of the Xweather free tier. If `FALLBACK_DATA_SOURCE=open-meteo`, note Open-Meteo's free API is non-commercial only, so commercial sites need an Open-Meteo plan (set `OPEN_METEO_API_KEY` and the endpoints) or a self-hosted instance. Heavy map traffic should use a commercial tile provider rather than OpenStreetMap's tile servers.
 - [ ] Optional: ADMIRALTY key and `tideStationId`s added for official tide times

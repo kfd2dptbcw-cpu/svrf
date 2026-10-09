@@ -70,6 +70,10 @@ export const env = {
   get warnRemainingAllowance() {
     return Math.max(0, int("XWEATHER_WARN_REMAINING", 3000));
   },
+  /** Log a loud warning when refreshes spent more than this many accesses in 24 hours. */
+  get dailyAccessWarning() {
+    return Math.max(0, int("XWEATHER_DAILY_WARN", 300));
+  },
   /** Monthly access budget `npm run provider:check` plans against (kept below the 15,000 free tier). */
   get monthlyAccessBudget() {
     return Math.max(1, int("XWEATHER_MONTHLY_BUDGET", 12000));
@@ -126,9 +130,5 @@ export const env = {
   },
   get upstashToken() {
     return process.env.UPSTASH_REDIS_REST_TOKEN?.trim() || null;
-  },
-  /** Minimum gap between failed refresh attempts, to protect upstream APIs. */
-  get failureBackoffSeconds() {
-    return int("REFRESH_FAILURE_BACKOFF_SECONDS", 900);
   },
 };

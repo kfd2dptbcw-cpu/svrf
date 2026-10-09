@@ -96,7 +96,7 @@ src/
       about/                How the forecasts work
     (embed)/embed/          Chrome-less iframe widgets
     api/forecast/           JSON API (all spots, or /api/forecast/:spot)
-    api/cron/refresh/       Scheduled refresh endpoint (06:00 and 18:00 UTC)
+    api/cron/refresh/       Refresh status + page regeneration (read-only)
     api/health/             Health and freshness for uptime monitors
     sitemap.ts robots.ts manifest.ts opengraph-image.tsx
   components/
@@ -109,7 +109,8 @@ src/
   lib/
     config/                 JSON config loading and zod validation
     forecast/engine/        The forecast engine (pure functions, fully unit tested)
-    forecast/service.ts     Caching, refresh scheduling and failure handling
+    forecast/service.ts     Read-only cache access for pages and routes
+    forecast/refresh-job.ts The only code that calls the providers (npm run refresh)
     forecast/selectors.ts   Shapes forecast data for pages and client components
     providers/              Data providers (Xweather, Open-Meteo, ADMIRALTY, sample) and fallback wrapper
     cache/                  Cache stores (file, memory, Upstash Redis)
@@ -137,7 +138,7 @@ public/embed.js             Embed loader script for third-party sites
 | `GET /api/forecast` | Daily summaries for all spots (JSON) |
 | `GET /api/forecast/:spot` | Full hourly and daily forecast for one spot |
 | `GET /api/health` | Data status: `200` while serving forecasts (`degraded: true` when stale), `503` when nothing is available |
-| `GET/POST /api/cron/refresh` | Scheduled refresh. Requires `Authorization: Bearer $CRON_SECRET`. Add `?force=1` to bypass the freshness check. |
+| `GET/POST /api/cron/refresh` | Refresh status (read-only; never calls the providers) and page regeneration. Requires `Authorization: Bearer $CRON_SECRET`. |
 
 ---
 
@@ -182,6 +183,7 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 | `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Canonical URL. **Required in production.** Include `NEXT_BASE_PATH` if you use one. |
 | `NEXT_PUBLIC_SITE_NAME` | `SVRF Surf Forecast` | Name used in titles and metadata (the header wordmark is always "SVRF") |
 | `CRON_SECRET` | – | Protects `/api/cron/refresh`. **Required in production.** |
+| `XWEATHER_DAILY_WARN` | `300` | Loud log warning when refreshes used more accesses than this in 24 hours |
 | `REFRESH_HOURS_UTC` | `6,18` | When a new forecast becomes due |
 | `FORECAST_DATA_SOURCE` | `xweather` if its keys are set, else `open-meteo` | `sample` gives clearly labelled synthetic data for development |
 | `XWEATHER_CLIENT_ID` / `_SECRET` | – | Xweather credentials |
@@ -202,22 +204,24 @@ Everything is optional for local development. See [`.env.example`](.env.example)
 ## How data flows
 
 ```
- Vercel Cron / GitHub Actions ──► /api/cron/refresh (06:05 & 18:05 UTC)
+ GitHub Actions (06:05 & 18:05 UTC) ──► npm run refresh  (forecast/refresh-job.ts)
+          1. refuse if last-refresh-attempt < 3 h ago (unless --force)
+          2. write last-refresh-attempt
+          3. providers ──► engine ──► write cache (Upstash)
+          4. record accesses used (success or failure) in refresh-usage-log
                                         │
- Page request (ISR, revalidate 1h) ─────┤
                                         ▼
-                            forecast/service.ts
-          1. in-memory copy fresh?  ── yes ─► return
-          2. cache store fresh?     ── yes ─► return            (file / Upstash)
-          3. refresh: providers ──► engine ──► write cache
-          4. on failure: last good forecast marked "stale",
-             back off REFRESH_FAILURE_BACKOFF_SECONDS
+ Pages, embeds, OG images, API routes, build ──► forecast/service.ts (read-only)
+          cache fresh  ─► "cached"
+          cache older  ─► "stale"
+          no cache     ─► "unavailable" (embed widgets collapse to nothing)
 ```
 
-- A forecast is **fresh** if it was generated after the latest refresh slot (06:00 or 18:00 UTC) and is less than 12 hours old. However much traffic the site gets, each instance calls the upstream APIs at most once per slot.
+- **Nothing served to visitors ever calls a data provider.** Only `npm run refresh` does, and the 3-hour guard means even a refresh that crashes or is killed half-way can't be retried in a loop. `/api/health` reports `accessesLast24h` (every attempt counted, failed ones included) and the log shows a loud warning above `XWEATHER_DAILY_WARN` (300) a day.
+- A forecast is **fresh** if it was generated after the latest refresh slot (06:00 or 18:00 UTC) and is less than 12 hours old.
 - **API usage per full refresh of 34 spots:** at least one access per spot per endpoint on Xweather, so 68 accesses (≈4,200 a month at two refreshes a day). Xweather may also bill multi-day requests per day covered, so confirm the real figure with `npm run provider:check`, which reads Xweather's `X-Cost-Tokens` header and projects monthly usage. Each refresh logs its cost, and `/api/health` reports it with the remaining allowance. Requests run four at a time, and the batch stops at the first authentication or quota error so a bad key can't burn through accesses. Open-Meteo accepts many coordinates in one call, so it needs only 2–4 requests. Sunrise and sunset are calculated locally and cost nothing.
-- Pages are statically generated at build time and revalidated hourly from the cache (ISR). After each scheduled refresh, `revalidatePath` regenerates every page.
-- **Failures:** each request has a timeout and up to two retries with exponential backoff. `429` responses honour `Retry-After`, and long rate-limit windows are not waited out inside a request. If weather or tide data is missing, the forecast is still built from marine data and the gaps are noted. If marine data is missing, the stale cache is served. With no cache at all, the UI shows a clear "temporarily unavailable" message.
+- Pages are statically generated at build time and revalidated hourly from the cache (ISR). After each scheduled refresh the workflow calls `/api/cron/refresh`, whose `revalidatePath` regenerates every page.
+- **Failures:** each request has a timeout and up to two retries with exponential backoff. `429` responses honour `Retry-After`, and long rate-limit windows are not waited out inside a request. If weather or tide data is missing, the forecast is still built from marine data and the gaps are noted. If marine data is missing, the refresh fails and the site keeps serving the stale cache. With no cache at all, the UI shows a clear "temporarily unavailable" message and embed widgets collapse.
 
 ---
 
@@ -266,9 +270,9 @@ Archivo Black for headlines (h1–h3 and the wordmark), Inter for body text, Jet
 
 ## Deployment
 
-- **Vercel (recommended):** import the repo, set `NEXT_PUBLIC_SITE_URL` and `CRON_SECRET` (and ideally the Upstash variables), then deploy. `vercel.json` already schedules the cron.
+- **Vercel:** import the repo, set `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET` and the Upstash variables, then deploy.
 - **Docker / VPS:** `docker build` with the included `Dockerfile` (standalone output), then mount a volume for `.forecast-cache`.
-- **Other hosts:** use the included GitHub Actions workflow (`.github/workflows/scheduled-refresh.yml`) to trigger refreshes.
+- **Every host:** forecasts are refreshed by the included GitHub Actions workflow (`.github/workflows/scheduled-refresh.yml`), which runs `npm run refresh` and writes to Upstash.
 
 Step-by-step guides are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Check [docs/PRODUCTION_CHECKLIST.md](docs/PRODUCTION_CHECKLIST.md) before going live.
 
@@ -281,7 +285,7 @@ The code is layered so each of these can be added without restructuring:
 | Feature | Where it plugs in |
 | --- | --- |
 | **User favourites** | Already implemented client-side (`hooks/useFavourites.ts`, localStorage). To sync with accounts, replace the storage functions in that hook with API calls. The component API stays the same. |
-| **Surf alerts / push notifications / email forecasts** | Run a job after `refreshForecasts()` (`lib/forecast/service.ts`, or right after `runScheduledRefresh` in `lib/forecast/refresh.ts`). Compare each subscriber's rules (spot, minimum rating, skill level) against `bundle.spots[slug].days`. Everything needed (rating, `bestWindow`, `suitability`, `summary`) is already computed. |
+| **Surf alerts / push notifications / email forecasts** | Run a job after `runRefresh()` in `scripts/refresh.mts`. Compare each subscriber's rules (spot, minimum rating, skill level) against `bundle.spots[slug].days`. Everything needed (rating, `bestWindow`, `suitability`, `summary`) is already computed. |
 | **Live webcams** | Add an optional `webcams` array to the spot schema (`lib/config/schema.ts`) and render it on the spot page. |
 | **Premium forecasts** | Add a provider (e.g. Stormglass or Met Office DataHub; see `lib/providers/xweather.ts` for a per-spot API example) implementing the interfaces in `lib/providers/types.ts`, and register it in `lib/providers/registry.ts`. |
 | **AI surf reports** | `DayForecast` already contains structured conditions and narrative lines. Pass them to an LLM in the refresh job and store the result alongside the bundle. |

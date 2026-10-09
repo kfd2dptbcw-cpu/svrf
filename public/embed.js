@@ -5,7 +5,9 @@
  *   <div data-surf-forecast="/embed/cornwall/fistral"></div>
  *   <script src="https://YOUR-FORECAST-DOMAIN/embed.js" async></script>
  *
- * Replaces each placeholder with an auto-resizing iframe.
+ * Replaces each placeholder with an auto-resizing iframe. A widget with no
+ * forecast to show collapses to height 0 and its placeholder gets a
+ * `data-surf-empty` attribute (style it with [data-surf-empty] { display: none }).
  */
 (function () {
   var script = document.currentScript;
@@ -25,13 +27,18 @@
     iframe.style.height = (el.getAttribute("data-height") || "360") + "px";
     iframe.style.colorScheme = "normal";
     el.appendChild(iframe);
-    frames.push(iframe);
+    frames.push({ iframe: iframe, el: el });
   }
 
   window.addEventListener("message", function (event) {
     if (event.origin !== origin || !event.data || event.data.type !== "uk-surf-forecast:resize") return;
     for (var i = 0; i < frames.length; i++) {
-      if (frames[i].contentWindow === event.source) frames[i].style.height = Math.ceil(event.data.height) + "px";
+      if (frames[i].iframe.contentWindow !== event.source) continue;
+      var height = Math.max(0, Math.ceil(Number(event.data.height) || 0));
+      var empty = event.data.empty === true || height === 0;
+      frames[i].iframe.style.height = height + "px";
+      if (empty) frames[i].el.setAttribute("data-surf-empty", "");
+      else frames[i].el.removeAttribute("data-surf-empty");
     }
   });
 

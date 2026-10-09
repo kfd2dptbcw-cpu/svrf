@@ -135,11 +135,11 @@ export interface SpotForecast {
 
 /**
  * Status of a forecast bundle:
- *  - live:        fetched during this request
+ *  - live:        just produced by the refresh job (as written to the cache)
  *  - cached:      served from the cache, still within its refresh slot
- *  - stale:       live refresh failed; serving the last good forecast
+ *  - stale:       served from the cache, older than the current refresh slot
  *  - sample:      synthetic sample data (FORECAST_DATA_SOURCE=sample)
- *  - unavailable: no live data and nothing cached
+ *  - unavailable: nothing cached
  */
 export type BundleStatus = "live" | "cached" | "stale" | "sample" | "unavailable";
 
