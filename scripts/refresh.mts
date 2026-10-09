@@ -23,6 +23,7 @@ const { configurationErrors } = await import("../src/lib/startup-check");
 const { getCacheStore } = await import("../src/lib/cache");
 const { env } = await import("../src/lib/env");
 const { RefreshTooSoonError } = await import("../src/lib/forecast/refresh-guard");
+const { AllowanceExhaustedError } = await import("../src/lib/providers/allowance");
 const { recordAttemptUsage, runRefresh } = await import("../src/lib/forecast/refresh-job");
 
 const problems = configurationErrors();
@@ -71,6 +72,13 @@ try {
   if (error instanceof RefreshTooSoonError) {
     console.log(`Skipped: ${error.message}`);
     if (process.env.GITHUB_ACTIONS) console.log(`::notice title=Refresh skipped::${error.message}`);
+    process.exit(0);
+  }
+  // Below the monthly allowance floor: refreshing is paused on purpose and the
+  // site keeps serving the cached forecast, so this isn't a failed run.
+  if (error instanceof AllowanceExhaustedError || (error instanceof Error && error.name === "AllowanceExhaustedError")) {
+    console.log(`Skipped: ${error.message}`);
+    if (process.env.GITHUB_ACTIONS) console.log(`::notice title=Refresh paused (allowance)::${error.message}`);
     process.exit(0);
   }
   console.error(`✖ Refresh failed: ${error instanceof Error ? error.message : String(error)}`);

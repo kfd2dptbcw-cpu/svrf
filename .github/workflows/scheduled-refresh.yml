@@ -50,35 +50,6 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      # TEMPORARY: diagnose Upstash 401 WRONGPASS. Prints shape only — never the full token.
-      - name: Diagnose Upstash secrets (temporary)
-        run: |
-          node <<'EOF'
-          const describe = (name, raw, isUrl) => {
-            if (raw === undefined || raw === "") return console.log(`${name}: NOT SET`);
-            const lines = [`${name}:`, `  length: ${raw.length}`];
-            // Host = whatever follows "scheme://" up to the first slash, quote, space or newline.
-            const match = /^([\s\S]*?:\/\/)([^/\s"']*)([\s\S]*)$/.exec(raw);
-            if (isUrl) {
-              lines.push(`  hostname: ${match ? match[2] : "(no scheme://host found)"}`);
-              lines.push(`  text before host: ${match ? JSON.stringify(match[1]) : "n/a"}`);
-            } else {
-              lines.push(`  first 6: ${JSON.stringify(raw.slice(0, 6))}`, `  last 4: ${JSON.stringify(raw.slice(-4))}`);
-            }
-            const afterHost = isUrl && match ? match[3] : raw;
-            lines.push(
-              `  contains quote: ${/["']/.test(raw)}`,
-              `  contains space: ${/ /.test(raw)}`,
-              `  contains newline: ${/[\r\n]/.test(raw)}`,
-              `  contains '=': ${raw.includes("=")}${raw.includes("=") ? ` (first at index ${raw.indexOf("=")})` : ""}`,
-              `  starts with ${name}=: ${new RegExp(`^\\s*["']?(export\\s+)?${name}\\s*=`).test(raw)}`,
-              `  contains '/'${isUrl ? " after host" : ""}: ${afterHost.includes("/")}${isUrl && match ? ` (${afterHost.length} chars after host)` : ""}`,
-            );
-            console.log(lines.join("\n"));
-          };
-          describe("UPSTASH_REDIS_REST_URL", process.env.UPSTASH_REDIS_REST_URL, true);
-          describe("UPSTASH_REDIS_REST_TOKEN", process.env.UPSTASH_REDIS_REST_TOKEN, false);
-          EOF
       - name: Refresh forecasts
         run: npm ci && npm run refresh -- ${{ inputs.force && '--force' || '' }}
       - name: Regenerate site pages
