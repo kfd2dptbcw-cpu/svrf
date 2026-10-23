@@ -8,6 +8,7 @@ import type { ForecastPoint, MarineSeries, TideSeries, WeatherSeries } from "@/l
 import { nextRefreshSlot } from "@/lib/schedule";
 import { nowSeconds } from "@/lib/time";
 import type { ForecastBundle, SpotForecast } from "@/types/forecast";
+import { addAiSummaries } from "./ai-summary";
 import { BUNDLE_VERSION, bundleKey, writeCachedBundle } from "./bundle-cache";
 import { claimRefreshAttempt, recordRefreshUsage, type RefreshAttempt } from "./refresh-guard";
 
@@ -122,6 +123,14 @@ export async function refreshForecasts(now = nowSeconds()): Promise<ForecastBund
     const forecast = buildForSpot(spot, marine[spot.slug], weather[spot.slug] ?? null, tides[spot.slug] ?? null, now);
     if (forecast) forecasts[spot.slug] = forecast;
     else errors.push(`No marine data for ${spot.name}`);
+  }
+
+  // Optional AI-written summaries. Best effort and never on synthetic data: any
+  // failure leaves the rule-based text in place and is only logged.
+  if (!providers.isSample) {
+    const ai = await addAiSummaries(forecasts, Object.fromEntries(spots.map((spot) => [spot.slug, spot.name])));
+    if (ai.added > 0) console.info(`[forecast] added ${ai.added} AI-written day summaries`);
+    for (const message of ai.errors) console.warn(`[forecast] ${message}`);
   }
 
   const sources = [...new Set(Object.values(forecasts).flatMap((forecast) => forecast.sources))];

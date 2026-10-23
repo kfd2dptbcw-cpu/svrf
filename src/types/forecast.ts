@@ -121,6 +121,12 @@ export interface DayForecast {
   suitability: Record<SkillLevel, Suitability>;
   /** Short written forecast, one sentence per line. */
   summary: string[];
+  /**
+   * Optional plain-English paragraph written by an AI model from this day's
+   * numbers during the refresh job. Absent when no API key is set or the
+   * output failed validation; the rule-based `summary` is always present.
+   */
+  aiSummary?: string;
 }
 
 export interface SpotForecast {

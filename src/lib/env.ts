@@ -113,6 +113,13 @@ export const env = {
   get xweatherIntervalHours(): 1 | 3 {
     return int("XWEATHER_INTERVAL_HOURS", 1) === 3 ? 3 : 1;
   },
+  /** Optional Anthropic API key. When set, the refresh job adds a plain-English summary to each day. */
+  get anthropicApiKey() {
+    return sanitizeEnvValue("ANTHROPIC_API_KEY", process.env.ANTHROPIC_API_KEY);
+  },
+  get aiSummaryModel() {
+    return str("AI_SUMMARY_MODEL", "claude-haiku-5-5");
+  },
   get xweatherApiUrl() {
     return str("XWEATHER_API_URL", "https://data.api.xweather.com");
   },

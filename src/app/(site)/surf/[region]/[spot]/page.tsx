@@ -113,11 +113,18 @@ export default async function SpotPage({ params }: { params: Params }) {
                 <StarRating rating={current.rating} size="lg" label={current.label} />
                 <RatingBadge rating={current.rating} label={current.label} className="text-sm" />
               </div>
-              <div className="space-y-1 text-lg">
-                {current.summary.map((line) => (
-                  <p key={line}>{line}</p>
-                ))}
-              </div>
+              {current.aiSummary ? (
+                <div className="space-y-1">
+                  <p className="text-lg">{current.aiSummary}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Written by Claude from the forecast numbers below.</p>
+                </div>
+              ) : (
+                <div className="space-y-1 text-lg">
+                  {current.summary.map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
+                </div>
+              )}
             </div>
             <ConditionTiles day={current} />
             <WetsuitPicker day={current} />

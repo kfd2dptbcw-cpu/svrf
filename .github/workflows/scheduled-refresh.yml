@@ -9,6 +9,7 @@
 #   XWEATHER_CLIENT_ID, XWEATHER_CLIENT_SECRET         required for Xweather
 #   FORECAST_DATA_SOURCE, FALLBACK_DATA_SOURCE, FORECAST_DAYS, XWEATHER_INTERVAL_HOURS,
 #   TIDE_PROVIDER, ADMIRALTY_API_KEY, REFRESH_HOURS_UTC  optional — must match the site's values
+#   ANTHROPIC_API_KEY                                  optional — adds AI-written plain-English day summaries
 #   FORECAST_SITE_URL, CRON_SECRET                     optional — ping the site afterwards so pages
 #                                                      regenerate now rather than within the hour
 name: Scheduled forecast refresh
@@ -44,6 +45,7 @@ jobs:
       TIDE_PROVIDER: ${{ secrets.TIDE_PROVIDER }}
       ADMIRALTY_API_KEY: ${{ secrets.ADMIRALTY_API_KEY }}
       REFRESH_HOURS_UTC: ${{ secrets.REFRESH_HOURS_UTC }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
