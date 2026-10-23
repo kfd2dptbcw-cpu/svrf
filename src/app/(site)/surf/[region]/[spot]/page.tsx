@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Code2, MapPin } from "lucide-react";
 import { ConditionTiles } from "@/components/forecast/ConditionTiles";
+import { WetsuitPicker } from "@/components/forecast/WetsuitPicker";
 import { DataStatus } from "@/components/forecast/DataStatus";
 import { DayStrip } from "@/components/forecast/DayStrip";
 import { ForecastHolding } from "@/components/forecast/ForecastHolding";
@@ -119,6 +120,7 @@ export default async function SpotPage({ params }: { params: Params }) {
               </div>
             </div>
             <ConditionTiles day={current} />
+            <WetsuitPicker day={current} />
           </section>
 
           <Section title="Who's it for?" id="suitability">

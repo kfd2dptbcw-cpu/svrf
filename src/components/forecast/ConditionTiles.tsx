@@ -1,5 +1,6 @@
 import { Clock, Thermometer, Waves } from "lucide-react";
 import { degreesToCompass } from "@/lib/forecast/engine/angles";
+import { pickWetsuit } from "@/lib/forecast/engine/wetsuit";
 import { formatClock, formatFeet, formatMph, formatPeriod, formatTemp, formatTimeRange, WIND_TYPE_LABELS } from "@/lib/format";
 import type { DayForecast } from "@/types/forecast";
 import { DirectionArrow } from "./DirectionArrow";
@@ -88,17 +89,17 @@ export function ConditionTiles({ day }: { day: DayForecast }) {
       </Tile>
       <Tile label="Sea temperature" icon={<Thermometer className="h-8 w-8 text-slate-600 dark:text-slate-300" aria-hidden="true" />}>
         <p className="text-lg font-semibold font-mono tabular-nums">{formatTemp(day.seaTempC)}</p>
-        <p className="text-sm text-slate-500 dark:text-slate-400">{wetsuitAdvice(day.seaTempC)}</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{wetsuitAdvice(day)}</p>
       </Tile>
     </dl>
   );
 }
 
-function wetsuitAdvice(seaTemp: number | null): string {
-  if (seaTemp === null) return "Not available";
-  if (seaTemp < 10) return "5/4mm, boots, gloves & hood";
-  if (seaTemp < 13) return "5/4mm wetsuit & boots";
-  if (seaTemp < 16) return "4/3mm wetsuit";
-  if (seaTemp < 18) return "3/2mm wetsuit";
-  return "Shortie or 3/2mm";
+function wetsuitAdvice(day: DayForecast): string {
+  const pick = pickWetsuit({
+    seaTempC: day.seaTempC,
+    airTempC: day.airTempMinC ?? day.airTempMaxC,
+    windSpeedKmh: day.wind?.speedKmh ?? null,
+  });
+  return pick ? pick.headline : "Not available";
 }
