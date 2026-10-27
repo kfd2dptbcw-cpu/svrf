@@ -1,3 +1,4 @@
+import { AlertsScheduler } from "@/components/alerts/AlertsScheduler";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { searchIndex } from "@/lib/forecast/selectors";
@@ -14,6 +15,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <SiteHeader searchIndex={searchIndex()} />
       <main id="main">{children}</main>
       <SiteFooter />
+      <AlertsScheduler />
     </>
   );
 }

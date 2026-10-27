@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getActiveRegions } from "@/lib/config";
 import { activeCredits } from "@/lib/attribution";
+import { NativeOnly } from "@/components/alerts/NativeOnly";
 import { DataAttribution } from "./DataAttribution";
 import { env } from "@/lib/env";
 
@@ -53,6 +54,18 @@ export function SiteFooter() {
           <p className="mt-3">
             <Link href="/about" className="font-medium text-flag-deep hover:underline dark:text-flag">
               How our forecasts work →
+            </Link>
+          </p>
+          <NativeOnly>
+            <p className="mt-2">
+              <Link href="/alerts" className="font-medium text-flag-deep hover:underline dark:text-flag">
+                Surf alerts →
+              </Link>
+            </p>
+          </NativeOnly>
+          <p className="mt-2">
+            <Link href="/privacy" className="text-slate-600 hover:text-flag-deep dark:text-slate-400 dark:hover:text-flag">
+              Privacy policy
             </Link>
           </p>
         </div>
