@@ -1,0 +1,59 @@
+# Daily "best surf" post to Facebook and Instagram, straight after the forecast
+# refresh (≈06:20 UTC). Posting starts on SOCIAL_START_DATE (default 2026-11-03)
+# and happens at most once a day per platform. It reads the shared forecast cache
+# only and never calls the data providers.
+#
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN   required — read the forecast, remember what was posted
+#   FORECAST_SITE_URL                                  required — public https:// address Meta downloads the card from
+#   META_PAGE_ID, META_PAGE_ACCESS_TOKEN               required — the SVRF Facebook Page and a long-lived Page token
+#   INSTAGRAM_USER_ID                                  optional — Instagram professional account linked to that Page
+#   SOCIAL_START_DATE                                  optional — first day to post (YYYY-MM-DD)
+#   REFRESH_HOURS_UTC                                  optional — must match the site's value
+# See docs/SOCIAL.md for how to get the Meta values.
+name: Daily social post
+
+on:
+  workflow_run:
+    workflows: ["Scheduled forecast refresh"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: print the captions and image URL without posting"
+        type: boolean
+        default: true
+      force:
+        description: "Post even if today's post already went out or it's before the start date"
+        type: boolean
+        default: false
+
+concurrency:
+  group: social-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    # Only after a successful refresh (or a manual run).
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+      UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+      FORECAST_SITE_URL: ${{ secrets.FORECAST_SITE_URL }}
+      META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+      SOCIAL_START_DATE: ${{ secrets.SOCIAL_START_DATE }}
+      REFRESH_HOURS_UTC: ${{ secrets.REFRESH_HOURS_UTC }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Post today's best surf
+        run: |
+          npm ci
+          npm run social:post -- ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}

@@ -19,6 +19,7 @@
     "check": "npm run config:validate && npm run typecheck && npm run lint && npm run test",
     "provider:check": "tsx scripts/check-provider.mts",
     "refresh": "tsx scripts/refresh.mts",
+    "social:post": "tsx scripts/post-social.mts",
     "tides:assign": "tsx scripts/assign-tide-stations.mts"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

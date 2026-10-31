@@ -11,6 +11,7 @@ The surf forecast for [SVRF](https://svrf.uk): a fast, embeddable surf forecast 
 - **SVRF brand:** flat "SVRF" wordmark, Ink / Slate / Fog / Seafoam / Chalk with Flag Orange as the single accent, Archivo Black headlines, Inter body and JetBrains Mono data (fonts self-hosted). Dark mode, animated swell and wind arrows, star ratings, an interactive Leaflet map, instant search, filters and favourites.
 - **SEO:** metadata, Open Graph images (a dynamic one per spot), JSON-LD structured data, an XML sitemap, robots.txt and friendly URLs such as `/surf/cornwall/fistral`.
 - **Embeddable** iframe widgets with automatic resizing for your existing website.
+- **Social:** a share button on every spot page, and a daily "Best surf today" card posted automatically to Facebook and Instagram after each refresh ([docs/SOCIAL.md](docs/SOCIAL.md)).
 
 ```
 ★★★★☆  Excellent
