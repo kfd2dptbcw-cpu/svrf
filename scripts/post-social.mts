@@ -24,7 +24,7 @@ const dryRun = args.has("--dry-run");
 const force = args.has("--force");
 
 const { getCacheStore } = await import("../src/lib/cache");
-const { readCachedBundle } = await import("../src/lib/forecast/bundle-cache");
+const { bundleKey, readCachedBundle } = await import("../src/lib/forecast/bundle-cache");
 const { isFresh } = await import("../src/lib/schedule");
 const { nowSeconds, ukDateKey } = await import("../src/lib/time");
 const { sanitizeEnvValue } = await import("../src/lib/env");
@@ -51,9 +51,21 @@ if (!/^https:\/\//.test(siteUrl)) {
   process.exit(dryRun ? 0 : 1);
 }
 
+// In CI the cache must be the shared one the refresh writes to.
+const store = getCacheStore();
+if (process.env.CI && store.name !== "upstash") {
+  console.error("✖ UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set; can't read the forecast or record what was posted.");
+  process.exit(1);
+}
+
 const stored = await readCachedBundle();
 if (!stored || !stored.configMatches || !isFresh(stored.bundle.generatedAt, now)) {
-  notice("Social post skipped", "no fresh forecast in the cache, so nothing was posted rather than an out-of-date one");
+  const why = !stored
+    ? `nothing cached under ${bundleKey()} in the ${store.name} cache (check FORECAST_DATA_SOURCE / XWEATHER_CLIENT_ID match the refresh workflow)`
+    : !stored.configMatches
+      ? "the cached forecast was made with a different spot configuration"
+      : `the cached forecast is from ${new Date(stored.bundle.generatedAt * 1000).toISOString()}`;
+  notice("Social post skipped", `no fresh forecast (${why}), so nothing was posted rather than an out-of-date one`);
   process.exit(0);
 }
 const featured = social.pickFeaturedSpots(stored.bundle, dateKey);
@@ -95,11 +107,6 @@ if (!check.ok || !check.headers.get("content-type")?.startsWith("image/jpeg")) {
 }
 
 // One record per day, so a re-run after a partial failure only retries what's missing.
-const store = getCacheStore();
-if (process.env.CI && store.name !== "upstash") {
-  console.error("✖ UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN are not set; can't record what was posted, so refusing to post.");
-  process.exit(1);
-}
 const lockKey = `social-post-lock:${dateKey}`;
 if (!(await store.acquireLock(lockKey, 600))) {
   notice("Social post skipped", "another run is posting right now");
