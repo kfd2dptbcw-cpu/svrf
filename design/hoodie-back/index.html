@@ -3,389 +3,302 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SVRF Hoodie Back – Cold Water Issue</title>
+<title>SVRF Hoodie Back</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&display=block" rel="stylesheet">
 <style>
-  :root { --ink:#0B0D0E; --paper:#EFEEE7; --orange:#FF4E1F; --mist:#CFDBDA; }
+  :root { --ink:#0B0D0E; --paper:#EFEEE7; --orange:#FF4E1F; --mist:#CFDBDA; --garment:#1b2233; }
   * { box-sizing: border-box; }
-  body { margin:0; background:#2a2f31; color:var(--paper); font:14px/1.4 "JetBrains Mono", monospace; }
-  header { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:16px; }
-  button { font:inherit; background:var(--orange); color:var(--ink); border:0; padding:10px 16px; font-weight:700; cursor:pointer; }
+  body { margin:0; background:#16191a; color:var(--paper); font:13px/1.4 "JetBrains Mono", monospace; }
+  header { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:16px; }
+  label { display:flex; gap:6px; align-items:center; color:var(--mist); }
+  select, button { font:inherit; padding:8px 10px; border:0; }
+  select { background:#262b2d; color:var(--paper); max-width:260px; }
+  button { background:var(--orange); color:var(--ink); font-weight:700; cursor:pointer; }
   button[disabled] { opacity:.5; cursor:wait; }
-  #status { color:var(--mist); }
+  #status { color:var(--mist); flex-basis:100%; }
   main { padding:0 16px 32px; display:flex; justify-content:center; }
-  canvas { width:100%; max-width:760px; height:auto; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+  .garment { background:var(--garment); padding:min(8vw,64px); width:100%; max-width:820px; transition:background .2s; }
+  canvas { display:block; width:100%; height:auto; }
 </style>
 </head>
 <body>
 <header>
-  <div><strong>SVRF · hoodie back print</strong> — 3600×4800px (12×16in @ 300dpi)</div>
-  <div>
-    <span id="status">Loading Shopify images…</span>
-    <button id="dl" disabled>Download print PNG</button>
-  </div>
+  <label>Lead photo <select id="hero"></select></label>
+  <label>Treatment <select id="treat"><option value="xerox">Photocopy</option><option value="halftone">Halftone</option></select></label>
+  <label>Line <select id="slogan"></select></label>
+  <label>Hoodie <select id="garment">
+    <option value="#1b2233">Navy</option><option value="#0e0f10">Black</option>
+    <option value="#5a4636">Coffee</option><option value="#8d9092">Grey marl</option><option value="#e9e6dc">Ecru</option>
+  </select></label>
+  <button id="dl" disabled>Download print PNG</button>
+  <span id="status">Loading Shopify images…</span>
 </header>
-<main><canvas id="c" width="3600" height="4800"></canvas></main>
+<main><div class="garment" id="g"><canvas id="c" width="3600" height="4800"></canvas></div></main>
 
 <script>
 // ---------------------------------------------------------------------------
-// SVRF hoodie back — "The Cold Water Issue", a surf-mag back cover collage.
-// Every photo comes straight from the SVRF Shopify Files library (cdn.shopify.com).
-// Swap any URL below to re-cut the collage; everything else re-flows.
+// SVRF hoodie back. Photo-led: one full-bleed lead shot, run through a
+// photocopier, a contact-sheet strip, and a misregistered wordmark cut off
+// the bottom edge. Outside the print is transparent, so the hoodie shows.
+// All photos come from the SVRF Shopify Files library.
 // ---------------------------------------------------------------------------
 const CDN = "https://cdn.shopify.com/s/files/1/1039/7977/8385/files/";
-const IMAGES = {
-  hero:   CDN + "inspiredimages-penhale-sands-1599463_1920.jpg",   // big halftone lead shot
-  gulls:  CDN + "diego_torres-gulls-1937919.jpg",                  // orange duotone, top right
-  beach:  CDN + "kranich17-beach-6282284.jpg",                     // mono, mid right
-  local1: CDN + "image-v1565998708745728000.jpg",                  // mist duotone, lower left
-  tee:    CDN + "723f7463dd4f4127a69078b53c5eefa6.jpg",            // Forecast Tee styled, polaroid
-  robe:   CDN + "carpark-robe-factory-flatlay.jpg",                // Carpark Robe sample, small clipping
-  seal:   CDN + "51ba16fc12dd4336986e31aa9f90d7be.png",            // Good Season seal tee, sticker
-};
-const SLOGAN = ["THE FORECAST", "IS ONLY A RUMOUR."];
-const SLOGAN_TAG = "go and look.";
+// [label, file, focal x, focal y]
+const PHOTOS = [
+  ["Penhale Sands",        "inspiredimages-penhale-sands-1599463_1920.jpg", 0.5, 0.5],
+  ["Beach",                "kranich17-beach-6282284.jpg",                   0.5, 0.5],
+  ["Gulls",                "diego_torres-gulls-1937919.jpg",                0.5, 0.5],
+  ["Upload 1",             "image-v1565998708745728000.jpg",                0.5, 0.5],
+  ["Upload 2",             "image-v1565998704060690432.jpg",                0.5, 0.5],
+  ["Upload 3",             "image-v1565998539740446720.jpg",                0.5, 0.5],
+  ["Upload 4",             "image-v1565998532190699520.jpg",                0.5, 0.5],
+  ["Forecast Tee, beanie", "723f7463dd4f4127a69078b53c5eefa6.jpg",          0.5, 0.35],
+  ["Forecast Tee, cap",    "9186a21e6d2f4f00be45ef9a66e72de5.jpg",          0.5, 0.35],
+  ["Fin Baby Tee",         "baby_Fin_Tee.jpg",                              0.5, 0.35],
+  ["Carpark Robe sample",  "carpark-robe-factory-flatlay.jpg",              0.5, 0.5],
+];
+// Contact-strip frames, in order of preference (the lead photo is skipped).
+const STRIP = ["Gulls", "Upload 1", "Beach", "Upload 2"];
+const LINES = [
+  "IT WAS BETTER YESTERDAY.",
+  "COLD HANDS. NO WITNESSES.",
+  "NOBODY OUT. KEEP IT THAT WAY.",
+  "LOCATION WITHHELD.",
+];
 
-const W = 3600, H = 4800, M = 180;
-const INK = "#0B0D0E", PAPER = "#EFEEE7", ORANGE = "#FF4E1F", MIST = "#CFDBDA";
+const W = 3600, H = 4800, M = 170;
+const INK = "#0B0D0E", PAPER = "#EFEEE7", ORANGE = "#FF4E1F";
 
-// Deterministic randomness so every export is identical.
-let seed = 1984;
+let seed;
 const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
 const rr = (a, b) => a + (b - a) * rnd();
 
 const cv = document.getElementById("c");
 const ctx = cv.getContext("2d");
-const statusEl = document.getElementById("status");
+const $ = (id) => document.getElementById(id);
+const cache = new Map();
 
-function loadImg(url) {
-  return new Promise((resolve) => {
+function loadImg(file) {
+  if (!cache.has(file)) cache.set(file, new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    // Shopify's CDN resizes on the fly; 2000px is plenty for print at these sizes.
-    img.src = url + (url.includes("?") ? "&" : "?") + "width=2000";
-  });
+    img.src = CDN + file + "?width=2400";
+  }));
+  return cache.get(file);
 }
 
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const clamp = (v) => Math.min(1, Math.max(0, v));
+const canvas = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
 
-// Cover-crop an image into a w×h offscreen canvas; fx/fy = focal point 0..1.
 function cropTo(img, w, h, fx = 0.5, fy = 0.5) {
-  const c = document.createElement("canvas");
-  c.width = w; c.height = h;
-  const g = c.getContext("2d");
-  if (!img) {
-    // Missing image: a neutral grey plate with a hatch so the layout still reads.
-    g.fillStyle = "#9aa3a5"; g.fillRect(0, 0, w, h);
-    g.strokeStyle = "#7c8587"; g.lineWidth = 6;
-    for (let i = -h; i < w; i += 40) { g.beginPath(); g.moveTo(i, h); g.lineTo(i + h, 0); g.stroke(); }
-    return c;
-  }
-  const s = Math.max(w / img.width, h / img.height);
-  const sw = w / s, sh = h / s;
+  const c = canvas(w, h), g = c.getContext("2d");
+  if (!img) { g.fillStyle = "#3a4042"; g.fillRect(0, 0, w, h); return c; }
+  const s = Math.max(w / img.width, h / img.height), sw = w / s, sh = h / s;
   const sx = Math.min(Math.max(img.width * fx - sw / 2, 0), img.width - sw);
   const sy = Math.min(Math.max(img.height * fy - sh / 2, 0), img.height - sh);
   g.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
   return c;
 }
 
-function lumaGrid(c) {
-  const g = c.getContext("2d");
-  const d = g.getImageData(0, 0, c.width, c.height).data;
-  return (x, y) => {
-    const i = (Math.min(c.height - 1, y | 0) * c.width + Math.min(c.width - 1, x | 0)) * 4;
-    return (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
-  };
-}
-
-// Contrast curve to give that blown-out, photocopied magazine look.
-const curve = (v, k = 1.6) => Math.min(1, Math.max(0, (v - 0.5) * k + 0.5));
-
-// Render modes ---------------------------------------------------------------
-function halftone(src, ink = INK, bg = PAPER, cell = 22, angle = 0.26, k = 1.7) {
-  const w = src.width, h = src.height;
-  const out = document.createElement("canvas"); out.width = w; out.height = h;
-  const g = out.getContext("2d");
-  const L = lumaGrid(src);
-  g.fillStyle = bg; g.fillRect(0, 0, w, h);
-  g.fillStyle = ink;
-  const ca = Math.cos(angle), sa = Math.sin(angle), R = Math.hypot(w, h);
-  for (let u = -R; u < R; u += cell) {
-    for (let v = -R; v < R; v += cell) {
-      const x = w / 2 + u * ca - v * sa, y = h / 2 + u * sa + v * ca;
-      if (x < -cell || y < -cell || x > w + cell || y > h + cell) continue;
-      const dark = 1 - curve(L(x, y), k);
-      const r = Math.sqrt(dark) * cell * 0.72;
-      if (r < 0.8) continue;
-      g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
-    }
-  }
-  return out;
-}
-
-function duotone(src, dark, light, k = 1.5) {
-  const w = src.width, h = src.height;
-  const out = document.createElement("canvas"); out.width = w; out.height = h;
-  const g = out.getContext("2d");
+// Photocopy: crushed blacks, blown highlights, toner noise, ink→paper ramp.
+function xerox(src, { k = 2.1, gamma = 1.25, noise = 0.16, dark = INK, light = PAPER } = {}) {
+  const w = src.width, h = src.height, out = canvas(w, h), g = out.getContext("2d");
   g.drawImage(src, 0, 0);
-  const im = g.getImageData(0, 0, w, h), d = im.data;
-  const a = hex(dark), b = hex(light);
+  const im = g.getImageData(0, 0, w, h), d = im.data, a = hex(dark), b = hex(light);
   for (let i = 0; i < d.length; i += 4) {
-    let v = curve((0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255, k);
-    v = Math.min(1, Math.max(0, v + (rnd() - 0.5) * 0.08)); // grain
+    let v = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
+    v = Math.pow(v, gamma);
+    v = clamp((v - 0.5) * k + 0.5 + (rnd() - 0.5) * noise);
     d[i] = a[0] + (b[0] - a[0]) * v; d[i + 1] = a[1] + (b[1] - a[1]) * v; d[i + 2] = a[2] + (b[2] - a[2]) * v;
   }
   g.putImageData(im, 0, 0);
   return out;
 }
 
-const mono = (src, k = 1.8) => duotone(src, INK, PAPER, k);
+function halftone(src, cell = 30, angle = 0.785, k = 1.9) {
+  const w = src.width, h = src.height, out = canvas(w, h), g = out.getContext("2d");
+  const d = src.getContext("2d").getImageData(0, 0, w, h).data;
+  const L = (x, y) => { const i = (Math.min(h - 1, Math.max(0, y | 0)) * w + Math.min(w - 1, Math.max(0, x | 0))) * 4; return (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255; };
+  g.fillStyle = PAPER; g.fillRect(0, 0, w, h); g.fillStyle = INK;
+  const ca = Math.cos(angle), sa = Math.sin(angle), R = Math.hypot(w, h);
+  for (let u = -R; u < R; u += cell) for (let v = -R; v < R; v += cell) {
+    const x = w / 2 + u * ca - v * sa, y = h / 2 + u * sa + v * ca;
+    if (x < -cell || y < -cell || x > w + cell || y > h + cell) continue;
+    const r = Math.sqrt(1 - clamp((L(x, y) - 0.5) * k + 0.5)) * cell * 0.74;
+    if (r > 1) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+  }
+  return out;
+}
 
-// Collage helpers --------------------------------------------------------------
-function jaggedRect(g, w, h, tornSides = "", amp = 18) {
-  // Rectangle path with optional torn edges: t,r,b,l.
-  const step = 26, pts = [];
-  const edge = (x0, y0, x1, y1, torn, nx, ny) => {
-    const len = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round(len / step));
-    for (let i = 0; i < n; i++) {
-      const t = i / n, j = torn ? rr(-amp, amp * 0.4) : 0;
-      pts.push([x0 + (x1 - x0) * t + nx * j, y0 + (y1 - y0) * t + ny * j]);
-    }
+// Rough, photocopied page edge.
+function roughRect(g, x, y, w, h, amp = 10, step = 14) {
+  const pts = [], side = (x0, y0, x1, y1, nx, ny) => {
+    const n = Math.round(Math.hypot(x1 - x0, y1 - y0) / step);
+    for (let i = 0; i < n; i++) { const t = i / n, j = rr(-amp, amp) * (rnd() < 0.08 ? 2.4 : 1); pts.push([x0 + (x1 - x0) * t + nx * j, y0 + (y1 - y0) * t + ny * j]); }
   };
-  edge(0, 0, w, 0, tornSides.includes("t"), 0, -1);
-  edge(w, 0, w, h, tornSides.includes("r"), 1, 0);
-  edge(w, h, 0, h, tornSides.includes("b"), 0, 1);
-  edge(0, h, 0, 0, tornSides.includes("l"), -1, 0);
-  g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.closePath();
+  side(x, y, x + w, y, 0, 1); side(x + w, y, x + w, y + h, 1, 0); side(x + w, y + h, x, y + h, 0, 1); side(x, y + h, x, y, 1, 0);
+  g.beginPath(); pts.forEach(([px, py], i) => (i ? g.lineTo(px, py) : g.moveTo(px, py))); g.closePath();
 }
 
-function tape(cx, cy, w, h, rot) {
-  ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot);
-  ctx.fillStyle = "rgba(207,219,218,0.82)";
-  ctx.beginPath();
-  const zig = (x, dir) => { for (let y = -h / 2; y <= h / 2; y += h / 6) ctx.lineTo(x + dir * rr(0, 14), y); };
-  ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(w / 2, -h / 2); zig(w / 2, 1); ctx.lineTo(-w / 2, h / 2);
-  for (let y = h / 2; y >= -h / 2; y -= h / 6) ctx.lineTo(-w / 2 - rr(0, 14), y);
-  ctx.closePath(); ctx.fill();
-  ctx.restore();
-}
-
-// Place a rendered plate: frame = white print border width, torn = sides to rip.
-function place(plate, { x, y, rot = 0, frame = 0, frameColor = "#FAFAF6", torn = "", shadow = true, bottomFrame = 0, caption = "", capFont = "italic 80px 'Instrument Serif'" }) {
-  const w = plate.width + frame * 2, h = plate.height + frame + Math.max(frame, bottomFrame);
-  ctx.save();
-  ctx.translate(x + w / 2, y + h / 2); ctx.rotate(rot); ctx.translate(-w / 2, -h / 2);
-  if (shadow) { ctx.shadowColor = "rgba(11,13,14,0.35)"; ctx.shadowBlur = 40; ctx.shadowOffsetX = 10; ctx.shadowOffsetY = 18; }
-  jaggedRect(ctx, w, h, torn);
-  ctx.fillStyle = frame ? frameColor : "#000"; ctx.fill();
-  ctx.shadowColor = "transparent";
-  ctx.save(); jaggedRect(ctx, w, h, torn); ctx.clip();
-  ctx.drawImage(plate, frame, frame);
-  ctx.restore();
-  if (caption) {
-    ctx.font = capFont; ctx.fillStyle = INK; ctx.textBaseline = "middle"; ctx.letterSpacing = "0px";
-    ctx.fillText(caption, frame + 20, h - Math.max(frame, bottomFrame) / 2 + 4);
-  }
-  ctx.restore();
-  return { w, h };
-}
-
-function text(str, x, y, { font, color = INK, align = "left", spacing = 0, rot = 0, baseline = "alphabetic" }) {
+function text(str, x, y, font, color, { align = "left", spacing = 0, rot = 0 } = {}) {
   ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
-  ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = baseline;
-  ctx.letterSpacing = spacing + "px";
-  ctx.fillText(str, 0, 0);
+  ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+  ctx.letterSpacing = spacing + "px"; ctx.fillText(str, 0, 0);
   ctx.restore();
 }
 
-function fitFont(str, family, maxW, spacing = 0) {
-  ctx.letterSpacing = spacing + "px";
-  ctx.font = `100px ${family}`;
-  const w100 = ctx.measureText(str).width;
-  ctx.letterSpacing = "0px";
-  return (100 * maxW) / w100;
-}
-
-function grain(alpha = 0.06) {
-  const t = document.createElement("canvas"); t.width = t.height = 256;
-  const g = t.getContext("2d"), im = g.createImageData(256, 256);
-  for (let i = 0; i < im.data.length; i += 4) {
-    const v = rnd() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255;
-  }
+// Toner grain + dust, clipped to the print.
+function grainAndDust() {
+  const t = canvas(300, 300), g = t.getContext("2d"), im = g.createImageData(300, 300);
+  for (let i = 0; i < im.data.length; i += 4) { const v = rnd() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; }
   g.putImageData(im, 0, 0);
-  ctx.save(); ctx.globalAlpha = alpha; ctx.globalCompositeOperation = "multiply";
-  ctx.fillStyle = ctx.createPattern(t, "repeat"); ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.globalAlpha = 0.1; ctx.globalCompositeOperation = "overlay";
+  ctx.fillStyle = ctx.createPattern(t, "repeat"); ctx.fillRect(0, 0, W, H); ctx.restore();
+  ctx.save();
+  for (let i = 0; i < 260; i++) {
+    ctx.fillStyle = rnd() < 0.7 ? "rgba(239,238,231,0.75)" : "rgba(11,13,14,0.8)";
+    ctx.beginPath(); ctx.ellipse(rr(0, W), rr(0, H), rr(2, 9), rr(2, 6), rr(0, 3), 0, Math.PI * 2); ctx.fill();
+  }
+  // A couple of hairs / scratches from the scanner glass
+  ctx.strokeStyle = "rgba(239,238,231,0.55)"; ctx.lineWidth = 3;
+  for (let i = 0; i < 3; i++) {
+    let x = rr(200, W - 200), y = rr(200, H - 200); ctx.beginPath(); ctx.moveTo(x, y);
+    for (let j = 0; j < 6; j++) { x += rr(-60, 60); y += rr(20, 70); ctx.lineTo(x, y); } ctx.stroke();
+  }
+  // One copier streak
+  ctx.fillStyle = "rgba(239,238,231,0.07)"; ctx.fillRect(rr(600, 2400), 0, 26, H);
   ctx.restore();
 }
 
-function barcode(x, y, w, h) {
-  ctx.fillStyle = PAPER; ctx.fillRect(x - 30, y - 30, w + 60, h + 130);
-  ctx.fillStyle = INK;
-  let cx = x;
-  while (cx < x + w) {
-    const bw = [5, 5, 10, 15, 20][Math.floor(rnd() * 5)];
-    if (rnd() > 0.42) ctx.fillRect(cx, y, bw, h);
-    cx += bw + 5;
-  }
-  text("5 060 1984 0101 7", x + w / 2, y + h + 70, { font: "700 52px 'JetBrains Mono'", align: "center", spacing: 6 });
+function regMark(x, y, r, color) {
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - r * 1.6, y); ctx.lineTo(x + r * 1.6, y); ctx.moveTo(x, y - r * 1.6); ctx.lineTo(x, y + r * 1.6); ctx.stroke();
+  ctx.restore();
 }
 
-// Tide curve — a nod to the forecast side of SVRF.
-function tideLine(x, y, w, h) {
-  ctx.save(); ctx.strokeStyle = INK; ctx.lineWidth = 10; ctx.beginPath();
-  for (let i = 0; i <= w; i += 8) {
-    const t = (i / w) * Math.PI * 2 * 1.9;
-    const v = Math.sin(t) * 0.8 + Math.sin(t * 0.5 + 1) * 0.2;
-    i ? ctx.lineTo(x + i, y - v * h / 2) : ctx.moveTo(x + i, y - v * h / 2);
+// Vertical strip of 35mm frames with sprockets, edge numbers and grease pencil.
+function contactStrip(frames, x, y, rot) {
+  const fw = 620, fh = 430, gap = 46, edge = 92, sw = fw + edge * 2, sh = frames.length * (fh + gap) + gap + 60;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 50; ctx.shadowOffsetX = 14; ctx.shadowOffsetY = 20;
+  ctx.fillStyle = "#121314"; ctx.fillRect(0, 0, sw, sh);
+  ctx.shadowColor = "transparent";
+  ctx.fillStyle = "#2b2d2e";
+  for (let sy = 26; sy < sh - 30; sy += 66) { ctx.fillRect(26, sy, 40, 30); ctx.fillRect(sw - 66, sy, 40, 30); }
+  frames.forEach((f, i) => {
+    const fy = gap + i * (fh + gap);
+    ctx.drawImage(xerox(cropTo(f.img, fw, fh, f.fx, f.fy), { k: 1.7, noise: 0.1, gamma: 1.1 }), edge, fy);
+    ctx.save(); ctx.translate(sw - 20, fy + fh / 2); ctx.rotate(Math.PI / 2);
+    ctx.font = "700 30px 'JetBrains Mono'"; ctx.fillStyle = "#c98a3a"; ctx.textAlign = "center"; ctx.letterSpacing = "4px";
+    ctx.fillText(`${14 + i}   ▸${14 + i}A`, 0, 0); ctx.restore();
+  });
+  // Grease pencil: loop the keeper, cross out a reject.
+  ctx.strokeStyle = ORANGE; ctx.lineWidth = 16; ctx.lineCap = "round"; ctx.lineJoin = "round";
+  const ky = gap + 1 * (fh + gap) + fh / 2;
+  ctx.beginPath();
+  for (let a = 0.2; a < Math.PI * 2 + 0.75; a += 0.08) {
+    const wob = 1 + Math.sin(a * 3) * 0.03;
+    ctx.lineTo(sw / 2 + Math.cos(a) * (fw / 2 + 50) * wob, ky + Math.sin(a) * (fh / 2 + 44) * wob + a * 6);
   }
   ctx.stroke();
-  ctx.fillStyle = ORANGE; ctx.beginPath(); ctx.arc(x + w * 0.62, y - Math.sin(Math.PI * 2 * 1.9 * 0.62) * 0.8 * h / 2 - Math.sin(Math.PI * 1.9 * 0.62 + 1) * 0.2 * h / 2, 26, 0, Math.PI * 2); ctx.fill();
+  const xy = gap + fh / 2;
+  ctx.beginPath(); ctx.moveTo(edge + 70, xy - 140); ctx.lineTo(edge + fw - 90, xy + 130);
+  ctx.moveTo(edge + fw - 70, xy - 150); ctx.lineTo(edge + 100, xy + 140); ctx.stroke();
   ctx.restore();
 }
 
 // ---------------------------------------------------------------------------
 async function render() {
-  await Promise.all([
-    document.fonts.load("100px 'Archivo Black'"),
-    document.fonts.load("italic 100px 'Instrument Serif'"),
-    document.fonts.load("700 100px 'JetBrains Mono'"),
-    document.fonts.load("400 100px 'JetBrains Mono'"),
-  ]);
-  const entries = await Promise.all(Object.entries(IMAGES).map(async ([k, u]) => [k, await loadImg(u)]));
-  const img = Object.fromEntries(entries);
-  const missing = entries.filter(([, i]) => !i).map(([k]) => k);
+  seed = 4471;
+  $("dl").disabled = true; $("status").textContent = "Rendering…";
+  await Promise.all([document.fonts.load("100px 'Archivo Black'"), document.fonts.load("700 100px 'JetBrains Mono'"), document.fonts.load("400 100px 'JetBrains Mono'")]);
 
-  // Page -----------------------------------------------------------------------
-  ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+  const hero = PHOTOS[+$("hero").value];
+  const stripPhotos = STRIP.map((n) => PHOTOS.find((p) => p[0] === n)).filter((p) => p && p !== hero).slice(0, 3);
+  const all = [hero, ...stripPhotos];
+  const imgs = await Promise.all(all.map((p) => loadImg(p[1])));
+  const [heroImg, ...stripImgs] = imgs;
+  const missing = all.filter((_, i) => !imgs[i]).map((p) => p[0]);
 
-  // Top strap
-  const mono54 = "700 54px 'JetBrains Mono'";
-  text("ISSUE Nº 01", M, M + 40, { font: mono54, spacing: 8 });
-  text("THE COLD WATER ISSUE", W / 2, M + 40, { font: mono54, align: "center", spacing: 8 });
-  text("WINTER 26/27", W - M, M + 40, { font: mono54, align: "right", spacing: 8 });
-  ctx.fillStyle = INK; ctx.fillRect(M, M + 85, W - 2 * M, 10);
-
-  // Masthead — fixed height, stretched to the full measure
-  const mastSize = 1100;
-  const mastBase = M + 150 + mastSize * 0.72;
-  ctx.font = `${mastSize}px 'Archivo Black'`; ctx.letterSpacing = "0px";
-  const mastScale = (W - 2 * M) / ctx.measureText("SVRF").width;
-  ctx.save(); ctx.translate(W / 2, mastBase); ctx.scale(mastScale, 1);
-  ctx.fillStyle = INK; ctx.textAlign = "center"; ctx.fillText("SVRF", 0, 0);
-  ctx.restore();
-  ctx.fillStyle = INK; ctx.fillRect(M, mastBase + 40, W - 2 * M, 10);
-  text("SURF  ·  FORECASTS  ·  COLD WATER  ·  GOODS", M, mastBase + 130, { font: "400 58px 'JetBrains Mono'", spacing: 6 });
-  text("SVRF.UK", W - M, mastBase + 130, { font: mono54, align: "right", spacing: 8 });
-
-  // Collage ----------------------------------------------------------------------
-  const top = mastBase + 220;
-
-  // 1. Hero — big halftone lead shot
-  const hero = halftone(cropTo(img.hero, 2300, 1420, 0.5, 0.55), INK, PAPER, 22, 0.26, 1.8);
-  place(hero, { x: M - 10, y: top + 40, rot: -0.022, frame: 28, torn: "r" });
-  text("FIG. 01 — LOW TIDE, HIGH HOPES. 07:12, 4FT @ 12S, OFFSHORE.", M + 30, top + 1580, { font: "400 44px 'JetBrains Mono'", rot: -0.022, spacing: 2 });
-
-  // 2. Gulls — orange duotone, overlapping the top-right of the hero
-  const gulls = duotone(cropTo(img.gulls, 1160, 800, 0.5, 0.45), INK, ORANGE, 1.6);
-  place(gulls, { x: 2190, y: top - 60, rot: 0.045, frame: 22, torn: "b" });
-  tape(2770, top - 30, 380, 92, -0.08);
-
-  // 3. Beach — high-contrast mono, mid right
-  text("FIG. 03 — NOBODY OUT. FOR NOW.", W - M + 20, top + 975, { font: "400 44px 'JetBrains Mono'", align: "right", rot: -0.04, spacing: 2 });
-  const beach = mono(cropTo(img.beach, 1140, 800, 0.5, 0.5), 1.9);
-  place(beach, { x: 2200, y: top + 1000, rot: -0.04, frame: 24 });
-  tape(2280, top + 1010, 300, 84, -0.6);
-
-  // 4. Local shot — mist duotone polaroid, lower left (tucks under the slogan band)
-  const local1 = duotone(cropTo(img.local1, 620, 720, 0.5, 0.5), INK, MIST, 1.5);
-  place(local1, { x: M + 20, y: top + 1830, rot: 0.045, frame: 26, bottomFrame: 130, caption: "the dawn patrol" });
-
-  // 5. Forecast Tee, styled — mono polaroid
-  const tee = mono(cropTo(img.tee, 560, 700, 0.5, 0.4), 1.4);
-  place(tee, { x: 930, y: top + 1900, rot: -0.035, frame: 26, bottomFrame: 130, caption: "on land" });
-  tape(1240, top + 2600, 300, 80, 0.1);
-
-  // 6. Carpark Robe flatlay — torn clipping, straight colour
-  const robe = cropTo(img.robe, 900, 520, 0.5, 0.5);
-  place(robe, { x: 1640, y: top + 2120, rot: 0.05, frame: 0, torn: "trbl" });
-  text("FIG. 06 — THE CARPARK ROBE, FACTORY SAMPLE.", 1660, top + 2705, { font: "400 40px 'JetBrains Mono'", rot: 0.05, spacing: 2 });
-
-  // Slogan band -------------------------------------------------------------------
+  ctx.clearRect(0, 0, W, H);
   ctx.save();
-  const bandY = top + 1720;
-  ctx.translate(W / 2, bandY); ctx.rotate(-0.035);
-  ctx.shadowColor = "rgba(11,13,14,0.35)"; ctx.shadowBlur = 30; ctx.shadowOffsetY = 14;
-  ctx.fillStyle = ORANGE;
-  ctx.translate(-W / 2 - 60, -230); jaggedRect(ctx, W + 120, 460, "tb", 10); ctx.fill();
+  roughRect(ctx, 30, 30, W - 60, H - 60, 9);
+  ctx.clip();
+
+  // Lead photo, full bleed.
+  const crop = cropTo(heroImg, W, H, hero[2], hero[3]);
+  ctx.drawImage($("treat").value === "halftone" ? halftone(crop) : xerox(crop), 0, 0);
+
+  // Burn the top and bottom like an uneven copy, so type sits on dark.
+  let gr = ctx.createLinearGradient(0, H * 0.55, 0, H);
+  gr.addColorStop(0, "rgba(11,13,14,0)"); gr.addColorStop(1, "rgba(11,13,14,0.92)");
+  ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+  gr = ctx.createLinearGradient(0, 0, 0, 700);
+  gr.addColorStop(0, "rgba(11,13,14,0.7)"); gr.addColorStop(1, "rgba(11,13,14,0)");
+  ctx.fillStyle = gr; ctx.fillRect(0, 0, W, 700);
+
+  // Header — small and quiet, like a slide mount.
+  const m46 = "400 46px 'JetBrains Mono'";
+  text("SVRF / COLD WATER DEPT.", M, M + 20, "700 46px 'JetBrains Mono'", PAPER, { spacing: 6 });
+  text("Nº 01 — LOCATION WITHHELD", W - M, M + 20, m46, PAPER, { align: "right", spacing: 6 });
+  regMark(W - M - 30, M + 130, 26, ORANGE);
+
+  // Contact strip down the right side.
+  contactStrip(stripPhotos.map((p, i) => ({ img: stripImgs[i], fx: p[2], fy: p[3] })), 2540, 520, 0.028);
+  text("ROLL 07 · FR. 14–16 · PUSHED 2", 2560, 2370, m46, PAPER, { spacing: 4, rot: 0.028 });
+
+  // The line — label-maker strip, nothing louder.
+  const line = LINES[+$("slogan").value];
+  ctx.font = "700 92px 'JetBrains Mono'"; ctx.letterSpacing = "10px";
+  const lw = ctx.measureText(line).width;
+  const ly = H - 1300;
+  ctx.save(); ctx.translate(M - 10, ly); ctx.rotate(-0.012);
+  ctx.fillStyle = INK; ctx.fillRect(0, -100, lw + 80, 140);
   ctx.restore();
-  const slSize = fitFont(SLOGAN[1], "'Archivo Black'", W - 2 * M - 80, -4);
-  text(SLOGAN[0], W / 2, bandY - 30, { font: `${slSize}px 'Archivo Black'`, align: "center", spacing: -4, rot: -0.035 });
-  text(SLOGAN[1], W / 2, bandY + slSize * 0.82 - 30, { font: `${slSize}px 'Archivo Black'`, align: "center", spacing: -4, rot: -0.035 });
+  text(line, M + 30, ly, "700 92px 'JetBrains Mono'", PAPER, { spacing: 10, rot: -0.012 });
 
-  // Ink tag under the band
-  ctx.save(); ctx.translate(2330, bandY + 300); ctx.rotate(-0.06);
-  ctx.fillStyle = INK; ctx.fillRect(0, -110, 900, 160);
-  ctx.restore();
-  text("— " + SLOGAN_TAG, 2380, bandY + 290, { font: "italic 130px 'Instrument Serif'", color: PAPER, rot: -0.06 });
-
-  // Seal sticker — round cut, top of the stack
-  if (img.seal) {
-    const sc = cropTo(img.seal, 640, 640, 0.5, 0.42);
-    ctx.save(); ctx.translate(3110, top + 2480); ctx.rotate(0.12);
-    ctx.shadowColor = "rgba(11,13,14,0.35)"; ctx.shadowBlur = 30; ctx.shadowOffsetY = 12;
-    ctx.fillStyle = PAPER; ctx.beginPath(); ctx.arc(0, 0, 290, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowColor = "transparent";
-    ctx.beginPath(); ctx.arc(0, 0, 262, 0, Math.PI * 2); ctx.clip();
-    ctx.drawImage(sc, -320, -320);
-    ctx.restore();
-  }
-
-  // Free-gift starburst on the lead shot
-  ctx.save(); ctx.translate(M + 330, top + 330); ctx.rotate(-0.2);
-  ctx.fillStyle = ORANGE; ctx.beginPath();
-  for (let i = 0; i < 44; i++) { const a = (i / 44) * Math.PI * 2, r = i % 2 ? 250 : 300; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
-  ctx.closePath(); ctx.fill();
-  ctx.restore();
-  text("FREE", M + 330, top + 330 - 40, { font: "110px 'Archivo Black'", align: "center", rot: -0.2 });
-  text("TIDE CHART", M + 330, top + 330 + 40, { font: "700 56px 'JetBrains Mono'", align: "center", rot: -0.2 });
-  text("INSIDE", M + 330, top + 330 + 110, { font: "700 56px 'JetBrains Mono'", align: "center", rot: -0.2 });
-
-  // Footer -------------------------------------------------------------------------
-  const fy = H - M - 470;
-  ctx.fillStyle = INK; ctx.fillRect(M, fy, W - 2 * M, 10);
-  const lines = [["P.06", "Why winter is the good season"], ["P.14", "Carpark changing: an etiquette"], ["P.22", "Seals, beanies & other locals"], ["P.31", "Tide charts that lie (lovingly)"]];
-  lines.forEach(([p, l], i) => {
-    const y = fy + 110 + i * 92;
-    text(p, M, y, { font: "700 52px 'JetBrains Mono'", color: ORANGE, spacing: 4 });
-    text(l.toUpperCase(), M + 200, y, { font: "64px 'Archivo Black'", spacing: -1 });
-  });
-  tideLine(2010, fy + 230, 520, 220);
-  text("HW 07:12 · LW 13:31", 2270, fy + 420, { font: "400 40px 'JetBrains Mono'", align: "center", spacing: 2 });
-  barcode(2700, fy + 70, 720, 250);
-  text("£0 · FREE WITH ANY SWELL", W - M, H - M + 10, { font: "700 40px 'JetBrains Mono'", align: "right", spacing: 3 });
-
-  grain(0.07);
-
-  statusEl.textContent = missing.length
-    ? `Rendered — ${missing.length} image(s) failed to load (${missing.join(", ")}), shown as grey plates.`
-    : "Rendered from Shopify media.";
-  const btn = document.getElementById("dl");
-  btn.disabled = false;
-  btn.onclick = () => {
-    try {
-      cv.toBlob((b) => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(b); a.download = "svrf-hoodie-back-cold-water-issue.png"; a.click();
-      }, "image/png");
-    } catch (e) {
-      statusEl.textContent = "Export blocked by the browser (image CORS). Open this file over http:// and retry.";
-    }
+  // Wordmark — misregistered two-colour print, cut off by the bottom edge.
+  ctx.font = "1000px 'Archivo Black'"; ctx.letterSpacing = "-10px";
+  const sx = (W - 2 * 110) / ctx.measureText("SVRF").width;
+  const mark = (dx, dy, color) => {
+    ctx.save(); ctx.translate(W / 2 + dx, H + 150 + dy); ctx.scale(sx, sx * 0.94);
+    ctx.font = "1000px 'Archivo Black'"; ctx.letterSpacing = "-10px"; ctx.textAlign = "center"; ctx.fillStyle = color;
+    ctx.fillText("SVRF", 0, 0); ctx.restore();
   };
+  mark(26, -18, ORANGE);
+  mark(0, 0, PAPER);
+  ctx.letterSpacing = "0px";
+
+  grainAndDust();
+  ctx.restore();
+
+  $("status").textContent = missing.length
+    ? `Rendered — couldn't load: ${missing.join(", ")} (shown as dark plates).`
+    : "Rendered from Shopify media. Transparent outside the print.";
+  $("dl").disabled = false;
 }
+
+$("dl").onclick = () => {
+  try {
+    cv.toBlob((b) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(b); a.download = "svrf-hoodie-back.png"; a.click();
+    }, "image/png");
+  } catch (e) {
+    $("status").textContent = "Export blocked by the browser (image CORS). Serve this folder over http:// and retry.";
+  }
+};
+
+PHOTOS.forEach((p, i) => $("hero").add(new Option(p[0], i)));
+LINES.forEach((l, i) => $("slogan").add(new Option(l, i)));
+["hero", "treat", "slogan"].forEach((id) => ($(id).onchange = render));
+$("garment").onchange = () => $("g").style.setProperty("background", $("garment").value);
 render();
 </script>
 </body>
