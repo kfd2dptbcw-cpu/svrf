@@ -13,6 +13,7 @@ import { StarRating } from "@/components/forecast/StarRating";
 import { SuitabilityBadges } from "@/components/forecast/SuitabilityBadges";
 import { TideChart } from "@/components/forecast/TideChart";
 import { FavouriteButton } from "@/components/favourites/FavouriteButton";
+import { ShareButton } from "@/components/share/ShareButton";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Container, Section } from "@/components/ui/PageHeader";
 import { getRegion, getSpot, spots, type ResolvedSpot } from "@/lib/config";
@@ -21,7 +22,7 @@ import { getSpotForecast } from "@/lib/forecast/service";
 import { todayKey } from "@/lib/forecast/selectors";
 import { formatFullDate, formatSurfRange, formatWeekday } from "@/lib/format";
 import { ukDateKey } from "@/lib/time";
-import { breadcrumbJsonLd, pageMetadata, spotJsonLd } from "@/lib/seo";
+import { absoluteUrl, breadcrumbJsonLd, pageMetadata, spotJsonLd } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -94,7 +95,18 @@ export default async function SpotPage({ params }: { params: Params }) {
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-5xl">{spot.name} surf forecast</h1>
           <p className="mt-3 text-slate-600 dark:text-slate-300">{spot.description}</p>
         </div>
-        <FavouriteButton slug={spot.slug} name={spot.name} />
+        <div className="flex flex-wrap gap-2">
+          <ShareButton
+            title={`${spot.name} surf forecast`}
+            text={
+              current
+                ? `${spot.name}: ${formatSurfRange(current.surfMinFt, current.surfMaxFt)}, ${current.label.toLowerCase()} (${current.rating}★) on SVRF`
+                : `${spot.name} surf forecast on SVRF`
+            }
+            url={absoluteUrl(spot.path)}
+          />
+          <FavouriteButton slug={spot.slug} name={spot.name} />
+        </div>
       </header>
 
       <DataStatus bundle={bundle} />
