@@ -1,25 +1,24 @@
 # SVRF hoodie back
 
-A photo-led print for the back of the SVRF hoodie, built from images in the SVRF Shopify Files library. It's laid out like a photocopied surf zine page:
+A photo-led print for the back of the SVRF hoodie, made from two SVRF photos in `photos/`: `carpark.jpg` and `set-wave.jpg`. There are two layouts. **Carpark** uses the carpark shot as the lead photo, with the set wave in the strip and no big wordmark (the towel and hoodie in the photo carry the brand). **Set wave** uses the wave as the lead photo, with carpark frames in the strip and the big wordmark at the bottom. Previews of both on a navy hoodie are in `mockups/`. It's laid out like a photocopied surf zine page:
 
-- **Lead photo:** full bleed, run through a photocopy treatment (crushed blacks, toner noise, scanner dust).
-- **Contact strip:** a 35mm strip of three more Shopify shots, marked up in grease pencil (one frame circled, one crossed out).
-- **Wordmark:** a misregistered two-colour SVRF, cut off by the bottom edge.
+- **Lead photo:** full bleed, with a photocopy treatment (crushed blacks, toner noise, scanner dust).
+- **Contact strip:** a 35mm strip of three frames cropped from the other photo, marked up in grease pencil (one frame circled, one crossed out).
+- **Wordmark (set wave layout only):** a misregistered two-colour SVRF, cut off by the bottom edge.
 - **Line:** one dry label-maker line, "IT WAS BETTER YESTERDAY." by default.
 - **Output:** a 3600 × 4800 px PNG (12 × 16 in at 300 dpi), transparent outside the rough-cut print edge, so the hoodie colour shows around it.
 
 ## Make the print file
 
-1. Open `index.html` in Chrome or Safari.
-2. Pick the **lead photo**, the **treatment** (photocopy or halftone) and the **line**. The **Hoodie** menu only changes the preview background.
+1. In this folder, run `python3 -m http.server`, then open http://localhost:8000. Browsers won't export the canvas from a page opened as a file.
+2. Pick the **layout** and the **line**. The **Hoodie** menu only changes the preview background.
 3. Click **Download print PNG**.
 
 ## Edit
 
 At the top of the `<script>` block:
 
-- `PHOTOS`: the Shopify files to choose from, each with a focal point for cropping.
-- `STRIP`: which photos go in the contact strip.
+- `PRESETS`: each layout's lead photo, its crop (focal point and zoom), tone settings, contact-strip frames, line position and whether the wordmark shows.
 - `LINES`: the slogan options.
 
 The texture is seeded, so the same choices always export the same file.
