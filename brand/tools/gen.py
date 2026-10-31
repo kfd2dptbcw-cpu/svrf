@@ -109,12 +109,32 @@ def icon(fg, fl, bg):
     return 4096, 4096, body
 
 
-def sponsor(fg, fl, sub):
-    """SVRF primary + divider + 'PROUD SPONSOR OF / CORNWALL SURF ACADEMY'."""
+def wordmark(fg, accent):
+    """Flag-free 'SVRF' wordmark as used in the site header. With an accent colour it
+    gets the Flag Orange bar under the S from the iOS app icon."""
     size = 600
     cap = size * CAP
-    m, mw = mark(PAD, PAD, cap, fg, fl)
-    gap = cap * 0.28
+    x0 = PAD
+    d, adv = text_path(ARCHIVO, "SVRF", size, x0, PAD + cap, tracking=0.01)
+    body = f'<path d="{d}" fill="{fg}"/>'
+    h = PAD * 2 + cap
+    if accent:
+        # Proportions measured from ios/.../AppIcon-512@2x.png (cap 170px: gap 47, bar 215 x 24).
+        gap, bw, bh = cap * 47 / 170, cap * 215 / 170, cap * 24 / 170
+        body += f'<rect x="{x0:.2f}" y="{PAD + cap + gap:.2f}" width="{bw:.2f}" height="{bh:.2f}" fill="{accent}"/>'
+        h += gap + bh
+    return PAD * 2 + adv, h, body
+
+
+def sponsor(fg, fl, sub, flag=True):
+    """SVRF (with or without the flag) + divider + 'PROUD SPONSOR OF / CORNWALL SURF ACADEMY'."""
+    size = 600
+    cap = size * CAP
+    if flag:
+        m, mw = mark(PAD, PAD, cap, fg, fl)
+        gap = cap * 0.28
+    else:
+        m, mw, gap = "", 0, 0
     d, adv = text_path(ARCHIVO, "SVRF", size, PAD + mw + gap, PAD + cap, tracking=0.01)
     x = PAD + mw + gap + adv
     rule_x = x + cap * 0.42
@@ -136,7 +156,9 @@ files = []
 for name, fg, fl, bg in WAYS:
     sub = fl if fl != fg else fg
     for kind, fn in (("primary", lambda: primary(fg, fl)), ("stacked", lambda: stacked(fg, fl)),
-                     ("sponsor-lockup", lambda: sponsor(fg, fl, sub))):
+                     ("sponsor-lockup", lambda: sponsor(fg, fl, sub)),
+                     ("wordmark", lambda: wordmark(fg, fl if fl != fg else None)),
+                     ("sponsor-lockup-no-flag", lambda: sponsor(fg, fl, sub, flag=False))):
         w, h, body = fn()
         p = f"{OUT}/svrf-{kind}-{name}.svg"
         open(p, "w").write(svg(w, h, body))
