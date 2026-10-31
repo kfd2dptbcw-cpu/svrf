@@ -9,7 +9,9 @@
 #   META_PAGE_ID, META_PAGE_ACCESS_TOKEN               required — the SVRF Facebook Page and a long-lived Page token
 #   INSTAGRAM_USER_ID                                  optional — Instagram professional account linked to that Page
 #   SOCIAL_START_DATE                                  optional — first day to post (YYYY-MM-DD)
-#   REFRESH_HOURS_UTC                                  optional — must match the site's value
+#   FORECAST_DATA_SOURCE, XWEATHER_CLIENT_ID,
+#   REFRESH_HOURS_UTC                                  same values as the refresh workflow: they decide
+#                                                      which cached forecast is read (no API calls are made)
 # See docs/SOCIAL.md for how to get the Meta values.
 name: Daily social post
 
@@ -47,6 +49,10 @@ jobs:
       INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
       SOCIAL_START_DATE: ${{ secrets.SOCIAL_START_DATE }}
       REFRESH_HOURS_UTC: ${{ secrets.REFRESH_HOURS_UTC }}
+      # Only used to pick the same cache entry the refresh wrote (forecast-bundle-v1-<source>);
+      # the posting script never calls a data provider.
+      FORECAST_DATA_SOURCE: ${{ secrets.FORECAST_DATA_SOURCE }}
+      XWEATHER_CLIENT_ID: ${{ secrets.XWEATHER_CLIENT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
