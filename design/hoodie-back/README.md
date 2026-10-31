@@ -22,3 +22,11 @@ At the top of the `<script>` block:
 - `LINES`: the slogan options.
 
 The texture is seeded, so the same choices always export the same file.
+
+## Left chest print
+
+`chest.html` draws three 4 in (1200 px at 300 dpi) left chest prints to go with the back prints. Each comes in light ink for navy, black and coffee hoodies, and dark ink for ecru and grey marl. Open it over http like `index.html`, then right-click a print to save it. `mockups/chest-options.png` shows every option on each hoodie colour.
+
+- **keeper:** SVRF circled in orange grease pencil and marked ▸15A, like the picked frame on the back's contact strip.
+- **misprint:** a small version of the back's out-of-register SVRF over "COLD WATER DEPT.".
+- **tape:** the label-maker strip reading "SVRF / COLD WATER DEPT.".

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SVRF Chest Print</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700&display=block" rel="stylesheet">
+<style>
+  body { margin:0; background:#16191a; color:#EFEEE7; font:13px/1.4 "JetBrains Mono", monospace; padding:16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
+  figure { margin:0; padding:40px 24px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  figure canvas { width:60%; height:auto; }
+  figcaption { font-size:12px; opacity:.8; }
+</style>
+</head>
+<body>
+<p>SVRF left chest print. Each canvas is the print file at 300 dpi (1200 px = 4 in wide). Right-click a canvas and choose "Save image as" to save it.</p>
+<div class="grid" id="grid"></div>
+<script>
+// Left chest companions to the photocopied hoodie-back prints.
+//   misprint: the back's out-of-register SVRF wordmark, small, over "COLD WATER DEPT."
+//   tape:     the label-maker strip from the back slogan, reading "SVRF / COLD WATER DEPT."
+//   keeper:   SVRF circled in orange grease pencil, like the picked frame on the contact strip
+// "light" ink is for dark hoodies (navy, black, coffee); "dark" ink for ecru and grey marl.
+const INK = "#0B0D0E", PAPER = "#EFEEE7", ORANGE = "#FF4E1F";
+const W = 1200;
+
+let seed;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+const rr = (a, b) => a + (b - a) * rnd();
+
+// Small toner dropouts so the print matches the photocopied back, without clogging at chest size.
+function distress(g, w, h, n = 320) {
+  g.save(); g.globalCompositeOperation = "destination-out";
+  for (let i = 0; i < n; i++) { g.beginPath(); g.arc(rr(0, w), rr(0, h), rr(1, 2.4), 0, Math.PI * 2); g.fill(); }
+  g.restore();
+}
+
+function wordmarkSize(g, width, spacing) {
+  g.font = "100px 'Archivo Black'"; g.letterSpacing = spacing + "px";
+  const s = (100 * width) / g.measureText("SVRF").width; g.letterSpacing = "0px"; return s;
+}
+
+const VARIANTS = {
+  misprint(ink) {
+    const c = Object.assign(document.createElement("canvas"), { width: W, height: 500 }), g = c.getContext("2d");
+    const size = wordmarkSize(g, W - 40, -4), base = size * 0.74 + 20;
+    const draw = (dx, dy, col) => { g.font = `${size}px 'Archivo Black'`; g.letterSpacing = "-4px"; g.fillStyle = col; g.textAlign = "center"; g.fillText("SVRF", W / 2 + dx, base + dy); };
+    draw(12, -8, ORANGE);
+    draw(0, 0, ink);
+    g.font = "700 60px 'JetBrains Mono'"; g.letterSpacing = "17px"; g.fillStyle = ink; g.textAlign = "center";
+    g.fillText("COLD WATER DEPT.", W / 2 + 8, base + 120);
+    distress(g, W, c.height);
+    return c;
+  },
+  tape(ink) {
+    const c = Object.assign(document.createElement("canvas"), { width: W, height: 300 }), g = c.getContext("2d");
+    const tape = ink === PAPER ? PAPER : INK, type = ink === PAPER ? INK : PAPER;
+    g.translate(W / 2, 150); g.rotate(-0.02);
+    g.fillStyle = tape; g.beginPath();
+    const tw = 1150, th = 170;
+    g.moveTo(-tw / 2, -th / 2); g.lineTo(tw / 2, -th / 2);
+    for (let y = -th / 2; y <= th / 2; y += 17) g.lineTo(tw / 2 + rr(-10, 10), y); // torn end
+    g.lineTo(-tw / 2, th / 2);
+    for (let y = th / 2; y >= -th / 2; y -= 17) g.lineTo(-tw / 2 + rr(-10, 10), y);
+    g.closePath(); g.fill();
+    g.font = "700 62px 'JetBrains Mono'"; g.letterSpacing = "8px"; g.fillStyle = type; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText("SVRF / COLD WATER DEPT.", 4, 4);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    distress(g, W, c.height, 160);
+    return c;
+  },
+  keeper(ink) {
+    const c = Object.assign(document.createElement("canvas"), { width: W, height: 720 }), g = c.getContext("2d");
+    const size = wordmarkSize(g, 760, -4), cy = 380;
+    g.font = `${size}px 'Archivo Black'`; g.letterSpacing = "-4px"; g.fillStyle = ink; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText("SVRF", W / 2, cy + 10);
+    distress(g, W, c.height, 220);
+    // Grease-pencil loop, overshooting where it closes.
+    g.strokeStyle = ORANGE; g.lineWidth = 26; g.lineCap = "round"; g.lineJoin = "round"; g.letterSpacing = "0px";
+    g.beginPath();
+    for (let a = 0.35; a < Math.PI * 2 + 0.95; a += 0.05) {
+      const wob = 1 + Math.sin(a * 3 + 1) * 0.025;
+      g.lineTo(W / 2 + Math.cos(a) * 545 * wob, cy + Math.sin(a) * 255 * wob + a * 7);
+    }
+    g.stroke();
+    g.font = "700 52px 'JetBrains Mono'"; g.letterSpacing = "6px"; g.fillStyle = ORANGE; g.textAlign = "right"; g.textBaseline = "alphabetic";
+    g.fillText("▸15A", W - 40, 70);
+    return c;
+  },
+};
+
+const SWATCHES = { light: ["#1b2233", "#0e0f10", "#5a4636"], dark: ["#e9e6dc", "#8d9092"] };
+const NAMES = { "#1b2233": "navy", "#0e0f10": "black", "#5a4636": "coffee", "#e9e6dc": "ecru", "#8d9092": "grey marl" };
+
+document.fonts.load("100px 'Archivo Black'").then(() => document.fonts.load("700 60px 'JetBrains Mono'")).then(() => {
+  const grid = document.getElementById("grid");
+  for (const v of Object.keys(VARIANTS)) for (const [tone, ink] of [["light", PAPER], ["dark", INK]]) for (const bg of SWATCHES[tone]) {
+    seed = 2207;
+    const c = VARIANTS[v](ink);
+    c.dataset.name = `svrf-chest-${v}-${tone}`;
+    const f = document.createElement("figure"); f.style.background = bg;
+    const cap = document.createElement("figcaption"); cap.textContent = `${v} · ${tone} ink · on ${NAMES[bg]}`;
+    cap.style.color = tone === "light" ? PAPER : INK;
+    f.append(c, cap); grid.append(f);
+  }
+  document.body.dataset.ready = "1";
+});
+</script>
+</body>
+</html>
