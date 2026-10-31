@@ -67,7 +67,10 @@ const VARIANTS = {
     for (let y = th / 2; y >= -th / 2; y -= 17) g.lineTo(-tw / 2 + rr(-10, 10), y);
     g.closePath(); g.fill();
     g.font = "700 62px 'JetBrains Mono'"; g.letterSpacing = "8px"; g.fillStyle = type; g.textAlign = "center"; g.textBaseline = "middle";
+    // Dark tape knocks its letters out to the garment, so it prints as one ink with no white.
+    if (ink !== PAPER) g.globalCompositeOperation = "destination-out";
     g.fillText("SVRF / COLD WATER DEPT.", 4, 4);
+    g.globalCompositeOperation = "source-over";
     g.setTransform(1, 0, 0, 1, 0, 0);
     distress(g, W, c.height, 160);
     return c;
