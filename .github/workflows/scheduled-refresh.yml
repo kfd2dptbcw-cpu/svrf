@@ -59,6 +59,10 @@ jobs:
           SITE_URL: ${{ secrets.FORECAST_SITE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # Strip spaces/newlines pasted into the secrets: a stray one makes curl reject the URL
+          # and would fail the whole run (which also stops the daily social post).
+          SITE_URL="$(printf '%s' "$SITE_URL" | tr -d '[:space:]')"
+          CRON_SECRET="$(printf '%s' "$CRON_SECRET" | tr -d '[:space:]')"
           if [ -z "$SITE_URL" ]; then
             echo "FORECAST_SITE_URL secret is not set; pages will pick up the new forecast within the hour."
             exit 0
