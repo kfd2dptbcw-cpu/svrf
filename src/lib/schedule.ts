@@ -1,10 +1,11 @@
 import { env } from "@/lib/env";
 
 /**
- * Refresh schedule. The refresh job runs at fixed UTC "slots" (default once a
- * day at 06:00, actually started at 06:05 by GitHub Actions). A cached
- * forecast stays fresh until the next slot's refresh is due, plus a grace
- * period for a late-running job: with one daily slot that is 26 hours.
+ * Refresh schedule. The refresh job runs at fixed UTC "slots" (default twice a
+ * day, 06:00 and 12:00; GitHub Actions can start them late). A cached forecast
+ * stays fresh until the next slot's refresh is due, plus a grace period for a
+ * late-running job: with slots at 06:00 and 12:00 the longest gap is 18 hours,
+ * so 20 hours.
  */
 
 export function latestRefreshSlot(nowSeconds: number, hours = env.refreshHoursUtc): number {
@@ -32,7 +33,7 @@ export function longestSlotGap(hours = env.refreshHoursUtc): number {
   return Math.max(...sorted.map((hour, i) => ((sorted[(i + 1) % sorted.length]! - hour + 24) % 24 || 24) * 3600));
 }
 
-/** How long a forecast counts as fresh: the longest slot gap plus grace (26 h for one daily slot). */
+/** How long a forecast counts as fresh: the longest slot gap plus grace (20 h for 06:00 and 12:00; 26 h for one daily slot). */
 export function maxCacheAgeSeconds(hours = env.refreshHoursUtc): number {
   return longestSlotGap(hours) + FRESHNESS_GRACE_SECONDS;
 }

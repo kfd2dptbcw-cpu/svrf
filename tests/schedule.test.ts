@@ -6,11 +6,11 @@ const at = (iso: string) => Date.parse(iso) / 1000;
 const HOUR = 3600;
 
 describe("refresh schedule", () => {
-  it("defaults to one refresh a day at 06:00 UTC", () => {
+  it("defaults to two refreshes a day at 06:00 and 12:00 UTC", () => {
     const saved = process.env.REFRESH_HOURS_UTC;
     delete process.env.REFRESH_HOURS_UTC;
     try {
-      expect(env.refreshHoursUtc).toEqual([6]);
+      expect(env.refreshHoursUtc).toEqual([6, 12]);
     } finally {
       if (saved !== undefined) process.env.REFRESH_HOURS_UTC = saved;
     }

@@ -8,7 +8,7 @@ The app runs anywhere Next.js 15 runs. It needs:
 ### The refresh workflow (all hosts)
 
 1. Repository → Settings → Secrets and variables → Actions → add `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `XWEATHER_CLIENT_ID` and `XWEATHER_CLIENT_SECRET`. Add `FORECAST_DATA_SOURCE`, `FORECAST_DAYS`, `XWEATHER_INTERVAL_HOURS`, `TIDE_PROVIDER` etc. if the site sets them (they must match, or the site reads a different cache key). Optionally add `FORECAST_SITE_URL` and `CRON_SECRET` so pages regenerate right after each refresh.
-2. The workflow runs once a day and can be started manually (**Run workflow**, with an optional force flag).
+2. The workflow runs twice a day (06:00 and 12:00 UTC) and can be started manually (**Run workflow**, with an optional force flag).
 3. Loop guard: every attempt first writes `last-refresh-attempt` to Upstash, and a refresh refuses to start if the previous attempt was under 3 hours ago, whether it succeeded or not. `npm run refresh -- --force` overrides it.
 4. Every attempt's accesses (failed ones included) are recorded in Upstash; `/api/health` → `accessesLast24h` shows the total, and over `XWEATHER_DAILY_WARN` (300) a day the refresh and health check log a loud warning.
 
