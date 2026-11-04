@@ -71,12 +71,12 @@ export const env = {
   get cronSecret() {
     return process.env.CRON_SECRET?.trim() || null;
   },
-  /** UTC hours at which a fresh forecast becomes due. */
+  /** UTC hours at which a fresh forecast becomes due (keep in step with the workflow cron). */
   get refreshHoursUtc(): number[] {
-    const hours = list("REFRESH_HOURS_UTC", ["6"])
+    const hours = list("REFRESH_HOURS_UTC", ["6", "12"])
       .map(Number)
       .filter((hour) => Number.isInteger(hour) && hour >= 0 && hour < 24);
-    return hours.length > 0 ? [...new Set(hours)].sort((a, b) => a - b) : [6];
+    return hours.length > 0 ? [...new Set(hours)].sort((a, b) => a - b) : [6, 12];
   },
   get forecastDays() {
     return Math.min(Math.max(int("FORECAST_DAYS", 7), 1), 10);

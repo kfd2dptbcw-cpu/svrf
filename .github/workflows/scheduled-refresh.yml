@@ -1,4 +1,4 @@
-# Daily forecast refresh (07:00 UTC). This is the ONLY place the data providers are
+# Forecast refresh, twice a day (06:00 and 12:00 UTC). This is the ONLY place the data providers are
 # called: `npm run refresh` fetches every spot and writes the result to Upstash,
 # which the site reads. GitHub Actions has no 10-second function limit, and the
 # refresh refuses to start within 3 hours of the previous attempt (use the
@@ -16,7 +16,7 @@ name: Scheduled forecast refresh
 
 on:
   schedule:
-    - cron: "0 7 * * *"
+    - cron: "0 6,12 * * *"
   workflow_dispatch:
     inputs:
       force:
