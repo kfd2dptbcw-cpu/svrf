@@ -1,5 +1,5 @@
 /**
- * Post today's "best surf" card to the SVRF Facebook Page and Instagram.
+ * Post today's "best surf" card to the SVRF Facebook Page, Instagram and TikTok.
  *
  *   npm run social:post               # post (once per day per platform)
  *   npm run social:post -- --dry-run  # print the captions and image URL, post nothing
@@ -7,7 +7,7 @@
  *
  * Run by .github/workflows/social-post.yml straight after the daily forecast
  * refresh. Reads the shared forecast cache only; never calls a data provider.
- * Skips (exit 0) when Meta isn't configured, before the start date, when the
+ * Skips (exit 0) when no platform is configured, before the start date, when the
  * forecast isn't fresh, or when today's post already went out. Exits 1 if a
  * post failed.
  */
@@ -30,6 +30,7 @@ const { nowSeconds, ukDateKey } = await import("../src/lib/time");
 const { sanitizeEnvValue } = await import("../src/lib/env");
 const social = await import("../src/lib/social/daily-post");
 const meta = await import("../src/lib/social/meta");
+const tiktok = await import("../src/lib/social/tiktok");
 
 const notice = (title: string, message: string) => {
   console.log(`${title}: ${message}`);
@@ -79,25 +80,45 @@ const imageUrl = `${siteUrl}${social.socialCardPath(dateKey)}&v=${stored.bundle.
 const captions = {
   facebook: social.buildCaption(featured, dateKey, siteUrl, "facebook"),
   instagram: social.buildCaption(featured, dateKey, siteUrl, "instagram"),
+  tiktok: social.buildCaption(featured, dateKey, siteUrl, "tiktok"),
 };
 
 if (dryRun) {
-  console.log(`Image: ${imageUrl}\n\n── Facebook ──\n${captions.facebook}\n\n── Instagram ──\n${captions.instagram}`);
+  console.log(
+    `Image: ${imageUrl}\n\n── Facebook ──\n${captions.facebook}\n\n── Instagram ──\n${captions.instagram}\n\n── TikTok ──\n${captions.tiktok}`,
+  );
   process.exit(0);
 }
 
 const pageId = envValue("META_PAGE_ID");
 const pageAccessToken = envValue("META_PAGE_ACCESS_TOKEN");
-if (!pageId || !pageAccessToken) {
-  notice("Social post skipped", "META_PAGE_ID / META_PAGE_ACCESS_TOKEN are not set");
+const metaConfig = pageId && pageAccessToken
+  ? {
+      pageId,
+      pageAccessToken,
+      instagramUserId: envValue("INSTAGRAM_USER_ID"),
+      graphVersion: envValue("META_GRAPH_VERSION") ?? "v23.0",
+    }
+  : null;
+
+const tiktokClientKey = envValue("TIKTOK_CLIENT_KEY");
+const tiktokClientSecret = envValue("TIKTOK_CLIENT_SECRET");
+const tiktokRefreshToken = envValue("TIKTOK_REFRESH_TOKEN");
+const tiktokConfig =
+  tiktokClientKey && tiktokClientSecret && tiktokRefreshToken
+    ? {
+        clientKey: tiktokClientKey,
+        clientSecret: tiktokClientSecret,
+        refreshToken: tiktokRefreshToken,
+        // Private until TikTok approves the app; set TIKTOK_PRIVACY_LEVEL=PUBLIC_TO_EVERYONE afterwards.
+        privacyLevel: tiktok.parsePrivacyLevel(envValue("TIKTOK_PRIVACY_LEVEL")),
+      }
+    : null;
+
+if (!metaConfig && !tiktokConfig) {
+  notice("Social post skipped", "neither META_PAGE_ID / META_PAGE_ACCESS_TOKEN nor the TIKTOK_* secrets are set");
   process.exit(0);
 }
-const config = {
-  pageId,
-  pageAccessToken,
-  instagramUserId: envValue("INSTAGRAM_USER_ID"),
-  graphVersion: envValue("META_GRAPH_VERSION") ?? "v23.0",
-};
 
 // Make sure the card renders before handing Meta the URL (also warms the CDN).
 const check = await fetch(imageUrl, { signal: AbortSignal.timeout(60_000) });
@@ -113,17 +134,39 @@ if (!(await store.acquireLock(lockKey, 600))) {
   process.exit(0);
 }
 const stateKey = `social-post:${dateKey}`;
-const state = JSON.parse((await store.get(stateKey)) ?? "{}") as Partial<Record<"facebook" | "instagram", string>>;
+const state = JSON.parse((await store.get(stateKey)) ?? "{}") as Partial<Record<"facebook" | "instagram" | "tiktok", string>>;
 
 let failed = false;
 const platforms = [
-  { name: "facebook" as const, enabled: true, post: () => meta.postFacebookPhoto(config, imageUrl, captions.facebook) },
-  { name: "instagram" as const, enabled: Boolean(config.instagramUserId), post: () => meta.postInstagramImage(config, imageUrl, captions.instagram) },
+  {
+    name: "facebook" as const,
+    enabled: Boolean(metaConfig),
+    why: "META_PAGE_ID / META_PAGE_ACCESS_TOKEN are not set",
+    post: () => meta.postFacebookPhoto(metaConfig!, imageUrl, captions.facebook),
+  },
+  {
+    name: "instagram" as const,
+    enabled: Boolean(metaConfig?.instagramUserId),
+    why: "INSTAGRAM_USER_ID is not set",
+    post: () => meta.postInstagramImage(metaConfig!, imageUrl, captions.instagram),
+  },
+  {
+    name: "tiktok" as const,
+    enabled: Boolean(tiktokConfig),
+    why: "TIKTOK_CLIENT_KEY / TIKTOK_CLIENT_SECRET / TIKTOK_REFRESH_TOKEN are not set",
+    post: async () => {
+      const accessToken = await tiktok.getAccessToken(tiktokConfig!, store);
+      const publishId = await tiktok.postTikTokPhoto(tiktokConfig!, accessToken, imageUrl, captions.tiktok);
+      const status = await tiktok.waitForPublish(accessToken, publishId);
+      console.log(`tiktok: ${status} (${tiktokConfig!.privacyLevel})`);
+      return publishId;
+    },
+  },
 ];
 try {
   for (const platform of platforms) {
     if (!platform.enabled) {
-      notice(`${platform.name} skipped`, "INSTAGRAM_USER_ID is not set");
+      notice(`${platform.name} skipped`, platform.why);
       continue;
     }
     if (state[platform.name] && !force) {
