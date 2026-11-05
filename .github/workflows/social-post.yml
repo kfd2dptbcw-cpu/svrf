@@ -8,6 +8,10 @@
 #   FORECAST_SITE_URL                                  required — public https:// address Meta downloads the card from
 #   META_PAGE_ID, META_PAGE_ACCESS_TOKEN               required — the SVRF Facebook Page and a long-lived Page token
 #   INSTAGRAM_USER_ID                                  optional — Instagram professional account linked to that Page
+#   TIKTOK_CLIENT_KEY, TIKTOK_CLIENT_SECRET,
+#   TIKTOK_REFRESH_TOKEN                               optional — post the card to TikTok too (see docs/SOCIAL.md)
+#   TIKTOK_PRIVACY_LEVEL                               optional — SELF_ONLY (default, required until TikTok approves the
+#                                                      app) or PUBLIC_TO_EVERYONE
 #   SOCIAL_START_DATE                                  optional — first day to post (YYYY-MM-DD)
 #   FORECAST_DATA_SOURCE, XWEATHER_CLIENT_ID,
 #   REFRESH_HOURS_UTC                                  same values as the refresh workflow: they decide
@@ -47,6 +51,10 @@ jobs:
       META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
       META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
       INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+      TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+      TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+      TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+      TIKTOK_PRIVACY_LEVEL: ${{ secrets.TIKTOK_PRIVACY_LEVEL }}
       SOCIAL_START_DATE: ${{ secrets.SOCIAL_START_DATE }}
       REFRESH_HOURS_UTC: ${{ secrets.REFRESH_HOURS_UTC }}
       # Only used to pick the same cache entry the refresh wrote (forecast-bundle-v1-<source>);

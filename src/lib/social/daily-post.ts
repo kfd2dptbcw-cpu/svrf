@@ -57,11 +57,11 @@ export function conditionsLine(day: DayForecast): string {
   return [formatSurfRange(day.surfMinFt, day.surfMaxFt), conditionsDetail(day)].filter(Boolean).join(" · ");
 }
 
-export type SocialPlatform = "facebook" | "instagram";
+export type SocialPlatform = "facebook" | "instagram" | "tiktok";
 
 /**
  * Caption for the daily post. Facebook gets a clickable, tagged link;
- * Instagram captions can't hold links, so it points to the link in bio.
+ * Instagram and TikTok captions can't hold links, so they point to the link in bio.
  */
 export function buildCaption(featured: readonly FeaturedSpot[], dateKey: string, siteUrl: string, platform: SocialPlatform): string {
   const heading = `🌊 Best surf in the UK · ${formatFullDate(dateKey)}`;
@@ -75,7 +75,7 @@ export function buildCaption(featured: readonly FeaturedSpot[], dateKey: string,
       : "Full forecast for all UK spots: link in bio 🔗";
   const question = "Where are you paddling out today? 👇";
   const tags =
-    platform === "instagram" ? "\n\n#surf #ukSurf #surfforecast #cornwallsurf #surfing #coldwatersurf #dawnpatrol" : "";
+    platform !== "facebook" ? "\n\n#surf #ukSurf #surfforecast #cornwallsurf #surfing #coldwatersurf #dawnpatrol" : "";
   return [heading, lines.join("\n"), question, link].join("\n\n") + tags;
 }
 

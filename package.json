@@ -20,6 +20,7 @@
     "provider:check": "tsx scripts/check-provider.mts",
     "refresh": "tsx scripts/refresh.mts",
     "social:post": "tsx scripts/post-social.mts",
+    "tiktok:auth": "tsx scripts/tiktok-auth.mts",
     "tides:assign": "tsx scripts/assign-tide-stations.mts"
   },
   "dependencies": {
