@@ -78,6 +78,12 @@ try {
 if (!code) fail("No code found in what you pasted. Paste the whole address, including ?code=...");
 rl.close();
 
+// Safe diagnostics: the key is not a secret; for the secret only its length and shape are shown.
+console.log(
+  `\nSending Client key "${clientKey}" (${clientKey.length} characters) and a Client secret of ${clientSecret.length} characters` +
+    `${/\s/.test(clientSecret) ? " that CONTAINS WHITESPACE" : ""}${/[%&=]/.test(clientSecret) ? " that contains % & or = (looks like a code or URL, not a secret)" : ""}.`,
+);
+
 const tokenRequest = (init: RequestInit) =>
   fetch("https://open.tiktokapis.com/v2/oauth/token/", init).catch((error: unknown) =>
     fail(`Could not reach TikTok (${error instanceof Error ? error.message : String(error)}). Check your internet connection and try again.`),
