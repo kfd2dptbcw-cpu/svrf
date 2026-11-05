@@ -51,6 +51,12 @@ const fail = (message: string): never => {
 
 const clientKey = process.env.TIKTOK_CLIENT_KEY?.trim() || (await ask("Client key (from the TikTok developer portal): "));
 if (!clientKey) fail("A Client key is required.");
+const clientSecret = process.env.TIKTOK_CLIENT_SECRET?.trim() || (await ask("Client secret (from the same portal page; hidden as you paste): ", { hidden: true }));
+if (!clientSecret) fail("A Client secret is required.");
+if (/[:/?&=%\s]/.test(clientSecret) || clientSecret.length > 100) {
+  fail("That doesn't look like a Client secret (it has spaces, slashes, % & = or is very long: it looks like an address or code). Copy the Client secret from the developer portal, next to the Client key, and run this again.");
+}
+
 const redirectUri = process.env.TIKTOK_REDIRECT_URI?.trim() || DEFAULT_REDIRECT;
 
 const url = new URL("https://www.tiktok.com/v2/auth/authorize/");
@@ -61,10 +67,8 @@ url.searchParams.set("redirect_uri", redirectUri);
 url.searchParams.set("state", "svrf");
 console.log(`\n1. Log in to TikTok as the SVRF account, then open this link in a browser:\n\n${url}\n`);
 console.log(`2. Approve. The browser goes to ${redirectUri}?code=... (a 404 page there is fine).`);
-console.log("3. Copy the WHOLE address from the browser's address bar.\n");
+console.log("3. Copy the WHOLE address from the browser's address bar, come back here and paste it below.\n");
 
-const clientSecret = process.env.TIKTOK_CLIENT_SECRET?.trim() || (await ask("Client secret (hidden as you paste): ", { hidden: true }));
-if (!clientSecret) fail("A Client secret is required.");
 
 const pasted = await ask("Paste the full address you were sent to: ");
 let code = pasted;
