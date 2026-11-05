@@ -33,14 +33,20 @@ const lines = rl[Symbol.asyncIterator]();
 async function ask(question: string, { hidden = false } = {}): Promise<string> {
   process.stdout.write(question);
   muted = hidden;
-  const next = await lines.next();
+  // Blank lines (a stray Return while you were in the browser) are skipped, not taken as the answer.
+  let answer = "";
+  while (!answer) {
+    const next = await lines.next();
+    if (next.done) {
+      muted = false;
+      console.error("\n✖ Input ended before every question was answered.");
+      process.exit(1);
+    }
+    answer = String(next.value).trim();
+  }
   muted = false;
   if (hidden) process.stdout.write("\n");
-  if (next.done) {
-    console.error("\n✖ Input ended before every question was answered.");
-    process.exit(1);
-  }
-  return String(next.value).trim();
+  return answer;
 }
 
 const fail = (message: string): never => {
