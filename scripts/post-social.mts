@@ -9,7 +9,7 @@
  * refresh. Reads the shared forecast cache only; never calls a data provider.
  * Skips (exit 0) when no platform is configured, before the start date, when the
  * forecast isn't fresh, or when today's post already went out. Exits 1 if a
- * post failed.
+ * Facebook or Instagram post failed (a TikTok failure is only a warning).
  */
 for (const file of [".env.local", ".env"]) {
   try {
@@ -178,8 +178,16 @@ try {
       await store.set(stateKey, JSON.stringify(state));
       console.log(`✔ ${platform.name}: posted ${state[platform.name]}`);
     } catch (error) {
-      failed = true;
-      console.error(`✖ ${platform.name}: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      if (platform.name === "tiktok") {
+        // TikTok is optional and still parked behind its app audit: a failure is a warning, not a failed run,
+        // so Facebook and Instagram stay green in Actions.
+        console.error(`⚠ tiktok: ${message}`);
+        if (process.env.GITHUB_ACTIONS) console.log(`::warning title=TikTok post failed::${message}`);
+      } else {
+        failed = true;
+        console.error(`✖ ${platform.name}: ${message}`);
+      }
     }
   }
 } finally {

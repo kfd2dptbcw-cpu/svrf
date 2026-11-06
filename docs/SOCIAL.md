@@ -35,7 +35,9 @@ The workflow must be on the default branch (`main`), because GitHub only runs sc
 
 ## TikTok (optional)
 
-TikTok posts the same card as a photo post through the Content Posting API (Direct Post). It is skipped unless the three TikTok secrets are set, has its own "already posted today" record, and a TikTok failure never stops Facebook or Instagram.
+TikTok posts the same card as a photo post through the Content Posting API (Direct Post). It is skipped unless the three TikTok secrets are set, has its own "already posted today" record, and a TikTok failure is only a warning in the Actions log (the run stays green) and never stops Facebook or Instagram.
+
+**Status (5 Nov 2026): parked.** The sandbox app, authorisation and token refresh all work, but TikTok refuses Direct Post from an unaudited app unless the TikTok *account* is private (`unaudited_client_can_only_post_to_private_accounts`), and TikTok's audit rules for Direct Post expect a screen where a person previews, picks privacy and consents before each post, which this unattended job doesn't have. Options when picking it up again: test with a private throwaway account added as a sandbox target user; or switch to the Upload (draft-to-inbox) mode, which may not need the audit (unconfirmed).
 
 **Until TikTok approves the app, every post is private ("only me")** (`TIKTOK_PRIVACY_LEVEL` defaults to `SELF_ONLY`). After approval, add the secret `TIKTOK_PRIVACY_LEVEL` = `PUBLIC_TO_EVERYONE`.
 
