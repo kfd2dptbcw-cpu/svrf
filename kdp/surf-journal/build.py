@@ -83,7 +83,8 @@ def styles():
         "small": ParagraphStyle("small", parent=body, fontSize=8, leading=11.2, textColor=SLATE),
         "lead": ParagraphStyle("lead", parent=body, fontName="Sans-Md", fontSize=10.5, leading=15, spaceAfter=10),
         "h3": ParagraphStyle("h3", parent=body, fontName="Sans-Bd", fontSize=9.6, leading=13, spaceBefore=4, spaceAfter=3),
-        "bullet": ParagraphStyle("bullet", parent=body, leftIndent=11, bulletIndent=0, spaceAfter=3.5),
+        "bullet": ParagraphStyle("bullet", parent=body, leftIndent=11, bulletIndent=0, spaceAfter=3.5,
+                                 bulletFontName="Sans", bulletFontSize=9.2),
         "center": ParagraphStyle("center", parent=body, alignment=TA_CENTER),
         "cell": ParagraphStyle("cell", parent=body, fontSize=8.2, leading=10.6, spaceAfter=0),
         "cellb": ParagraphStyle("cellb", parent=body, fontName="Sans-SB", fontSize=8.2, leading=10.6, spaceAfter=0),
@@ -1659,6 +1660,28 @@ def strip_unused_base14(path):
     return removed
 
 
+def distill(path, gray=False):
+    """Re-distill through Ghostscript into a clean prepress PDF 1.4: fonts re-embedded with unique subset
+    tags, no unused resources, and (for the B&W interior) everything converted to DeviceGray.
+    KDP's processor is much happier with this than with raw ReportLab output."""
+    import shutil
+    import subprocess
+    gs = shutil.which("gs")
+    if not gs:
+        print("WARNING: Ghostscript (gs) not found; skipping the prepress step. Install it before uploading.")
+        return
+    tmp = path + ".tmp.pdf"
+    cmd = [gs, "-q", "-dNOPAUSE", "-dBATCH", "-dSAFER", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.4",
+           "-dPDFSETTINGS=/prepress", "-dEmbedAllFonts=true", "-dSubsetFonts=true", "-dAutoRotatePages=/None",
+           "-dDownsampleColorImages=false", "-dDownsampleGrayImages=false", "-dAutoFilterColorImages=false",
+           "-dColorImageFilter=/FlateEncode", "-dDetectDuplicateImages=true"]
+    if gray:
+        cmd += ["-sColorConversionStrategy=Gray", "-dProcessColorModel=/DeviceGray"]
+    cmd += [f"-sOutputFile={tmp}", path]
+    subprocess.run(cmd, check=True)
+    os.replace(tmp, path)
+
+
 def main():
     global ST
     reg_fonts()
@@ -1667,10 +1690,12 @@ def main():
     interior = os.path.join(OUT, "svrf-surf-log-interior.pdf")
     pages = build_interior(interior)
     strip_unused_base14(interior)
+    distill(interior, gray=True)
     build_cover.thumbs = page_thumbs(interior, [(SESSION_PAGE, "Session page"), (SPOT_PAGE, "Spot file")])
     cover_pdf = os.path.join(OUT, "svrf-surf-log-cover.pdf")
     W, H, spine = build_cover(cover_pdf, pages)
     strip_unused_base14(cover_pdf)
+    distill(cover_pdf)
     front_x0 = BLEED + TRIM_W + spine
     size = rasterize(cover_pdf, os.path.join(OUT, "svrf-surf-log-cover.png"),
                      os.path.join(OUT, "svrf-surf-log-front.jpg"),
