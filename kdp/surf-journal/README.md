@@ -29,6 +29,7 @@ KDP's paperback cover upload takes a **PDF**, so upload `svrf-surf-log-cover.pdf
 **Title:** SVRF Surf Log
 **Subtitle:** A Session Journal for Reading the Sea
 **Author / contributor:** SVRF
+**Publisher / imprint (with the free KDP ISBN):** SVRF. The copyright page reads "Copyright © 2026 SVRF, a trading name of LYCreative Ltd".
 **Series:** leave blank. Add "SVRF Surf Log" later if you publish volume 2 or a colour edition.
 
 **Description** (paste into KDP's rich-text box):
