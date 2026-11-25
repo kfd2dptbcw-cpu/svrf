@@ -6,6 +6,7 @@ import { RatingBadge } from "@/components/forecast/RatingBadge";
 import { SpotCard } from "@/components/forecast/SpotCard";
 import { MapSection } from "@/components/map/MapSection";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { SurfLogPromo } from "@/components/surf-log/SurfLogPromo";
 import { Container, Section } from "@/components/ui/PageHeader";
 import { getActiveRegions, getSpotsInRegion, spots } from "@/lib/config";
 import { env } from "@/lib/env";
@@ -117,6 +118,8 @@ export default async function HomePage() {
             })}
           </ul>
         </Section>
+
+        <SurfLogPromo />
       </Container>
     </>
   );

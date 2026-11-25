@@ -4,6 +4,7 @@ import { activeCredits } from "@/lib/attribution";
 import { NativeOnly } from "@/components/alerts/NativeOnly";
 import { DataAttribution } from "./DataAttribution";
 import { env } from "@/lib/env";
+import { SURF_LOG } from "@/lib/surf-log";
 
 export function SiteFooter() {
   const regions = getActiveRegions();
@@ -54,6 +55,11 @@ export function SiteFooter() {
           <p className="mt-3">
             <Link href="/about" className="font-medium text-flag-deep hover:underline dark:text-flag">
               How our forecasts work →
+            </Link>
+          </p>
+          <p className="mt-2">
+            <Link href={SURF_LOG.path} className="font-medium text-flag-deep hover:underline dark:text-flag">
+              The SVRF Surf Log (paperback) →
             </Link>
           </p>
           <NativeOnly>
