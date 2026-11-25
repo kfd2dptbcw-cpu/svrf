@@ -207,11 +207,46 @@ def aplus_banner():
     return finish(c, path, scale=2.0)
 
 
+# ---- A+ module extras ------------------------------------------------------------------
+
+def aplus_squares():
+    """Three 600 x 600 close-ups for 'Standard Three Images & Text' (min 300 x 300)."""
+    from PIL import Image
+    crops = [  # (page, name, crop box as fractions of the trimmed page: left, top, right, bottom)
+        (SESSION_PAGE, "06-aplus-square-session", (0.06, 0.04, 0.94, 0.62)),
+        (SPOT_PAGE, "07-aplus-square-spot", (0.06, 0.04, 0.94, 0.462)),
+        (GUIDE_PAGE, "08-aplus-square-guide", (0.06, 0.04, 0.94, 0.555)),
+    ]
+    files = []
+    for n, name, (l, t, r, b) in crops:
+        im = page_image(n, scale=4)
+        w, h = im.size
+        box = (int(l * w), int(t * h), int(r * w), int(b * h))
+        part = im.crop(box)
+        side = 600
+        canvas_ = Image.new("RGB", (side, side), (0xEF, 0xEE, 0xE7))
+        part.thumbnail((side - 48, side - 48), Image.LANCZOS)
+        canvas_.paste(part, ((side - part.width) // 2, (side - part.height) // 2))
+        path = os.path.join(OUT, name + ".png")
+        canvas_.save(path)
+        files.append(path)
+    return files
+
+
+def aplus_logo():
+    """600 x 180 for 'Standard Company Logo'."""
+    W, H = 600, 180
+    c, path = new("09-aplus-logo", W, H)
+    B.text(c, W / 2, 62, "SVRF", "Display", 92, B.CHALK, "center")
+    return finish(c, path, scale=1.0)
+
+
 def main():
     B.reg_fonts()
     B.ST = B.styles()
     os.makedirs(OUT, exist_ok=True)
-    for f in [launch_square(), launch_story(), *carousel(), look_inside(), aplus_banner()]:
+    for f in [launch_square(), launch_story(), *carousel(), look_inside(), aplus_banner(), *aplus_squares(),
+              aplus_logo()]:
         print(os.path.relpath(f, HERE))
 
 

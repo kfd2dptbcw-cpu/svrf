@@ -75,13 +75,24 @@ kindle · ebook · free · audiobook · surf the web · internet · bodyboard ·
 
 ## 3. A+ content (KDP → Marketing → A+ Content)
 
-| Module | Image | Text |
-|---|---|---|
-| Standard image header (970 × 300) | `marketing/05-aplus-banner.png` | **Forecast first. Reality after.** Write the forecast before you paddle out, log what you actually got, and give it a verdict. A season later you'll know your spots better than any app. |
-| Standard image (970 × 600) | `marketing/04-aplus-look-inside.png` | **Built for the car park.** A tide curve to mark, a compass to draw swell and wind, and five circles to colour in. Logging a session takes about a minute. |
-| Standard text | none | **What's inside:** 120 session pages · 12 monthly reviews · forecast scorecard · 8 spot files · 6 quiver pages · 7-page field guide for UK cold-water surfers · progression ladder · trip planners |
+Add the modules in this order:
 
----
+**1. Standard Image Header With Text**: image `marketing/04-aplus-look-inside.png` (970 × 600)
+- Headline: **Forecast first. Reality after.**
+- Body: Write the forecast before you paddle out, log what you actually got, and give it a verdict. A tide curve to mark, a compass to draw swell and wind, and five circles to colour in: logging a session takes about a minute in the car park. A season later you'll know your spots, your boards and your forecasts better than any app.
+
+**2. Standard Three Images & Text**
+- Image 1 `marketing/06-aplus-square-session.png` · **120 session pages** · Forecast vs reality, tide, swell and wind compass, kit, crowd and stoke.
+- Image 2 `marketing/07-aplus-square-spot.png` · **8 spot files** · Map each break's recipe: swell window, offshore wind, best tide.
+- Image 3 `marketing/08-aplus-square-guide.png` · **7-page field guide** · Swell period, wind, tide, wetsuits, etiquette and safety for UK cold-water surfers.
+
+**3. Standard Text**
+- Headline: **What's inside**
+- Body: 120 session pages · 12 monthly reviews · Forecast scorecard and season hit rate · 8 spot files · 6 quiver pages with ding log · Wetsuit log and car-kit checklist · Progression ladder from first pop-up to first barrel · Session index, ten best waves, 3 trip planners · 6 x 9 in, matte cover.
+
+**Optional: Standard Company Logo**: `marketing/09-aplus-logo.png` (600 × 180)
+
+`05-aplus-banner.png` (970 × 300) fits *Standard Image & Dark Text Overlay* if you want a banner too, but leave its overlay text empty because the image already contains text.
 
 ## 4. Social posts
 
