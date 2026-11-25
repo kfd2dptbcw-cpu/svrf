@@ -49,7 +49,12 @@ learn to surf book · how to surf book · surfing for beginners · surf lessons 
 
 ### Campaign C: Product targeting
 - **Your How to Surf paperback:** place the Surf Log on its product page. "Next step after you can stand up" is the natural pairing.
-- **Competitor surf journals and log books:** search Amazon.co.uk for *surf journal* and *surf log book*, and add the ASINs of the top 10–15 results. The Stormrider Surf Journal is a good one to include.
+- **Competitor surf journals and log books** (from the Amazon.co.uk results for *surf journal*):
+  - `B0F3JGL24L`
+  - `B0GTRC9ZW9`
+  - `__________`: the ASIN of a paperback with an ISBN is its **ISBN-10** (see *Product details*, or the 10 characters after `/dp/` in the page address)
+  - `__________`: as above
+  - Add more as you find them, up to 10–15. The Stormrider Surf Journal is a good one to include.
 - **Category:** *Surfing* (Sports & Outdoors › Water Sports › Surfing), refined to paperback and £5–£20.
 - Bid: **£0.25–£0.35**
 
