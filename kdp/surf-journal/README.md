@@ -70,7 +70,7 @@ KDP's paperback cover upload takes a **PDF**, so upload `svrf-surf-log-cover.pdf
 
 Print cost at 192 pages, B&W, 6 x 9 is about **$3.30 / £2.80**. Check KDP's live calculator, because rates change.
 
-- Suggested list price: **£10.99 / $12.99 / €12.99**, which gives a royalty of about £3.80 / $4.50 per copy at 60%.
+- List price: **£9.99** (kept under £10), which gives a royalty of about **£3.20 per copy** on Amazon.co.uk (60% of £9.99 = £5.99, minus about £2.80 print cost). Matching prices elsewhere: about **$11.99 / €11.99**.
 - Most generic surf log books sell for $6.99–$9.99. This book is positioned above them on content, but well below the Stormrider Surf Journal ($19.95).
 
 Before you go live, order a **printed proof** (Paperback → Request printed proofs).
