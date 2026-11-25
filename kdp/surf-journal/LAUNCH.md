@@ -52,9 +52,9 @@ learn to surf book · how to surf book · surfing for beginners · surf lessons 
 - **Competitor surf journals and log books** (from the Amazon.co.uk results for *surf journal*):
   - `B0F3JGL24L`
   - `B0GTRC9ZW9`
-  - `__________`: the ASIN of a paperback with an ISBN is its **ISBN-10** (see *Product details*, or the 10 characters after `/dp/` in the page address)
-  - `__________`: as above
-  - Add more as you find them, up to 10–15. The Stormrider Surf Journal is a good one to include.
+  - `1835236383` (ISBN-10)
+  - `1908520396`: The Stormrider Surf Journal (ISBN-10)
+  - Add more as you find them, up to 10–15. For a paperback with an ISBN, the ASIN is its **ISBN-10**.
 - **Category:** *Surfing* (Sports & Outdoors › Water Sports › Surfing), refined to paperback and £5–£20.
 - Bid: **£0.25–£0.35**
 
