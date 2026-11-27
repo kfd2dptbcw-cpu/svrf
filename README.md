@@ -300,7 +300,7 @@ New data sources only need to implement `MarineProvider`, `WeatherProvider` or `
 
 - **[Vaisala Xweather](https://www.xweather.com/)** (default). The free developer tier gives 15,000 accesses a month. Use is governed by Vaisala's subscription terms, so confirm they cover your site. Xweather requires a "Powered by Vaisala Xweather" link wherever its data is shown; the footer and embed widgets include it automatically. Above the free tier, pay-as-you-go billing is offered in the US and Canada; elsewhere contact Xweather.
 - **[Open-Meteo](https://open-meteo.com/)** (alternative or backup). Free for non-commercial use under [CC BY 4.0](https://open-meteo.com/en/licence); commercial use needs an [Open-Meteo plan](https://open-meteo.com/en/pricing) or a self-hosted instance (point `OPEN_METEO_MARINE_URL` / `OPEN_METEO_WEATHER_URL` at it).
-- **[ADMIRALTY UK Tidal API](https://admiraltyapi.portal.azure-api.net/)** (optional). Its free Discovery tier gives official UKHO predictions.
+- **[ADMIRALTY UK Tidal API](https://admiraltyapi.developer.azure-api.net/)** (optional). Its free Discovery tier gives official UKHO predictions.
 - **[OpenStreetMap](https://www.openstreetmap.org/copyright)** map tiles. Respect the [tile usage policy](https://operations.osmfoundation.org/policies/tiles/), or configure a commercial tile provider for high traffic.
 
 Forecasts are a guide only. Tide data is modelled and **not for navigation**.

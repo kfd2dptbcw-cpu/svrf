@@ -7,7 +7,7 @@ import type { ForecastPoint, MarineSeries, ProviderContext, TideProvider, TideSe
 
 /**
  * UK Hydrographic Office ADMIRALTY UK Tidal API (Discovery tier — free,
- * requires a subscription key from https://admiraltyapi.portal.azure-api.net).
+ * requires a subscription key from https://admiraltyapi.developer.azure-api.net).
  *
  * Returns official high/low water predictions for a tidal station. Spots opt
  * in by setting `tideStationId` in config/spots.json; spots without a station

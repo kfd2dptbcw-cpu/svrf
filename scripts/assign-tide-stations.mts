@@ -33,7 +33,7 @@ const stationsFile = path.join(root, "config", "tide-stations.json");
 if (args.has("--api")) {
   const key = process.env.ADMIRALTY_API_KEY?.trim();
   if (!key) {
-    console.error("✖ --api needs ADMIRALTY_API_KEY (free Discovery key: https://admiraltyapi.portal.azure-api.net/).");
+    console.error("✖ --api needs ADMIRALTY_API_KEY (free Discovery key: https://admiraltyapi.developer.azure-api.net/).");
     process.exit(1);
   }
   const response = await fetch("https://admiraltyapi.azure-api.net/uktidalapi/api/V1/Stations", {
